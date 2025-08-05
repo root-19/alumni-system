@@ -13,6 +13,7 @@
 
    --color-green-start: #32cd32; /* limegreen */
     --color-green-end: #006400;   /* darkgreen */
+    --color-white: #ffffff;
 
     --color-accent: var(--color-neutral-800);
     --color-accent-content: var(--color-neutral-800);

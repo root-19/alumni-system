@@ -79,7 +79,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
 
-    <form wire:submit="login" class="flex flex-col gap-6">
+  <form wire:submit="login" class="w-full max-w-md mx-auto bg-black text-white p-8 rounded-xl shadow-lg flex flex-col gap-6">
         <!-- Email Address -->
         <flux:input
             wire:model="email"
@@ -114,14 +114,14 @@ new #[Layout('components.layouts.auth')] class extends Component {
         <flux:checkbox wire:model="remember" :label="__('Remember me')" />
 
         <div class="flex items-center justify-end">
-            <flux:button variant="primary" type="submit" class="w-full">{{ __('Log in') }}</flux:button>
+            <flux:button  type="submit" class="w-full bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 ">{{ __('Log in') }}</flux:button>
         </div>
     </form>
 
     @if (Route::has('register'))
-        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
+        <div class="space-x-1 rtl:space-x-reverse text-center text-green text-sm text-green-600 ">
             <span>{{ __('Don\'t have an account?') }}</span>
-            <flux:link :href="route('register')" wire:navigate>{{ __('Sign up') }}</flux:link>
+            <flux:link :href="route('register')" class="text-green-600 font-bold"  wire:navigate>{{ __('Sign up') }}</flux:link>
         </div>
     @endif
 </div>
