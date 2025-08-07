@@ -76,35 +76,45 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
     <form wire:submit="resetPassword" class="flex flex-col gap-6">
         <!-- Email Address -->
-        <flux:input
-            wire:model="email"
-            :label="__('Email')"
-            type="email"
-            required
-            autocomplete="email"
-        />
+        <div>
+            <label for="email" class="block text-sm font-medium text-black">{{ __('Email') }}</label>
+            <input
+                wire:model="email"
+                id="email"
+                type="email"
+                required
+                autocomplete="email"
+                class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-black placeholder-gray-400"
+            />
+        </div>
 
         <!-- Password -->
-        <flux:input
-            wire:model="password"
-            :label="__('Password')"
-            type="password"
-            required
-            autocomplete="new-password"
-            :placeholder="__('Password')"
-            viewable
-        />
+        <div class="relative">
+            <label for="password" class="block text-sm font-medium text-black">{{ __('Password') }}</label>
+            <input
+                wire:model="password"
+                id="password"
+                type="password"
+                required
+                autocomplete="new-password"
+                placeholder="{{ __('Password') }}"
+                class="mt-1 block w-full border-green-500 focus:border-green-700 focus:ring-green-700 text-black rounded-md shadow-sm"
+            />
+        </div>
 
         <!-- Confirm Password -->
-        <flux:input
-            wire:model="password_confirmation"
-            :label="__('Confirm password')"
-            type="password"
-            required
-            autocomplete="new-password"
-            :placeholder="__('Confirm password')"
-            viewable
-        />
+        <div class="relative">
+            <label for="password_confirmation" class="block text-sm font-medium text-black">{{ __('Confirm password') }}</label>
+            <input
+                wire:model="password_confirmation"
+                id="password_confirmation"
+                type="password"
+                required
+                autocomplete="new-password"
+                placeholder="{{ __('Confirm password') }}"
+                class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-black placeholder-gray-400"
+            />
+        </div>
 
         <div class="flex items-center justify-end">
             <flux:button type="submit" variant="primary" class="w-full">

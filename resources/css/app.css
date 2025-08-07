@@ -14,9 +14,10 @@
    --color-green-start: #32cd32; /* limegreen */
     --color-green-end: #006400;   /* darkgreen */
     --color-white: #ffffff;
+    --color-black: #000000;
 
-    --color-accent: var(--color-neutral-800);
-    --color-accent-content: var(--color-neutral-800);
+    --color-accent: var(--color-black);
+    --color-accent-content: var(--color-black);
     --color-accent-foreground: var(--color-white);
 }
 
@@ -24,7 +25,7 @@
     .dark {
         --color-accent: var(--color-white);
         --color-accent-content: var(--color-white);
-        --color-accent-foreground: var(--color-neutral-800);
+        --color-accent-foreground: var(--color-black);
     }
 }
 
@@ -35,7 +36,7 @@
     ::before,
     ::backdrop,
     ::file-selector-button {
-        border-color: var(--color-gray-200, currentColor);
+        border-color: var(--color-green-start, currentColor);
     }
 }
 
@@ -45,6 +46,10 @@
 
 [data-flux-label] {
     @apply  !mb-0 !leading-tight;
+}
+
+[data-flux-field] label, [data-flux-field] input {
+    color: black !important;
 }
 
 input:focus[data-flux-control],

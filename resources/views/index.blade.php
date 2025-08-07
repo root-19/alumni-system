@@ -5,9 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Alumni</title>
 
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+     
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -51,21 +49,24 @@
         </header>
 
         <!-- Welcome Button Section -->
-        <main class="text-center">
-            <h1 class="text-4xl font-bold mb-6">Welcome to Alumni Portal</h1>
-         
+<!-- Welcome Button Section -->
+<main class="min-h-screen flex flex-col items-center justify-center text-center bg-gray-50 px-4">
+    <!-- Logo Image -->
+    <img src="{{ asset('image/logo.jpg') }}" alt="Logo"   class="w-64 h-64 object-contain mb-6 rounded-full shadow-lg mt-20">
 
-           @if (Route::has('register'))
+    <!-- Title -->
+    <h1 class="text-4xl font-bold mb-6 text-gray-800">Welcome to Alumni Portal</h1>
 
+    <!-- Register Button -->
+    @if (Route::has('register'))
         <a href="{{ route('register') }}"
            class="bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 
                   text-white text-2xl font-semibold px-8 py-4 rounded-lg shadow-lg transition transform hover:scale-105">
             Go to Register
         </a>
-    </div>
-@endif
+    @endif
+</main>
 
-        </main>
 
     </body>
 </html>

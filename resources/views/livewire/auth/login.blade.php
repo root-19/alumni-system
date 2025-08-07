@@ -74,33 +74,38 @@ new #[Layout('components.layouts.auth')] class extends Component {
 }; ?>
 
 <div class="flex flex-col gap-6">
-    <x-auth-header :title="__('Log in to your account')" :description="__('Enter your email and password below to log in')" />
+    <x-auth-header  :title="__('Log in to your account')" class="text-black"  :description="__('Enter your email and password below to log in')" />
 
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
 
-  <form wire:submit="login" class="w-full max-w-md mx-auto bg-black text-white p-8 rounded-xl shadow-lg flex flex-col gap-6">
+  <form wire:submit="login" class="w-full max-w-md mx-auto bg-white text-black p-8 rounded-xl shadow-lg flex flex-col gap-6">
         <!-- Email Address -->
-        <flux:input
-            wire:model="email"
-            :label="__('Email address')"
-            type="email"
-            required
-            autofocus
-            autocomplete="email"
-            placeholder="email@example.com"
-        />
+        <div>
+            <label for="email" class="block text-sm font-medium text-black">{{ __('Email address') }}</label>
+            <input
+                wire:model="email"
+                id="email"
+                type="email"
+                required
+                autofocus
+                autocomplete="email"
+                placeholder="email@example.com"
+                class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-black placeholder-gray-400"
+            />
+        </div>
 
         <!-- Password -->
         <div class="relative">
-            <flux:input
+            <label for="password" class="block text-sm font-medium text-black">{{ __('Password') }}</label>
+            <input
                 wire:model="password"
-                :label="__('Password')"
+                id="password"
                 type="password"
                 required
                 autocomplete="current-password"
-                :placeholder="__('Password')"
-                viewable
+                placeholder="{{ __('Password') }}"
+                class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-black placeholder-gray-400"
             />
 
             @if (Route::has('password.request'))
@@ -111,7 +116,10 @@ new #[Layout('components.layouts.auth')] class extends Component {
         </div>
 
         <!-- Remember Me -->
-        <flux:checkbox wire:model="remember" :label="__('Remember me')" />
+        <div class="flex items-center">
+            <input type="checkbox" wire:model="remember" id="remember" class="rounded border-gray-300 text-green-600 shadow-sm focus:ring-green-500" />
+            <label for="remember" class="ms-2 text-sm text-black">{{ __('Remember me') }}</label>
+        </div>
 
         <div class="flex items-center justify-end">
             <flux:button  type="submit" class="w-full bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 ">{{ __('Log in') }}</flux:button>

@@ -3,13 +3,14 @@
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen bg-white dark:bg-zinc-800">
-      <flux:sidebar sticky stashable class="bg-gradient-to-b from-green-700 to-green-400 text-white">
+
+    <body class="min-h-screen bg-white">
+      <flux:sidebar sticky stashable class="bg-gradient-to-b from-green-700 to-green-500 text-white">
 
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
              @auth
-        <div class="flex items-center gap-3 px-4 py-2 text-white">
+        <div class="flex items-center gap-5 px-4 py-2 text-white">
         <div class="text-left leading-tight">
             <div class="font-semibold text-sm">
                 {{ auth()->user()->name }}
@@ -22,7 +23,7 @@
             @endauth
 
 <flux:navlist variant="outline">
-    <flux:navlist.group :heading="__('Platform')" class="grid">
+    <flux:navlist.group :heading="__('Platform')" class="grid gap-5 ">
 
         {{-- Dashboard for USER --}}
         @if(auth()->user()->role === 'user')
@@ -45,30 +46,39 @@
             <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                 {{ __('Assistant Dashboard') }}
             </flux:navlist.item>
-            <flux:navlist.item :href="route('contact')" :current="request()->routeIs('contact')" wire:navigate>
-                {{ __('Contact') }}
+            <flux:navlist.item :href="route('givingBack')" :current="request()->routeIs('givingBack')" wire:navigate>
+                {{ __('Giving') }}
             </flux:navlist.item>
-            <flux:navlist.item :href="route('room')" :current="request()->routeIs('room')" wire:navigate>
-                {{ __('Room') }}
+            <flux:navlist.item :href="route('accounts')" :current="request()->routeIs('accounts')" wire:navigate>
+                {{ __('acounts') }}
             </flux:navlist.item>
-            <flux:navlist.item :href="route('view')" :current="request()->routeIs('view')" wire:navigate>
-                {{ __('View') }}
+            <flux:navlist.item :href="route('news')" :current="request()->routeIs('news')" wire:navigate>
+                {{ __('news  and updates') }}
             </flux:navlist.item>
         @endif
 
         {{-- Dashboard for ADMIN --}}
         @if(auth()->user()->role === 'admin')
-            <flux:navlist.item :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                {{ __('Admin Dashboard') }}
+              <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
+                {{ __('Dashboard') }}
             </flux:navlist.item>
-            <flux:navlist.item :href="route('contact')" :current="request()->routeIs('contact')" wire:navigate>
-                {{ __('Contact') }}
+            <flux:navlist.item :href="route('givingBack')" :current="request()->routeIs('giving')" wire:navigate>
+                {{ __('Giving') }}
             </flux:navlist.item>
-            <flux:navlist.item :href="route('room')" :current="request()->routeIs('room')" wire:navigate>
-                {{ __('Room') }}
+            <flux:navlist.item :href="route('accounts')" :current="request()->routeIs('accounts')" wire:navigate>
+                {{ __('Acounts') }}
             </flux:navlist.item>
-            <flux:navlist.item :href="route('view')" :current="request()->routeIs('view')" wire:navigate>
-                {{ __('View') }}
+            <flux:navlist.item :href="route('news')" :current="request()->routeIs('news')" wire:navigate>
+                {{ __('Eews  and updates') }}
+            </flux:navlist.item>
+              <flux:navlist.item :href="route('events')" :current="request()->routeIs('events')" wire:navigate>
+                {{ __('Events') }}
+            </flux:navlist.item>
+              <flux:navlist.item :href="route('resume')" :current="request()->routeIs('resume')" wire:navigate>
+                {{ __('Training') }}
+            </flux:navlist.item>
+              <flux:navlist.item :href="route('reports')" :current="request()->routeIs('reports')" wire:navigate>
+                {{ __('Reports') }}
             </flux:navlist.item>
         @endif
 
