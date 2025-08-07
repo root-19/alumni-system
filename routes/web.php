@@ -56,8 +56,14 @@ Route::get('/accounts', function () {
     return view('admin.accounts', compact('users'));
 })->middleware(['auth', 'verified'])->name('accounts');
 
-Route::get('/news', function () {
-    return view('news');
+Route::get('/admin/news', function () {
+    $news = App\Models\News::latest()->get();
+    $alumniPosts = App\Models\Alumni::latest()->get();
+
+    $featuredNews = $news->first();
+    $featuredAlumni = $alumniPosts->first();
+
+    return view('admin.news', compact('news', 'alumniPosts', 'featuredNews', 'featuredAlumni'));
 })->middleware(['auth', 'verified'])->name('news');
 
 Route::get('/events', function () {

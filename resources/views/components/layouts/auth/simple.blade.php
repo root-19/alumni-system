@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen {{ auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'assistant') ? 'bg-gray-100 dark:bg-gray-900' : 'bg-white dark:bg-gray-800' }} ">
-        <div class="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 lg:flex-row lg:gap-10">
+    <body class="min-h-screen bg-white">
+        <div class="bg-white flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 lg:flex-row lg:gap-10">
             <div class="hidden lg:flex lg:w-1/2 lg:flex-col lg:items-center lg:justify-center">
                 <img src="{{ asset('image/logo.png') }}" alt="Logo" class="max-auto h-auto">
             </div>

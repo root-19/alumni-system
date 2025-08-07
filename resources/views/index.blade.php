@@ -52,7 +52,7 @@
 <!-- Welcome Button Section -->
 <main class="min-h-screen flex flex-col items-center justify-center text-center bg-gray-50 px-4">
     <!-- Logo Image -->
-    <img src="{{ asset('image/logo.jpg') }}" alt="Logo"   class="w-64 h-64 object-contain mb-6 rounded-full shadow-lg mt-20">
+    <img src="{{ asset('image/logo.png') }}" alt="Logo"   class="w-64 h-64 object-contain mb-6 rounded-full shadow-lg mt-20">
 
     <!-- Title -->
     <h1 class="text-4xl font-bold mb-6 text-gray-800">Welcome to Alumni Portal</h1>
