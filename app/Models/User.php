@@ -20,6 +20,15 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'middle_name',
+        'suffix',
+        'year_graduated',
+        'program',
+        'gender',
+        'status',
+        'contact_number',
+        'address',
+        'profile_image_path',
         'email',
         'password',
         'role',
@@ -45,11 +54,12 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'year_graduated' => 'integer',
         ];
     }
 
     /**
-     * Get the user's initials
+     * Get the user's initials (first letters of first two words in name).
      */
     public function initials(): string
     {

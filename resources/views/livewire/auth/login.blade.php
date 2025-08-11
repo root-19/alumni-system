@@ -72,14 +72,13 @@ new #[Layout('components.layouts.auth')] class extends Component {
         return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
     }
 }; ?>
-
-<div class="flex flex-col gap-6">
+<div class="flex flex-col items-center justify-center min-h-screen p-4 ">
     <x-auth-header  :title="__('Log in to your account')" class="text-black"  :description="__('Enter your email and password below to log in')" />
 
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
 
-  <form wire:submit="login" class="w-full max-w-md mx-auto bg-white text-black p-8 rounded-xl shadow-lg flex flex-col gap-6">
+  <form wire:submit="login" class="w-full bg-white text-black p-8 rounded-xl shadow-lg flex flex-col gap-6">
         <!-- Email Address -->
         <div>
             <label for="email" class="block text-sm font-medium text-black">{{ __('Email address') }}</label>
