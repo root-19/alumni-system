@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::create('alumni_posts', function (Blueprint $table) {
-        $table->id();
-        $table->text('content');
-        $table->string('image_path')->nullable();
-        $table->timestamps();
-    });
+        Schema::create('comment_likes', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -24,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('alumnipost');
+        Schema::dropIfExists('comment_likes');
     }
 };

@@ -3,13 +3,26 @@
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Models\User;
+use App\Http\Controllers\ResumeController;
+use App\Http\Controllers\AlumniController;
+use App\Http\Controllers\NewsController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\CommentController;
 
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
 Route::get('/', function () {
     return view('index');
 })->name('home');
 
-
-// for user route
+/*
+|--------------------------------------------------------------------------
+| User Dashboard
+|--------------------------------------------------------------------------
+*/
 Route::get('/dashboard', function () {
     if (auth()->user()->role === 'admin') {
         return redirect()->route('admin.dashboard');
@@ -19,69 +32,119 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// for admin route 
-Route::get('/admin/dashboard', function () {
-    $userCount = User::where('role', 'user')->count();
-    return view('admin.dashboard', compact('userCount'));
-})->middleware(['auth', 'verified'])->name('admin.dashboard');
+Route::middleware(['auth'])->group(function () {
+    Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_posts.store');
+});
 
-// for news and alumni stored data
-Route::post('/admin/alumnipost', [App\Http\Controllers\AlumniController::class, 'store'])->name('alumnipost.store');
-Route::post('/admin/news', [App\Http\Controllers\NewsController::class, 'store'])->name('news.store');
+/*
+|--------------------------------------------------------------------------
+| Admin Dashboard & Pages
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->group(function () {
+Route::get('/events/{post}', [PostController::class, 'show'])->name('events.show');
+Route::post('/events/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+Route::post('/comments/{comment}/replies', [CommentController::class, 'reply'])->name('comments.reply');
+Route::post('/comments/{comment}/like', [CommentController::class, 'like'])->name('comments.like');
+Route::post('/events/{post}/comments', [CommentController::class, 'store'])
+    ->name('comments.store');
 
-// for assistant rute
-Route::get('/assistant/dashboard', function () {
-    return view('assistant.dashboard');
-})->middleware(['auth', 'verified'])->name('assistant.dashboard');
+    Route::get('/alumni_posts', [AlumniController::class, 'index'])->name('alumni_posts.index');
 
-Route::get('/contact', function () {
-    return view('contact');
-})->name('contact');
+// Store a new post
+Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_posts.store');
 
-Route::get('/room', function () {
-    return view('room');
-})->name('room');
+    // Admin Dashboard
+    Route::get('/admin/dashboard', function () {
+        $userCount = User::where('role', 'user')->count();
+        return view('admin.dashboard', compact('userCount'));
+    })->name('admin.dashboard');
 
-Route::get('/view', function () {
-    return view('view');
-})->name('view');
+    //for events
+ // Admin routes
+Route::get('/admin/eventsAdmin', [AlumniController::class, 'index'])->name('alumni.index');
+Route::post('/admin/eventsAdmin', [AlumniController::class, 'store'])->name('alumni.store');
+Route::get('/admin/eventsAdmin', fn() => view('admin.eventsAdmin'))->name('events');
+// Route::get('/events', [AlumniController::class, 'index'])->name('eventsAdmin');
+Route::get('/admin/events', [AlumniController::class, 'index'])->name('eventsAdmin');
+// Route::get('/admin/events/{post}', [AlumniController::class, 'show'])->name('admin.events.show');
 
-// Common routes for assistant and admin
-Route::get('/admin/giving-back', function () {
-    return view('admin.givingBack');
-})->middleware(['auth', 'verified'])->name('givingBack');
+Route::get('/admin/events/{post}', [AlumniController::class, 'show'])
+    ->name('admin.events.show');
 
-Route::get('/accounts', function () {
-    $users = App\Models\User::where('role', 'user')->get();
-    return view('admin.accounts', compact('users'));
-})->middleware(['auth', 'verified'])->name('accounts');
+// Events list page
+Route::get('/events', [AlumniController::class, 'index'])->name('events');
 
-Route::get('/admin/news', function () {
-    $news = App\Models\News::latest()->get();
-    $alumniPosts = App\Models\Alumni::latest()->get();
+Route::middleware(['auth'])->group(function () {
+    Route::post('/posts/{post}/like', [AlumniController::class, 'likePost'])->name('posts.like');
+    Route::post('/comments/{comment}/like', [AlumniController::class, 'like'])->name('comments.like');
+});
 
-    $featuredNews = $news->first();
-    $featuredAlumni = $alumniPosts->first();
 
-    return view('admin.news', compact('news', 'alumniPosts', 'featuredNews', 'featuredAlumni'));
-})->middleware(['auth', 'verified'])->name('news');
+// Show a single event (for adding/viewing comments)
+Route::get('/events/{post}', [AlumniController::class, 'show'])->name('admin.events.show');
 
-Route::get('/events', function () {
-    return view('events');
-})->middleware(['auth', 'verified'])->name('events');
+// Store new event/news post
+Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_posts.store');
+// User-facing route
+Route::get('/events', [AlumniController::class, 'index'])->name('events.index');
 
-Route::get('/resume', function () {
-    return view('resume');
-})->middleware(['auth', 'verified'])->name('resume');
 
-Route::get('/reports', function () {
-    return view('reports');
-})->middleware(['auth', 'verified'])->name('reports');
 
-// Route::get('/accounts', function () {
-//     return view('accounts');
-// })->middleware(['auth', 'verified'])->name('accounts');
+    // Resume Management
+    Route::get('/admin/resume', [ResumeController::class, 'index'])->name('resume.index');
+    Route::post('/admin/resume', [ResumeController::class, 'store'])->name('resume.store');
+    Route::delete('/admin/resume/{resume}', [ResumeController::class, 'destroy'])->name('resume.destroy');
+    Route::get('/admin/resume', [ResumeController::class, 'index'])->name('resume');
 
+    // News & Alumni
+    Route::post('/admin/alumni_post', [AlumniController::class, 'store'])->name('alumni_post.store');
+    Route::post('/admin/news', [NewsController::class, 'store'])->name('news.store');
+
+    Route::get('/admin/news', function () {
+        $news = \App\Models\News::latest()->get();
+        $alumniPosts = \App\Models\Alumni::latest()->get();
+
+        $featuredNews = $news->first();
+        $featuredAlumni = $alumniPosts->first();
+
+        return view('admin.news', compact('news', 'alumniPosts', 'featuredNews', 'featuredAlumni'));
+    })->name('news');
+
+    // Admin Static Pages
+    Route::get('/admin/giving-back', fn() => view('admin.givingBack'))->name('givingBack');
+    Route::get('/accounts', function () {
+        $users = \App\Models\User::where('role', 'user')->get();
+        return view('admin.accounts', compact('users'));
+    })->name('accounts');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Assistant Dashboard
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/assistant/dashboard', fn() => view('assistant.dashboard'))->name('assistant.dashboard');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Common Authenticated Pages
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/events', fn() => view('events'))->name('events');
+    Route::get('/room', fn() => view('room'))->name('room');
+    Route::get('/view', fn() => view('view'))->name('view');
+    Route::get('/reports', fn() => view('reports'))->name('reports');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Settings Routes (Livewire Volt)
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
@@ -89,4 +152,4 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

@@ -9,21 +9,21 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-         Schema::create('alumni_posts', function (Blueprint $table) {
+    public function up()
+{
+    Schema::create('resumes', function (Blueprint $table) {
         $table->id();
-        $table->text('content');
-        $table->string('image_path')->nullable();
+        $table->string('file_name');
+        $table->string('file_path');
         $table->timestamps();
     });
-    }
+}
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('alumnipost');
+        Schema::dropIfExists('resumes');
     }
 };

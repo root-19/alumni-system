@@ -131,7 +131,7 @@
                     @foreach (['Batch 2 Alumni Homecoming', 'Batch 3 Alumni Homecoming', 'Intramurals Meet'] as $event)
                         <div class="space-y-2">
                             <label class="block text-sm font-medium text-gray-700">{{ $event }}</label>
-                            <form action="{{ route('alumnipost.store') }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ route('alumni_posts.store') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <textarea name="content" placeholder="Type event context here..." class="w-full rounded-md border border-gray-300 text-black px-3 py-2 mb-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                                 <input type="file" name="image" class="text-sm text-blue-500 font-bold mb-2" />
