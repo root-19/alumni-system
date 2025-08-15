@@ -8,7 +8,9 @@ use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommentController;
-
+// use App\Models\User;
+use App\Models\Message;
+use Illuminate\Http\Request;
 /*
 |--------------------------------------------------------------------------
 | Public Routes
@@ -59,6 +61,7 @@ Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_p
         $userCount = User::where('role', 'user')->count();
         return view('admin.dashboard', compact('userCount'));
     })->name('admin.dashboard');
+
 
     //for events
  // Admin routes
@@ -112,7 +115,73 @@ Route::get('/events', [AlumniController::class, 'index'])->name('events.index');
     })->name('news');
 
     // Admin Static Pages
-    Route::get('/admin/giving-back', fn() => view('admin.givingBack'))->name('givingBack');
+//     Route::get('/admin/giving-back', fn() => view('admin.givingBack'))->name('givingBack');
+//    Route::get('/admin/giving-back', function () {
+//     $users = User::where('id', '!=', auth()->id())->get();
+//     return view('admin.givingBack', compact('users'));
+// })->name('givingBack');
+
+
+
+
+    
+ Route::middleware(['auth'])->prefix('admin')->group(function () {
+    Route::get('/giving-back', function () {
+        return view('admin.givingBack');
+    })->name('givingBack');
+});
+
+
+    
+ Route::middleware(['auth'])->prefix('admin')->group(function () {
+    Route::get('/report', function () {
+        return view('admin.report');
+    })->name('report');
+});
+
+Route::middleware(['auth'])->group(function () {
+    // User Chat Page
+    Route::get('/message', function () {
+        return view('message'); // Blade file for user chat
+    })->name('message');
+    
+    // Test route for chat functionality
+    Route::get('/test-chat', function () {
+        $adminCount = \App\Models\User::getAdmins()->count();
+        $userCount = \App\Models\User::getRegularUsers()->count();
+        $messageCount = \App\Models\Message::count();
+        
+        return response()->json([
+            'admin_count' => $adminCount,
+            'user_count' => $userCount,
+            'message_count' => $messageCount,
+            'status' => 'Chat system is working correctly'
+        ]);
+    })->name('test.chat');
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//     Route::get('/admin/reports', fn() => view('admin.reports'))->name('reports');
+//     Route::get('/admin/reports', function () {
+//     $users = User::where('id', '!=', auth()->id())->get();
+//     return view('admin.reports', compact('users'));
+// })->name('reports');
+        // Route::get('/admin/reports', fn() => view('reports'))->name('reports');
+
     Route::get('/accounts', function () {
         $users = \App\Models\User::where('role', 'user')->get();
         return view('admin.accounts', compact('users'));
@@ -137,7 +206,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/events', fn() => view('events'))->name('events');
     Route::get('/room', fn() => view('room'))->name('room');
     Route::get('/view', fn() => view('view'))->name('view');
-    Route::get('/reports', fn() => view('reports'))->name('reports');
+    // Route::get('/reports', fn() => view('reports'))->name('reports');
 });
 
 /*

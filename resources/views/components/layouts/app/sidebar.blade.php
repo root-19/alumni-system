@@ -43,6 +43,9 @@
                 <flux:navlist.item icon="eye" :href="route('view')" :current="request()->routeIs('view')" wire:navigate>
                     {{ __('View') }}
                 </flux:navlist.item>
+                  <flux:navlist.item icon="eye" :href="route('message')" :current="request()->routeIs('message')" wire:navigate>
+                    {{ __('Message') }}
+                </flux:navlist.item>
             @endif
 
             @if($role === 'assistant')
@@ -79,7 +82,7 @@
                 <flux:navlist.item icon="document-text" :href="route('resume')" :current="request()->routeIs('resume')" wire:navigate>
                     {{ __('Resume') }}
                 </flux:navlist.item>
-                <flux:navlist.item icon="chart-bar" :href="route('reports')" :current="request()->routeIs('reports')" wire:navigate>
+                <flux:navlist.item icon="chart-bar" :href="route('report')" :current="request()->routeIs('report')" wire:navigate>
                     {{ __('Reports') }}
                 </flux:navlist.item>
             @endif

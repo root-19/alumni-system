@@ -69,4 +69,36 @@ class User extends Authenticatable
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
     }
+
+    /**
+     * Check if the user is an admin.
+     */
+    public function isAdmin(): bool
+    {
+        return in_array($this->role, ['admin', 'Admin', 'administrator', 'Administrator']);
+    }
+
+    /**
+     * Check if the user is a regular user.
+     */
+    public function isUser(): bool
+    {
+        return in_array($this->role, ['user', 'User']) || empty($this->role);
+    }
+
+    /**
+     * Get all admin users.
+     */
+    public static function getAdmins()
+    {
+        return static::whereIn('role', ['admin', 'Admin', 'administrator', 'Administrator'])->get();
+    }
+
+    /**
+     * Get all regular users.
+     */
+    public static function getRegularUsers()
+    {
+        return static::where('role', 'user')->orWhereNull('role')->get();
+    }
 }
