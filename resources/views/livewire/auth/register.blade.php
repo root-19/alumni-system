@@ -28,42 +28,48 @@ new #[Layout('components.layouts.auth')] class extends Component {
     /**
      * Handle an incoming registration request.
      */
-    public function register(): void
-    {
-        $validated = $this->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'middle_name' => ['nullable', 'string', 'max:255'],
-            'suffix' => ['nullable', 'string', 'max:50'],
-            'year_graduated' => ['nullable', 'digits:4'],
-            'program' => ['nullable', 'string', 'max:255'],
-            'gender' => ['nullable', 'in:male,female,other'],
-            'status' => ['nullable', 'string', 'max:255'],
-            'contact_number' => ['nullable', 'string', 'max:20'],
-            'address' => ['nullable', 'string', 'max:500'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
-            'profile_image' => ['nullable', 'image', 'max:1024'], // max 1MB
-        ]);
+public function register(): void
+{
+    $validated = $this->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'middle_name' => ['nullable', 'string', 'max:255'],
+        'suffix' => ['nullable', 'string', 'max:50'],
+        'year_graduated' => ['nullable', 'digits:4'],
+        'program' => ['nullable', 'string', 'max:255'],
+        'gender' => ['nullable', 'in:male,female,other'],
+        'status' => ['nullable', 'string', 'max:255'],
+        'contact_number' => ['nullable', 'string', 'max:20'],
+        'address' => ['nullable', 'string', 'max:500'],
+        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+        'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+        'profile_image' => ['nullable', 'image', 'max:1024'],
+    ]);
 
-          if ($this->profile_image) {
-                  $validated['profile_image_path'] = $this->profile_image->store('profile-images', 'public');
-             }
-
-
-        $validated['password'] = Hash::make($validated['password']);
-
-        $user = User::create($validated);
-
-        // Fire event
-        event(new Registered($user));
-
-        // Send email notification
-        Mail::to($user->email)->send(new UserRegistered($user));
-
-        Auth::login($user);
-
-        $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
+    if ($this->profile_image) {
+        $validated['profile_image_path'] = $this->profile_image->store('profile-images', 'public');
     }
+
+    $validated['password'] = Hash::make($validated['password']);
+    $validated['role'] = 'user'; // 👈 default role
+
+    $user = User::create($validated);
+
+    // Fire event (optional, para sa listeners like email verification)
+    event(new Registered($user));
+
+    // Send email notification (optional)
+    Mail::to($user->email)->send(new UserRegistered($user));
+
+    // ❌ REMOVE auto-login
+    // Auth::login($user);
+
+    // ✅ Instead, show success message
+    session()->flash('status', 'User account created successfully!');
+
+    // Stay on the same page (or redirect to user list)
+    $this->redirect(route('admin.users.index', absolute: false), navigate: true);
+}
+
 };
 
  ?>

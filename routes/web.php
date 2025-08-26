@@ -13,6 +13,11 @@ use App\Http\Controllers\CommentController;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use App\Livewire\Auth\Register;
+use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\ProfileController;
+
+
 // use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
@@ -37,8 +42,14 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+
+Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
 Route::middleware(['auth'])->group(function () {
     Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_posts.store');
+   
+
 });
 
 /*
@@ -46,12 +57,15 @@ Route::middleware(['auth'])->group(function () {
 | Admin Dashboard & Pages
 |--------------------------------------------------------------------------
 */
-Route::get('/admin/register', function () {
-    return view('livewire.auth.register');
-})->name('livewire.auth.register');
+
+// Route::middleware(['auth', 'can:isAdmin'])->group(function () {
+//     Route::get('/admin/users/create', App\Livewire\Admin\Register::class)->name('admin.users.create');
+// });
+
 Route::middleware(['auth', 'verified'])->group(function () {
 
-
+Route::get('/admin/register', [RegisterController::class, 'showForm'])->name('admin.register.form');
+Route::post('/admin/register', [RegisterController::class, 'store'])->name('register.store');
 Route::get('/events/{post}', [PostController::class, 'show'])->name('events.show');
 Route::post('/events/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
 Route::post('/comments/{comment}/replies', [CommentController::class, 'reply'])->name('comments.reply');

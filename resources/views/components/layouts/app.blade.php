@@ -12,8 +12,10 @@
         <flux:main>
             <x-layouts.app.header :title="$title ?? null" />
             {{ $slot }}
-        </flux:main>
+           
 
+        </flux:main>
+       
         @fluxScripts
     </body>
 </html>
