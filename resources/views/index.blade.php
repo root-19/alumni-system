@@ -24,11 +24,11 @@
     <h1 class="text-4xl md:text-5xl font-bold text-gray-800">Welcome to Alumni Portal</h1>
 
     <!-- Register Button -->
-    @if (Route::has('register'))
-        <a href="{{ route('register') }}"
+    @if (Route::has('login'))
+        <a href="{{ route('login') }}"
            class="bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 
                   text-white text-xl md:text-2xl font-semibold px-8 py-4 rounded-lg shadow-lg transition transform hover:scale-105">
-            Go to Register
+            Go to login
         </a>
     @endif
 </main>

@@ -2,6 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
 <head>
     @include('partials.head')
+     @vite('resources/css/app.css')
 </head>
 
 <body class="min-h-screen bg-white">
@@ -84,6 +85,9 @@
                 </flux:navlist.item>
                 <flux:navlist.item icon="chart-bar" :href="route('report')" :current="request()->routeIs('report')" wire:navigate>
                     {{ __('Reports') }}
+                </flux:navlist.item>
+                <flux:navlist.item  icon="user-plus"  :href="route('livewire.auth.register')" :current="request()->routeIs('livewire.auth.register')" wire:navigate>
+                    {{ __('create account') }}
                 </flux:navlist.item>
             @endif
          @endauth

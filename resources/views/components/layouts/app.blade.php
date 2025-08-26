@@ -3,6 +3,9 @@
     <head>
         @include('partials.head')
     </head>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@stack('scripts')
+
     <body class="min-h-screen {{ auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'assistant') ? 'bg-white' : 'bg-white' }} ">
         <x-layouts.app.sidebar :title="$title ?? null"/>
 

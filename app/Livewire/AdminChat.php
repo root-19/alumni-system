@@ -12,7 +12,7 @@ class AdminChat extends Component
     public $users;            // All regular users
     public $selectedUserId;   // Currently selected user
     public $messages = [];    // Messages with selected user
-    public $message;          // New message input
+    public $message;        
 
     public function mount()
     {

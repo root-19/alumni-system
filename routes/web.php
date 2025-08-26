@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 use App\Models\User;
+use Livewire\Livewire;
 use App\Http\Controllers\ResumeController;
 use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\NewsController;
@@ -11,6 +12,8 @@ use App\Http\Controllers\CommentController;
 // use App\Models\User;
 use App\Models\Message;
 use Illuminate\Http\Request;
+use App\Livewire\Auth\Register;
+// use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
 | Public Routes
@@ -43,7 +46,12 @@ Route::middleware(['auth'])->group(function () {
 | Admin Dashboard & Pages
 |--------------------------------------------------------------------------
 */
+Route::get('/admin/register', function () {
+    return view('livewire.auth.register');
+})->name('livewire.auth.register');
 Route::middleware(['auth', 'verified'])->group(function () {
+
+
 Route::get('/events/{post}', [PostController::class, 'show'])->name('events.show');
 Route::post('/events/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
 Route::post('/comments/{comment}/replies', [CommentController::class, 'reply'])->name('comments.reply');

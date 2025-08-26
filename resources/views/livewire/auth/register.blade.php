@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UserRegistered;
 
 new #[Layout('components.layouts.auth')] class extends Component {
     public string $name = '';
@@ -14,50 +16,58 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public string $password = '';
     public string $password_confirmation = '';
     public string $middle_name = '';
-public string $suffix = '';
-public string $year_graduated = '';
-public string $program = '';
-public string $gender = '';
-public string $status = '';
-public string $contact_number = '';
-public string $address = '';
-public $profile_image; 
+    public string $suffix = '';
+    public string $year_graduated = '';
+    public string $program = '';
+    public string $gender = '';
+    public string $status = '';
+    public string $contact_number = '';
+    public string $address = '';
+    public $profile_image; 
 
     /**
      * Handle an incoming registration request.
      */
     public function register(): void
     {
-    $validated = $this->validate([
-    'name' => ['required', 'string', 'max:255'],
-    'middle_name' => ['nullable', 'string', 'max:255'],
-    'suffix' => ['nullable', 'string', 'max:50'],
-    'year_graduated' => ['required', 'digits:4', 'integer', 'min:1900', 'max:' . date('Y')],
-    'program' => ['required', 'string', 'max:255'],
-    'gender' => ['required', 'in:male,female,other'],
-    'status' => ['required', 'string', 'max:255'],
-    'contact_number' => ['required', 'string', 'max:20'],
-    'address' => ['required', 'string', 'max:500'],
-    'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-    'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
-    'profile_image' => ['nullable', 'image', 'max:1024'], // max 1MB
-]);
+        $validated = $this->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'middle_name' => ['nullable', 'string', 'max:255'],
+            'suffix' => ['nullable', 'string', 'max:50'],
+            'year_graduated' => ['nullable', 'digits:4'],
+            'program' => ['nullable', 'string', 'max:255'],
+            'gender' => ['nullable', 'in:male,female,other'],
+            'status' => ['nullable', 'string', 'max:255'],
+            'contact_number' => ['nullable', 'string', 'max:20'],
+            'address' => ['nullable', 'string', 'max:500'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+            'profile_image' => ['nullable', 'image', 'max:1024'], // max 1MB
+        ]);
 
-if ($this->profile_image) {
-    $validated['profile_image_path'] = $this->profile_image->store('profile-images', 'public');
-}
+          if ($this->profile_image) {
+                  $validated['profile_image_path'] = $this->profile_image->store('profile-images', 'public');
+             }
 
 
         $validated['password'] = Hash::make($validated['password']);
 
-        event(new Registered(($user = User::create($validated))));
+        $user = User::create($validated);
+
+        // Fire event
+        event(new Registered($user));
+
+        // Send email notification
+        Mail::to($user->email)->send(new UserRegistered($user));
 
         Auth::login($user);
 
         $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
     }
-}; ?>
+};
 
+ ?>
+<x-layouts.app>
 <div class="flex flex-col w-screen items-center justify-center  max-w-[90rem] mx-auto px-8">
 {{-- <div class="flex flex-col items-center justify-center min-h-screen p-4 "> --}}
 {{-- <div class="flex flex-col gap-6 w-full max-w-[90rem] mx-auto px-8"> --}}
@@ -261,9 +271,5 @@ if ($this->profile_image) {
         </div>
 
     </form>
-
-    <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-green-600 mt-4">
-        <span>{{ __('Already have an account?') }}</span>
-        <flux:link :href="route('login')" class="text-sm text-green-600" wire:navigate>{{ __('Log in') }}</flux:link>
-    </div>
 </div>
+</x-layouts.app>
