@@ -14,20 +14,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'role' => 'user',
+        // Call the AdminSeeder first
+        $this->call([
+            AdminSeeder::class,
         ]);
 
-        // Create an admin user
+        // Create a test regular user
         User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
+            'name' => 'Test User',
+            'email' => 'test@example.com',
             'password' => Hash::make('password'),
-            'role' => 'admin',
+            'role' => 'user',
+            'middle_name' => null,
+            'suffix' => null,
+            'year_graduated' => null,
+            'program' => null,
+            'gender' => null,
+            'status' => 'active',
+            'contact_number' => null,
+            'address' => null,
+            'profile_image_path' => null,
         ]);
     }
 }

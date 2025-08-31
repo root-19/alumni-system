@@ -38,7 +38,7 @@
           <flux:navlist.item :href="route('resume')" :current="request()->routeIs('resume')" wire:navigate>
             {{ __('Training') }}
         </flux:navlist.item>
-          <flux:navlist.item :href="route('reports')" :current="request()->routeIs('reports')" wire:navigate>
+          <flux:navlist.item :href="route('report')" :current="request()->routeIs('report')" wire:navigate>
             {{ __('Reports') }}
         </flux:navlist.item>
     @endif

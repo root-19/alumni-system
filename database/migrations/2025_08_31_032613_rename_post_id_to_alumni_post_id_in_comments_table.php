@@ -11,12 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::create('alumni_posts', function (Blueprint $table) {
-        $table->id();
-        $table->text('content');
-        $table->string('image_path')->nullable();
-        $table->timestamps();
-    });
+        Schema::table('comments', function (Blueprint $table) {
+            $table->renameColumn('post_id', 'alumni_post_id');
+        });
     }
 
     /**
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('alumnipost');
+        Schema::table('comments', function (Blueprint $table) {
+            $table->renameColumn('alumni_post_id', 'post_id');
+        });
     }
 };

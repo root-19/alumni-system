@@ -54,6 +54,15 @@
                 <flux:navlist.item icon="eye" :href="route('profile.edit')" :current="request()->routeIs('profile.edit')" wire:navigate>
                     {{ __('Profile') }}
                 </flux:navlist.item>
+                <flux:navlist.item icon="eye" :href="route('donations')" :current="request()->routeIs('donations')" wire:navigate>
+                    {{ __('Giving back') }}
+                </flux:navlist.item>
+                  <flux:navlist.item icon="eye" :href="route('resume-view')" :current="request()->routeIs('resume-view')" wire:navigate>
+                    {{ __('Resume') }}
+                </flux:navlist.item>
+                <flux:navlist.item icon="calendar-days" :href="route('events')" :current="request()->routeIs('events')" wire:navigate>
+                    {{ __('Events') }}
+                </flux:navlist.item>
             @endif
 
             @if($role === 'assistant')
@@ -68,6 +77,9 @@
                 </flux:navlist.item>
                 <flux:navlist.item icon="newspaper" :href="route('news')" :current="request()->routeIs('news')" wire:navigate>
                     {{ __('News and Updates') }}
+                </flux:navlist.item>
+                <flux:navlist.item icon="calendar-days" :href="route('events')" :current="request()->routeIs('events')" wire:navigate>
+                    {{ __('Events') }}
                 </flux:navlist.item>
             @endif
 
@@ -84,7 +96,7 @@
                 <flux:navlist.item icon="newspaper" :href="route('news')" :current="request()->routeIs('news')" wire:navigate>
                     {{ __('Events & Updates') }}
                 </flux:navlist.item>
-                <flux:navlist.item icon="calendar-days" :href="route('eventsAdmin')" :current="request()->routeIs('eventsAdmin')" wire:navigate>
+                <flux:navlist.item icon="calendar-days" :href="route('admin.events.index')" :current="request()->routeIs('admin.events.*')" wire:navigate>
                     {{ __('Events') }}
                 </flux:navlist.item>
                 <flux:navlist.item icon="document-text" :href="route('resume')" :current="request()->routeIs('resume')" wire:navigate>
@@ -93,7 +105,10 @@
                 <flux:navlist.item icon="chart-bar" :href="route('report')" :current="request()->routeIs('report')" wire:navigate>
                     {{ __('Reports') }}
                 </flux:navlist.item>
-                <flux:navlist.item  icon="user-plus"  :href="route('register')" :current="request()->routeIs('register')" wire:navigate>
+                <flux:navlist.item icon="chart-bar" :href="route('admin.contributor')" :current="request()->routeIs('admin.contributor')" wire:navigate>
+                    {{ __('Contributor') }}
+                </flux:navlist.item>
+                <flux:navlist.item  icon="user-plus"  :href="route('admin.register.form')" :current="request()->routeIs('admin.register.form')" wire:navigate>
                     {{ __('Create Account') }}
                 </flux:navlist.item>
             @endif

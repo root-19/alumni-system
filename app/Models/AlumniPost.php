@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class AlumniPost extends Model
 {
-    protected $fillable = ['content', 'image_path'];
+    protected $table = 'alumni_posts';
+    protected $fillable = ['content', 'image_path', 'user_id'];
 
     public function comments() {
         return $this->hasMany(Comment::class)->with('user', 'replies', 'likes');

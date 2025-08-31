@@ -14,7 +14,7 @@
             @endif
 
             <!-- Form -->
-            <form action="{{ route('register.store') }}" method="POST" class="space-y-5">
+            <form action="{{ route('admin.register.store') }}" method="POST" class="space-y-5">
                 @csrf
 
                 <!-- Name -->

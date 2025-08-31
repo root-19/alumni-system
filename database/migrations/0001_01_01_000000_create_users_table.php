@@ -18,16 +18,15 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
              $table->string('role')->default('user');
-             $table->string('middle_name')->nullable();
-$table->string('suffix')->nullable();
-$table->year('year_graduated')->nullable();
-$table->string('program')->nullable();
-$table->string('gender')->nullable();
-$table->string('status')->nullable();
-$table->string('contact_number')->nullable();
-$table->string('address')->nullable();
-$table->string('profile_image_path')->nullable();
-$table->string('role')->nullable();
+            $table->string('middle_name')->nullable();
+            $table->string('suffix')->nullable();
+            $table->year('year_graduated')->nullable();
+            $table->string('program')->nullable();
+            $table->string('gender')->nullable();
+            $table->string('status')->nullable();
+            $table->string('contact_number')->nullable();
+            $table->string('address')->nullable();
+            $table->string('profile_image_path')->nullable();
 
             $table->rememberToken();
             $table->timestamps();

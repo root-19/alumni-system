@@ -14,8 +14,10 @@ class CommentController extends Controller
     {
         $request->validate(['content' => 'required|string']);
 
-        $post->comments()->create([
+        Comment::create([
             'user_id' => auth()->id(),
+            'alumni_post_id' => $post->id,
+            'parent_id' => null,
             'content' => $request->content
         ]);
 
@@ -26,8 +28,10 @@ class CommentController extends Controller
     {
         $request->validate(['content' => 'required|string']);
 
-        $comment->replies()->create([
+        Comment::create([
             'user_id' => auth()->id(),
+            'alumni_post_id' => $comment->alumni_post_id,
+            'parent_id' => $comment->id,
             'content' => $request->content
         ]);
 

@@ -1,29 +1,47 @@
-{{-- <x-layouts.app :title="__('Events')">
-    <div class="min-h-screen space-y-10">
-        <p class="uppercase text-black font-bold tracking-wider text-sm">Events</p>
+<x-layouts.app :title="__('Events')">
+    <div class="max-w-7xl mx-auto mt-10 px-4 sm:px-6 lg:px-8">
+        <h1 class="text-4xl font-extrabold text-green-700 mb-8">Events</h1>
 
         @if($alumniPosts->count())
-            <section>
-                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    @foreach($alumniPosts as $post)
-                        <article class="bg-white rounded-2xl shadow p-4">
-                            @if($post->image_path)
-                                <img src="{{ asset('storage/'.$post->image_path) }}" 
-                                     class="w-full h-48 object-cover rounded-xl" 
-                                     alt="Event Image">
-                            @endif
-                            <p class="text-xs md:text-sm font-semibold text-gray-800 text-center uppercase tracking-wide mt-3">
-                                {{ strtoupper(\Illuminate\Support\Str::limit(strip_tags($post->content), 60)) }}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                @foreach($alumniPosts as $post)
+                    <div class="bg-white shadow-lg rounded-2xl overflow-hidden hover:shadow-2xl transition duration-300">
+                        {{-- Event Image --}}
+                        @if($post->image_path)
+                            <a href="{{ route('events.show', $post) }}" class="block overflow-hidden">
+                                <img src="{{ asset('storage/' . $post->image_path) }}" 
+                                     alt="Event Image" 
+                                     class="w-full h-48 object-cover transform hover:scale-105 transition duration-500">
+                            </a>
+                        @endif
+
+                        <div class="p-6 flex flex-col justify-between h-full">
+                            {{-- Event Content --}}
+                            <p class="text-gray-800 text-base mb-4 line-clamp-3">
+                                {{ $post->content }}
                             </p>
-                            <span class="block text-center text-xs text-gray-500 mt-1">
-                                {{ $post->created_at->format('M d, Y') }}
-                            </span>
-                        </article>
-                    @endforeach
-                </div>
-            </section>
+
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-400">
+                                {{-- Date & Time --}}
+                                <span class="mb-2 sm:mb-0">
+                                    {{ $post->created_at->format('F j, Y \a\t g:i A') }}
+                                </span>
+
+                                {{-- Minimal view link --}}
+                                <a href="{{ route('events.show', $post) }}" 
+                                   class="text-green-600 hover:text-green-800 font-semibold transition">
+                                    Details →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         @else
-            <p class="text-gray-600">No events yet.</p>
+            <div class="text-center text-gray-400 py-16 text-lg">
+                No news or events posted yet.
+            </div>
         @endif
     </div>
-</x-layouts.app> --}}
+</x-layouts.app>
+
