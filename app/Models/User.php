@@ -101,4 +101,9 @@ class User extends Authenticatable
     {
         return static::where('role', 'user')->orWhereNull('role')->get();
     }
+
+    public function reads()
+{
+    return $this->hasMany(TrainingRead::class);
+}
 }

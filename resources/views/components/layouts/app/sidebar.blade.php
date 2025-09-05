@@ -63,6 +63,13 @@
                 <flux:navlist.item icon="calendar-days" :href="route('events')" :current="request()->routeIs('events')" wire:navigate>
                     {{ __('Events') }}
                 </flux:navlist.item>
+                <flux:navlist.item 
+    icon="calendar-days" 
+    :href="route('trainings.index')" 
+    :current="request()->routeIs('trainings.index')" 
+    wire:navigate>
+    {{ __('Training') }}
+</flux:navlist.item>
             @endif
 
             @if($role === 'assistant')
@@ -110,6 +117,12 @@
                 </flux:navlist.item>
                 <flux:navlist.item  icon="user-plus"  :href="route('admin.register.form')" :current="request()->routeIs('admin.register.form')" wire:navigate>
                     {{ __('Create Account') }}
+                </flux:navlist.item>
+                <flux:navlist.item  icon="user-plus"  :href="route('admin.trainings.create')" :current="request()->routeIs('admin.trainings.create')" wire:navigate>
+                    {{ __('Training Ground') }}
+                </flux:navlist.item>
+                 <flux:navlist.item  icon="user-plus"  :href="route('admin.trainings.index')" :current="request()->routeIs('admin.trainings.index')" wire:navigate>
+                    {{ __('Training Data') }}
                 </flux:navlist.item>
             @endif
          @endauth

@@ -128,34 +128,38 @@
             </div>
 
             <!-- Search and Filter -->
-            <div class="bg-white shadow rounded-lg mb-6">
+            <form method="GET" action="{{ url()->current() }}" class="bg-white shadow rounded-lg mb-6">
                 <div class="px-4 py-5 sm:p-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search Donor</label>
-                            <input type="text" id="search" placeholder="Search by name or email..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Search by name or email..." class="w-full px-3 py-2 border border-gray-300 rounded-md">
                         </div>
                         <div>
-                            <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-2">Status Filter</label>
-                            <select id="status-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status Filter</label>
+                            <select name="status" id="status" class="w-full px-3 py-2 border border-gray-300 rounded-md">
                                 <option value="">All Statuses</option>
-                                <option value="Confirmed">Confirmed</option>
-                                <option value="Pending">Pending</option>
+                                <option value="Confirmed" {{ request('status') === 'Confirmed' ? 'selected' : '' }}>Confirmed</option>
+                                <option value="Pending" {{ request('status') === 'Pending' ? 'selected' : '' }}>Pending</option>
                             </select>
                         </div>
                         <div>
-                            <label for="amount-filter" class="block text-sm font-medium text-gray-700 mb-2">Amount Range</label>
-                            <select id="amount-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">Amount Range</label>
+                            <select name="amount" id="amount" class="w-full px-3 py-2 border border-gray-300 rounded-md">
                                 <option value="">All Amounts</option>
-                                <option value="0-1000">₱0 - ₱1,000</option>
-                                <option value="1000-5000">₱1,000 - ₱5,000</option>
-                                <option value="5000-10000">₱5,000 - ₱10,000</option>
-                                <option value="10000+">₱10,000+</option>
+                                <option value="0-1000" {{ request('amount') === '0-1000' ? 'selected' : '' }}>₱0 - ₱1,000</option>
+                                <option value="1000-5000" {{ request('amount') === '1000-5000' ? 'selected' : '' }}>₱1,000 - ₱5,000</option>
+                                <option value="5000-10000" {{ request('amount') === '5000-10000' ? 'selected' : '' }}>₱5,000 - ₱10,000</option>
+                                <option value="10000+" {{ request('amount') === '10000+' ? 'selected' : '' }}>₱10,000+</option>
                             </select>
                         </div>
                     </div>
+                    <div class="mt-4 flex space-x-2">
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Filter</button>
+                        <a href="{{ url()->current() }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md">Reset</a>
+                    </div>
                 </div>
-            </div>
+            </form>
 
             <!-- Donations Table -->
             <div class="bg-white shadow overflow-hidden sm:rounded-md">
@@ -252,16 +256,16 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex space-x-2">
                                                 @if($donation->status === 'Pending')
-                                                    <button onclick="confirmDonation({{ $donation->id }})" class="text-green-600 hover:text-green-900 bg-green-100 hover:bg-green-200 px-3 py-1 rounded-md text-xs font-medium transition-colors">
-                                                        Confirm
-                                                    </button>
+                                                    <form method="POST" action="{{ url('/admin/donations/'.$donation->id.'/status') }}">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="status" value="Confirmed">
+                                                        <button type="submit" class="text-green-600 hover:text-green-900 bg-green-100 hover:bg-green-200 px-3 py-1 rounded-md text-xs font-medium transition-colors">
+                                                            Confirm
+                                                        </button>
+                                                    </form>
                                                 @endif
-                                                <button onclick="editDonation({{ $donation->id }})" class="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md text-xs font-medium transition-colors">
-                                                    Edit
-                                                </button>
-                                                <button onclick="deleteDonation({{ $donation->id }})" class="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 rounded-md text-xs font-medium transition-colors">
-                                                    Delete
-                                                </button>
+                
                                             </div>
                                         </td>
                                     </tr>
@@ -289,148 +293,10 @@
         </div>
     </div>
 
-    <!-- JavaScript for interactive features -->
-    <script>
-        function confirmDonation(donationId) {
-            if (confirm('Are you sure you want to confirm this donation?')) {
-                fetch(`/admin/donations/${donationId}/status`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        status: 'Confirmed'
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Reload the page to show updated data
-                        window.location.reload();
-                    } else {
-                        alert('Error updating donation status');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error updating donation status');
-                });
-            }
-        }
-
-        function editDonation(donationId) {
-            // TODO: Implement edit functionality
-            alert('Edit functionality coming soon!');
-        }
-
-        function deleteDonation(donationId) {
-            if (confirm('Are you sure you want to delete this donation? This action cannot be undone.')) {
-                fetch(`/admin/donations/${donationId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Reload the page to show updated data
-                        window.location.reload();
-                    } else {
-                        alert('Error deleting donation');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error deleting donation');
-                });
-            }
-        }
-
-        // Add success message display
-        @if(session('success'))
-            document.addEventListener('DOMContentLoaded', function() {
-                // Create a simple toast notification
-                const toast = document.createElement('div');
-                toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-md shadow-lg z-50';
-                toast.textContent = '{{ session('success') }}';
-                document.body.appendChild(toast);
-                
-                setTimeout(() => {
-                    toast.remove();
-                }, 3000);
-            });
-        @endif
-
-        // Search and filter functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('search');
-            const statusFilter = document.getElementById('status-filter');
-            const amountFilter = document.getElementById('amount-filter');
-            const tableRows = document.querySelectorAll('tbody tr');
-
-            function filterDonations() {
-                const searchTerm = searchInput.value.toLowerCase();
-                const statusValue = statusFilter.value;
-                const amountValue = amountFilter.value;
-
-                tableRows.forEach(row => {
-                    let showRow = true;
-
-                    // Search filter
-                    if (searchTerm) {
-                        const donorName = row.querySelector('td:first-child .text-sm.font-medium').textContent.toLowerCase();
-                        const donorEmail = row.querySelector('td:first-child .text-sm.text-gray-500').textContent.toLowerCase();
-                        if (!donorName.includes(searchTerm) && !donorEmail.includes(searchTerm)) {
-                            showRow = false;
-                        }
-                    }
-
-                    // Status filter
-                    if (statusValue && showRow) {
-                        const status = row.querySelector('td:nth-child(3) span').textContent.trim();
-                        if (status !== statusValue) {
-                            showRow = false;
-                        }
-                    }
-
-                    // Amount filter
-                    if (amountValue && showRow) {
-                        const amountText = row.querySelector('td:nth-child(2) .text-sm.font-medium').textContent;
-                        const amount = parseFloat(amountText.replace('₱', '').replace(',', ''));
-                        
-                        switch(amountValue) {
-                            case '0-1000':
-                                showRow = amount >= 0 && amount <= 1000;
-                                break;
-                            case '1000-5000':
-                                showRow = amount > 1000 && amount <= 5000;
-                                break;
-                            case '5000-10000':
-                                showRow = amount > 5000 && amount <= 10000;
-                                break;
-                            case '10000+':
-                                showRow = amount > 10000;
-                                break;
-                        }
-                    }
-
-                    row.style.display = showRow ? '' : 'none';
-                });
-
-                // Update count display
-                const visibleRows = Array.from(tableRows).filter(row => row.style.display !== 'none');
-                const countDisplay = document.querySelector('.mt-6.text-center.text-sm.text-gray-500');
-                if (countDisplay) {
-                    countDisplay.textContent = `Showing ${visibleRows.length} donation${visibleRows.length !== 1 ? 's' : ''}`;
-                }
-            }
-
-            // Add event listeners
-            searchInput.addEventListener('input', filterDonations);
-            statusFilter.addEventListener('change', filterDonations);
-            amountFilter.addEventListener('change', filterDonations);
-        });
-    </script>
+    <!-- show server-side flash (no JS) -->
+    @if(session('success'))
+        <div class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-md shadow-lg z-50">
+            {{ session('success') }}
+        </div>
+    @endif
 </x-layouts.app>

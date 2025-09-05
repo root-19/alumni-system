@@ -17,6 +17,11 @@ use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DonationController;
+// use App\Http\Controllers\TrainingController;
+use App\Http\Controllers\Admin\TrainingController;
+// use App\Http\Controllers\TrainingController;
+// use App\Http\Controllers\Admin\TrainingController;
+
 
 // use Illuminate\Support\Facades\Route;
 /*
@@ -33,6 +38,11 @@ Route::get('/', function () {
 | User Dashboard
 |--------------------------------------------------------------------------
 */
+Route::get('/trainings', [\App\Http\Controllers\TrainingController::class, 'index'])
+    ->name('trainings.index');
+
+    Route::get('/trainings/{training}/take', [TrainingController::class, 'take'])
+    ->name('training.take');
 
 Route::get('/dashboard', [NewsController::class, 'index'])->name('dashboard');
 
@@ -78,6 +88,13 @@ Route::middleware(['auth'])->group(function () {
 | Admin Dashboard & Pages
 |--------------------------------------------------------------------------
 */
+
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('trainings', [TrainingController::class, 'index'])->name('trainings.index');
+    Route::get('trainings/create', [TrainingController::class, 'create'])->name('trainings.create');
+    Route::post('trainings', [TrainingController::class, 'store'])->name('trainings.store');
+});
 
 // Route::middleware(['auth', 'can:isAdmin'])->group(function () {
 //     Route::get('/admin/users/create', App\Livewire\Admin\Register::class)->name('admin.users.create');
@@ -269,3 +286,5 @@ Route::middleware(['auth'])->group(function () {
 });
 
 require __DIR__ . '/auth.php';
+
+

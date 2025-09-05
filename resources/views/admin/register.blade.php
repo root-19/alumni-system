@@ -23,7 +23,7 @@
                     <input 
                         type="text" 
                         name="name" 
-                        class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition"
+                        class="w-full px-4 text-black py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition"
                         placeholder="Enter your name"
                         required
                     >
@@ -35,7 +35,7 @@
                     <input 
                         type="email" 
                         name="email" 
-                        class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition"
+                        class="w-full px-4 py-2 text-black border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition"
                         placeholder="your@email.com"
                         required
                     >
@@ -47,7 +47,7 @@
                     <input 
                         type="password" 
                         name="password" 
-                        class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition"
+                        class="w-full px-4 py-2 border text-black rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition"
                         placeholder="••••••••"
                         required
                     >
