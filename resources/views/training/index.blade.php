@@ -1,70 +1,108 @@
 <x-layouts.app :title="__('My Trainings')">
-    <div class="max-w-7xl mx-auto mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
+    <div class="max-w-7xl mx-auto mt-10 grid grid-cols-1 lg:grid-cols-3 gap-10 px-4 sm:px-6 lg:px-8">
+
         <!-- LEFT COLUMN: Trainings List -->
-        <div class="lg:col-span-2 space-y-6">
-            <h1 class="text-2xl font-bold mb-4">{{ __('My Trainings') }}</h1>
+        <div class="lg:col-span-2 space-y-8">
+            <div class="flex items-center justify-between">
+                <h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    {{ __('My Trainings') }}
+                </h1>
+            </div>
 
             @forelse($trainings as $training)
-                <div class="bg-white shadow rounded-xl p-6 hover:shadow-md transition">
-                    <h2 class="text-xl font-semibold text-gray-800">{{ $training->title }}</h2>
-                    <p class="text-sm text-gray-500 mt-1">
-                        {{ $training->created_at->format('d M Y') }} | <span class="text-indigo-600">Express, Handlebars</span>
-                    </p>
-                    <p class="text-gray-600 mt-3">{{ $training->description }}</p>
-
-                    <!-- MODULES -->
-                    <div class="mt-4">
-                        <h3 class="font-medium text-gray-800 mb-2">📘 Modules</h3>
-                        <div class="max-h-40 overflow-y-auto border rounded-lg p-3 bg-gray-50 space-y-2">
-                            @foreach($training->files->where('type', 'module') as $index => $file)
-                                <a href="{{ Storage::url($file->path) }}" target="_blank"
-                                   class="block text-blue-600 hover:underline text-sm"
-                                   onclick="markAsRead({{ $training->id }}, {{ $file->id }})">
-                                    {{ $index + 1 }}. {{ $file->original_name }}
-                                </a>
-                            @endforeach
-                            <!-- TAKE TRAINING -->
-<div class="mt-4">
-    <a href="{{ route('training.take', $training->id) }}"
-       class="inline-block px-5 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition">
-        🚀 Take Training
-    </a>
-</div>
+                <div class="group bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all duration-300 overflow-hidden">
+                    <div class="p-6 space-y-5">
+                        <!-- Training Header -->
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <h2 class="text-xl font-semibold text-gray-800 group-hover:text-indigo-600 transition">
+                                    {{ $training->title }}
+                                </h2>
+                                <p class="text-xs uppercase tracking-wide text-gray-400 mt-1">
+                                    Created {{ $training->created_at->format('M d, Y') }}
+                                </p>
+                            </div>
+                            <span class="px-3 py-1 text-[11px] rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 font-medium shadow-sm">
+                                Training
+                            </span>
                         </div>
-                    </div>
 
-                    <!-- PROGRESS -->
-                    <div class="mt-5">
-                        @php
-                            $total = $training->files->where('type', 'module')->count();
-                            $read = auth()->user()->reads()
-                                        ->whereIn('training_file_id', $training->files->pluck('id'))
-                                        ->count();
-                            $progress = $total > 0 ? round(($read / $total) * 100) : 0;
-                        @endphp
+                        <p class="text-gray-600 leading-relaxed">
+                            {{ $training->description }}
+                        </p>
 
-                        <div class="w-full bg-gray-200 rounded-full h-3">
-                            <div class="bg-green-500 h-3 rounded-full text-xs text-center text-white"
-                                 style="width: {{ $progress }}%">
+                        <!-- MODULES -->
+                        <div class="mt-4">
+                            <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                                <span class="inline-flex w-6 h-6 items-center justify-center rounded-md bg-indigo-100 text-indigo-600 text-sm">📘</span>
+                                Modules
+                            </h3>
+                            <div class="max-h-48 overflow-y-auto border border-dashed rounded-xl p-3 bg-gradient-to-br from-gray-50 to-white space-y-2 scrollbar-thin scrollbar-thumb-indigo-300/40">
+                                @foreach($training->files->where('type', 'module') as $index => $file)
+                                    @php
+                                        $isRead = auth()->user()->reads()->where('training_file_id', $file->id)->exists();
+                                    @endphp
+                                    <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-indigo-50 transition">
+                                        <div class="w-6 text-[11px] text-gray-400 font-mono">{{ $index + 1 }}</div>
+                                        <a href="{{ Storage::url($file->path) }}" target="_blank"
+                                           class="flex-1 text-sm font-medium truncate {{ $isRead ? 'text-indigo-600' : 'text-gray-700' }} hover:text-indigo-700"
+                                           onclick="markAsRead({{ $training->id }}, {{ $file->id }})">
+                                            {{ $file->original_name }}
+                                        </a>
+                                        <span class="text-xs {{ $isRead ? 'text-green-600' : 'text-gray-400' }}">
+                                            {{ $isRead ? '✓' : '…' }}
+                                        </span>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">{{ $progress }}% Completed</p>
-                    </div>
 
-                    <!-- CERTIFICATE -->
-                    <div class="mt-4">
-                        @if($progress == 100 && $training->certificate_path)
-                            <a href="{{ Storage::url($training->certificate_path) }}"
-                               class="inline-block px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
-                                🎓 Download Certificate
+                        <!-- Training Actions -->
+                        <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                            @php
+                                $pct = $training->progress ?? 0;
+                            @endphp
+                            <a href="{{ route('training.take', $training->id) }}"
+                               class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-medium shadow hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition">
+                                <span>🚀 Take Training</span>
                             </a>
-                        @else
-                            <button disabled
-                                    class="inline-block px-5 py-2 bg-gray-400 text-white rounded-lg shadow cursor-not-allowed">
-                                🔒 Complete all modules to unlock certificate
-                            </button>
-                        @endif
+                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                <div class="w-24 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500"
+                                         style="width: {{ $pct }}%"></div>
+                                </div>
+                                <span>{{ $pct }}%</span>
+                            </div>
+                        </div>
+
+                        <!-- Progress -->
+                        @php
+                            $total = $training->files->where('type', 'module')->count();
+                            $read = auth()->user()->reads()->whereIn('training_file_id', $training->files->pluck('id'))->count();
+                            $calculatedProgress = $total > 0 ? round(($read / $total) * 100) : 0;
+                            $progress = max($calculatedProgress, $training->progress ?? 0);
+                        @endphp
+                        <div class="pt-4">
+                            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                                <div class="bg-gradient-to-r from-green-400 to-emerald-600 h-3 transition-all duration-500" style="width: {{ $progress }}%"></div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2 font-medium">{{ $progress }}% Completed</p>
+                        </div>
+
+                        <!-- Certificate -->
+                        <div class="pt-2">
+                            @if(($progress >= 100 || $training->progress >= 100) && $training->certificate_path)
+                                <a href="{{ Storage::url($training->certificate_path) }}"
+                                   class="inline-block px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow hover:opacity-90 transition">
+                                    🎓 Download Certificate
+                                </a>
+                            @else
+                                <button disabled
+                                        class="inline-block px-5 py-2 bg-gray-200 text-gray-500 rounded-xl cursor-not-allowed">
+                                    🔒 Complete all modules to unlock certificate
+                                </button>
+                            @endif
+                        </div>
                     </div>
                 </div>
             @empty
@@ -72,35 +110,51 @@
             @endforelse
         </div>
 
-        <!-- RIGHT COLUMN: User Progress -->
-        <div>
-            <div class="bg-white shadow rounded-xl p-6 text-center">
-                <div class="w-16 h-16 mx-auto bg-green-100 flex items-center justify-center rounded-full">
-                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" stroke-width="2"
-                         viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-800 mt-4">Your Training Progress</h3>
-                <p class="text-sm text-gray-500">Accomplish this now</p>
+        <!-- RIGHT COLUMN: Certificates Locker -->
+        <aside class="space-y-6">
+            <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
+                    <span class="w-8 h-8 flex items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 text-xl">🎓</span>
+                    Certificates
+                </h3>
+                <p class="text-xs text-gray-500 mb-4">Unlock certificates by completing every module in a training.</p>
 
-                <div class="mt-6">
-                    <div class="w-full bg-gray-200 rounded-full h-3">
-                        <div class="bg-green-500 h-3 rounded-full" style="width: 75%"></div>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-2">75% of total trainings</p>
-                </div>
-
-                <div class="mt-6">
-                    <img src="https://via.placeholder.com/400x200" alt="Certificate Preview"
-                         class="rounded-lg shadow">
-                    <a href="#" class="mt-4 inline-block px-5 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700">
-                        📥 Download E-Certificate
-                    </a>
+                <div class="space-y-4">
+                    @foreach($trainings as $trainingCert)
+                        @php
+                            $totalC = $trainingCert->files->where('type','module')->count();
+                            $readC = auth()->user()->reads()->whereIn('training_file_id', $trainingCert->files->pluck('id'))->count();
+                            $calculatedComplete = $totalC > 0 && $readC === $totalC;
+                            $complete = $calculatedComplete || ($trainingCert->progress >= 100);
+                            $progressC = max($trainingCert->progress ?? 0, $totalC>0 ? round(($readC/$totalC)*100) : 0);
+                        @endphp
+                        <div class="border border-gray-100 rounded-2xl p-4 flex items-start gap-4 bg-gradient-to-br from-white to-gray-50 hover:shadow transition">
+                            <div class="w-9 h-9 flex items-center justify-center rounded-lg {{ $complete ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400' }} text-lg">
+                                {{ $complete ? '✅' : '🔒' }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-gray-800 truncate">{{ $trainingCert->title }}</p>
+                                <p class="text-[11px] uppercase mt-0.5 {{ $complete ? 'text-green-600' : 'text-gray-400' }}">{{ $complete ? 'Ready' : 'Locked' }}</p>
+                                <div class="mt-2 flex items-center gap-2">
+                                    <div class="w-28 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                        <div class="h-full {{ $complete ? 'bg-green-500' : 'bg-indigo-400/60' }}" style="width: {{ $progressC }}%"></div>
+                                    </div>
+                                    <span class="text-[11px] text-gray-500">{{ $readC }}/{{ $totalC }}</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                @if($complete && $trainingCert->certificate_path)
+                                    <a href="{{ route('training.certificate', $trainingCert) }}" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-green-600 text-white shadow hover:bg-green-700 transition">Download</a>
+                                @else
+                                    <button disabled class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-200 text-gray-500 cursor-not-allowed">Locked</button>
+                                @endif
+                                <a href="{{ route('training.take', $trainingCert->id) }}" class="text-[11px] text-indigo-600 hover:underline font-medium">Open</a>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
-        </div>
+        </aside>
     </div>
 
     <!-- AJAX to track read progress -->

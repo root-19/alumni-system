@@ -52,7 +52,8 @@ class AlumniController extends Controller
         $post->load([
             'comments.user', 
             'comments.replies.user', 
-            'comments.likes'
+            'comments.likes',
+            'registrations.user'
         ]);
 
         return view('admin.events.show', compact('post'));
@@ -120,7 +121,8 @@ class AlumniController extends Controller
         $post->load([
             'comments.user', 
             'comments.replies.user', 
-            'comments.likes'
+            'comments.likes',
+            'registrations.user'
         ]);
 
         return view('admin.events.show', compact('post'));

@@ -1,5 +1,10 @@
 <x-layouts.app :title="$post->content ?? 'Event Details'">
     <div class="max-w-4xl mx-auto mt-8 space-y-8">
+        @if (session('success'))
+            <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-xl">
+                {{ session('success') }}
+            </div>
+        @endif
 
         {{-- Event Card --}}
         <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
@@ -18,6 +23,39 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2v-7H3v7a2 2 0 002 2z" />
                 </svg>
                 <span>Posted on {{ optional($post->created_at)->format('F j, Y \a\t g:i A') }}</span>
+            </div>
+
+            <div class="mt-4 flex items-center justify-between">
+                <div class="text-sm text-gray-700">
+                    {{ $post->registrations->count() }} attendee{{ $post->registrations->count() === 1 ? '' : 's' }} registered
+                </div>
+                @auth
+                    @php $isRegistered = $post->isRegisteredBy(auth()->user()); @endphp
+                    @if($isRegistered)
+                        <form method="POST" action="{{ route('events.unregister', $post) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition">
+                                Cancel Registration
+                            </button>
+                        </form>
+                    @else
+                        <form method="POST" action="{{ route('events.register', $post) }}" class="flex items-center gap-2">
+                            @csrf
+                            <select name="category" class="border border-gray-300 rounded-md text-sm px-2 py-1 text-black">
+                                <option value="Alumni">Alumni</option>
+                                <option value="Student">Student</option>
+                                <option value="Faculty">Faculty</option>
+                                <option value="Guest">Guest</option>
+                            </select>
+                            <button type="submit" class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition">
+                                Register
+                            </button>
+                        </form>
+                    @endif
+                @else
+                    <a href="{{ route('login') }}" class="text-green-700 hover:text-green-800 text-sm font-medium">Log in to register →</a>
+                @endauth
             </div>
         </div>
 
@@ -109,5 +147,64 @@
                 </div>
             @endforeach
         </div>
+
+        {{-- Public Attendees List --}}
+        <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Attendees</h2>
+            @if($post->registrations->isEmpty())
+                <p class="text-sm text-gray-500">No attendees yet. Be the first to register.</p>
+            @else
+                <ul class="space-y-2">
+                    @foreach($post->registrations as $registration)
+                        <li class="flex items-center justify-between text-sm">
+                            <span class="text-gray-900">{{ $registration->user?->name ?? 'Unknown' }}</span>
+                            <span class="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 border border-gray-200">{{ $registration->category ?? 'Alumni' }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </div>
+
+        @if(auth()->check() && auth()->user()->isAdmin())
+        <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Registrants</h2>
+            @if($post->registrations->isEmpty())
+                <p class="text-sm text-gray-500">No registrants yet.</p>
+            @else
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registered At</th>
+                                <th class="px-4 py-2"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach($post->registrations as $registration)
+                                <tr>
+                                    <td class="px-4 py-2 text-sm text-gray-900">{{ $registration->user?->name ?? 'Unknown' }}</td>
+                                    <td class="px-4 py-2 text-sm text-gray-700">{{ $registration->user?->email ?? '—' }}</td>
+                                    <td class="px-4 py-2 text-sm text-gray-700">{{ $registration->category ?? 'Alumni' }}</td>
+                                    <td class="px-4 py-2 text-sm text-gray-500">{{ $registration->created_at?->format('M d, Y g:i A') }}</td>
+                                    <td class="px-4 py-2 text-right">
+                                        <form method="POST" action="{{ route('admin.events.registrants.destroy', [$post, $registration]) }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="px-3 py-1.5 rounded-md bg-red-50 hover:bg-red-100 text-red-700 text-xs font-medium border border-red-200 transition">
+                                                Remove
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
+        @endif
     </div>
 </x-layouts.app>

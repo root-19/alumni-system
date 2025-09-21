@@ -14,6 +14,7 @@ class TrainingFile extends Model
         'original_name',
         'mime_type',
         'type',
+        'certificate_path',
     ];
 
     public function training()

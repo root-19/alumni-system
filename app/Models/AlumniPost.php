@@ -3,6 +3,7 @@
 namespace App\Models;
 use App\Models\Like;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 
 class AlumniPost extends Model
@@ -19,6 +20,17 @@ class AlumniPost extends Model
 
 public function likes() {
     return $this->hasMany(Like::class); // or belongsToMany if you have pivot table
+}
+
+public function registrations()
+{
+    return $this->hasMany(EventRegistration::class, 'alumni_post_id')->with('user');
+}
+
+public function isRegisteredBy(?User $user): bool
+{
+    if (!$user) return false;
+    return $this->registrations->contains('user_id', $user->id);
 }
 
 

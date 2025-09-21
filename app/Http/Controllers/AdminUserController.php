@@ -43,4 +43,30 @@ class AdminUserController extends Controller
         return redirect()->route('admin.users.create')
             ->with('success', 'User account created successfully!');
     }
+
+    // Bulk update multiple users (admin only)
+    public function bulkUpdate(Request $request)
+    {
+        $validated = $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'integer|exists:users,id',
+            'program' => 'nullable|string|max:255',
+            'year_graduated' => 'nullable|digits:4',
+            'role' => 'nullable|in:user,admin',
+            'status' => 'nullable|string|max:255',
+        ]);
+
+        $updates = collect($validated)
+            ->only(['program','year_graduated','role','status'])
+            ->filter(fn($v) => !(is_null($v) || $v === ''))
+            ->all();
+
+        if (empty($updates)) {
+            return back()->withErrors(['bulk' => 'No fields provided to update.'])->withInput();
+        }
+
+        User::whereIn('id', $validated['user_ids'])->update($updates);
+
+        return back()->with('success', 'Selected users updated successfully.');
+    }
 }

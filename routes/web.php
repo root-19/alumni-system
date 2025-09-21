@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Volt;
 use App\Models\User;
 use Livewire\Livewire;
@@ -9,6 +10,8 @@ use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EventRegistrationController;
 // use App\Models\User;
 use App\Models\Message;
 use Illuminate\Http\Request;
@@ -17,6 +20,7 @@ use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DonationController;
+use App\Http\Controllers\DocumentRequestController;
 // use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\Admin\TrainingController;
 // use App\Http\Controllers\TrainingController;
@@ -38,13 +42,36 @@ Route::get('/', function () {
 | User Dashboard
 |--------------------------------------------------------------------------
 */
+
+  Route::post('/alumni_post', [AlumniController::class, 'store'])->name('alumni_post.store');
+    Route::post('/admin/news', [NewsController::class, 'store'])->name('news.store');
+
+    Route::get('/news', function () {
+        $news = \App\Models\News::latest()->get();
+        $alumniPosts = \App\Models\AlumniPost::latest()->get();
+
+        $featuredNews = $news->first();
+        $featuredAlumni = $alumniPosts->first();
+
+        return view('news', compact('news', 'alumniPosts', 'featuredNews', 'featuredAlumni'));
+    })->name('news');
+
 Route::get('/trainings', [\App\Http\Controllers\TrainingController::class, 'index'])
     ->name('trainings.index');
 
-    Route::get('/trainings/{training}/take', [TrainingController::class, 'take'])
-    ->name('training.take');
+    Route::get('/trainings/{training}/take', [\App\Http\Controllers\TrainingController::class, 'take'])
+        ->name('training.take');
 
-Route::get('/dashboard', [NewsController::class, 'index'])->name('dashboard');
+    Route::post('/trainings/{training}/read/{file}', [\App\Http\Controllers\TrainingController::class, 'markAsRead'])
+        ->name('training.read');
+
+    Route::post('/trainings/{training}/progress', [\App\Http\Controllers\TrainingController::class, 'updateProgress'])
+        ->name('training.progress');
+        
+    Route::get('/trainings/{training}/certificate', [\App\Http\Controllers\TrainingController::class, 'downloadCertificate'])
+        ->name('training.certificate');
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 Route::get('/resumes/{resume}', [ResumeController::class, 'show'])->name('resumes.show');
 Route::get('/resume-view', [ResumeController::class, 'showResumeViewer'])->name('resume-view');
@@ -94,6 +121,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('trainings', [TrainingController::class, 'index'])->name('trainings.index');
     Route::get('trainings/create', [TrainingController::class, 'create'])->name('trainings.create');
     Route::post('trainings', [TrainingController::class, 'store'])->name('trainings.store');
+    // Bulk user update (admin)
+    Route::post('users/bulk-update', [AdminUserController::class, 'bulkUpdate'])
+        ->middleware(['auth','admin'])
+        ->name('users.bulk-update');
 });
 
 // Route::middleware(['auth', 'can:isAdmin'])->group(function () {
@@ -115,20 +146,95 @@ Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_p
 
     // Admin Dashboard
     Route::get('/admin/dashboard', function () {
-        $userCount = User::where('role', 'user')->count();
-        return view('admin.dashboard', compact('userCount'));
+    $userCount = User::where('role', 'user')->count();
+    $donations = \App\Models\Donation::with('user')->latest()->take(15)->get();
+    $totalDonationAmount = \App\Models\Donation::sum('amount');
+    $events = \App\Models\AlumniPost::latest()->take(15)->get();
+    $messages = \App\Models\Message::with('sender')->latest()->take(15)->get();
+    $messageCount = \App\Models\Message::count();
+    $news = \App\Models\News::latest()->take(15)->get();
+    return view('admin.dashboard', compact('userCount','donations','totalDonationAmount','events','messages','messageCount','news'));
     })->name('admin.dashboard');
+
+    // Role-based notifications endpoint
+    Route::get('/notifications/feed', function () {
+        $activities = collect();
+        $isAdmin = Auth::user()->role === 'admin';
+
+        if ($isAdmin) {
+            // Admin sees everything
+            $activities = $activities->merge(\App\Models\Donation::with('user')->latest()->take(10)->get()->map(fn($d) => [
+                'type' => 'donation',
+                'message' => ($d->user->name ?? 'Someone')." donated ₱".number_format($d->amount,2),
+                'time' => $d->created_at,
+            ]));
+            
+            $activities = $activities->merge(\App\Models\Comment::with('user')->latest()->take(10)->get()->map(fn($c) => [
+                'type' => 'comment',
+                'message' => ($c->user->name ?? 'User')." commented: ".str($c->content)->limit(50),
+                'time' => $c->created_at,
+            ]));
+            
+            $activities = $activities->merge(\App\Models\Like::with('user')->latest()->take(10)->get()->map(fn($l) => [
+                'type' => 'like',
+                'message' => ($l->user->name ?? 'User')." liked a post",
+                'time' => $l->created_at,
+            ]));
+        }
+
+        // Both admin and users see events/posts
+        $activities = $activities->merge(\App\Models\AlumniPost::with('comments')->latest()->take(10)->get()->map(fn($p) => [
+            'type' => 'event',
+            'message' => 'New event/post: '.str($p->content)->limit(60),
+            'time' => $p->created_at,
+        ]));
+
+        // Users only see messages addressed to them, admins see all messages
+        if ($isAdmin) {
+            $messages = \App\Models\Message::with('sender')->latest()->take(10)->get();
+        } else {
+            $messages = \App\Models\Message::with('sender')
+                ->where('receiver_id', Auth::id())
+                ->latest()
+                ->take(10)
+                ->get();
+        }
+        
+        $activities = $activities->merge($messages->map(fn($m) => [
+            'type' => 'message',
+            'message' => ($m->sender->name ?? 'User').": ".str($m->message)->limit(50),
+            'time' => $m->created_at,
+        ]));
+
+        // Both see news
+        $activities = $activities->merge(\App\Models\News::latest()->take(10)->get()->map(fn($n) => [
+            'type' => 'news',
+            'message' => 'News: '.str($n->title)->limit(60),
+            'time' => $n->created_at,
+        ]));
+
+        $activities = $activities->sortByDesc('time')->take(25)->values()->map(function($a){
+            $a['time_human'] = $a['time']->diffForHumans();
+            return $a;
+        });
+
+        return response()->json($activities);
+    })->middleware('auth')->name('notifications.feed');
 
 
     // Events routes - accessible by both admin and users
     Route::get('/events', [AlumniController::class, 'index'])->name('events');
     Route::get('/events/{post}', [AlumniController::class, 'show'])->name('events.show');
+    Route::post('/events/{post}/register', [EventRegistrationController::class, 'register'])->name('events.register');
+    Route::delete('/events/{post}/register', [EventRegistrationController::class, 'unregister'])->name('events.unregister');
     
     // Admin-only events management
     Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         Route::get('/events', [AlumniController::class, 'adminIndex'])->name('admin.events.index');
         Route::post('/events', [AlumniController::class, 'store'])->name('admin.events.store');
         Route::get('/events/{post}', [AlumniController::class, 'adminShow'])->name('admin.events.show');
+        Route::delete('/events/{post}/registrants/{registration}', [EventRegistrationController::class, 'destroy'])->name('admin.events.registrants.destroy');
+        Route::get('/registrations', [EventRegistrationController::class, 'index'])->name('admin.registrations.index');
     });
     
     // User interactions with events (likes, comments)
@@ -271,6 +377,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/room', fn() => view('room'))->name('room');
     Route::get('/view', fn() => view('view'))->name('view');
     // Route::get('/reports', fn() => view('reports'))->name('reports');
+    // Documents: user-facing
+    Route::get('/documents', [DocumentRequestController::class, 'index'])->name('documents.index');
+    Route::post('/documents', [DocumentRequestController::class, 'store'])->name('documents.store');
 });
 
 /*
@@ -283,6 +392,12 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
     Volt::route('settings/password', 'settings.password')->name('settings.password');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
+});
+
+// Admin Documents management
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/document-requests', [DocumentRequestController::class, 'adminIndex'])->name('admin.document-requests.index');
+    Route::patch('/document-requests/{documentRequest}', [DocumentRequestController::class, 'updateStatus'])->name('admin.document-requests.update');
 });
 
 require __DIR__ . '/auth.php';

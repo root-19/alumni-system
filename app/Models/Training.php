@@ -12,6 +12,7 @@ class Training extends Model
         'title',
         'description',
         'certificate_path',
+    'progress',
     ];
 
     public function files()

@@ -18,10 +18,14 @@
                         <h3 class="font-medium text-gray-800 mb-2">📘 Modules</h3>
                         <div class="max-h-40 overflow-y-auto border rounded-lg p-3 bg-gray-50 space-y-2">
                             @foreach($training->files->where('type', 'module') as $index => $file)
+                                @php
+                                    $isRead = auth()->user()->reads()->where('training_file_id', $file->id)->exists();
+                                @endphp
                                 <a href="{{ Storage::url($file->path) }}" target="_blank"
-                                   class="block text-blue-600 hover:underline text-sm"
-                                   onclick="markAsRead({{ $training->id }}, {{ $file->id }})">
-                                    {{ $index + 1 }}. {{ $file->original_name }}
+                                   id="module-{{ $file->id }}"
+                                   class="block text-blue-600 hover:underline text-sm {{ $isRead ? 'read' : '' }}"
+                                   onclick="markAsRead({{ $training->id }}, {{ $file->id }}, {{ $index + 1 }}, '{{ $file->original_name }}')">
+                                    @if($isRead) ✅ @endif {{ $index + 1 }}. {{ $file->original_name }}
                                 </a>
                             @endforeach
                         </div>
@@ -37,12 +41,12 @@
                             $progress = $total > 0 ? round(($read / $total) * 100) : 0;
                         @endphp
 
-                        <div class="w-full bg-gray-200 rounded-full h-3">
-                            <div class="bg-green-500 h-3 rounded-full text-xs text-center text-white"
+                        <div id="progress-bar-{{ $training->id }}" class="w-full bg-gray-200 rounded-full h-3" data-total="{{ $total }}" data-read="{{ $read }}">
+                            <div id="progress-fill-{{ $training->id }}" class="bg-green-500 h-3 rounded-full text-xs text-center text-white"
                                  style="width: {{ $progress }}%">
                             </div>
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">{{ $progress }}% Completed</p>
+                        <p id="progress-text-{{ $training->id }}" class="text-xs text-gray-500 mt-1">{{ $progress }}% Completed</p>
                     </div>
 
                     <!-- CERTIFICATE -->
@@ -98,12 +102,39 @@
 
     <!-- AJAX to track read progress -->
     <script>
-        function markAsRead(trainingId, fileId) {
+        function markAsRead(trainingId, fileId, index, name) {
+            const moduleLink = document.getElementById('module-' + fileId);
+            if (moduleLink.classList.contains('read')) return; // Already read
+
             fetch(`/trainings/${trainingId}/read/${fileId}`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Accept': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    // Mark as read visually
+                    moduleLink.classList.add('read');
+                    moduleLink.innerHTML = '✅ ' + index + '. ' + name;
+
+                    // Update progress
+                    const progressBar = document.getElementById('progress-bar-' + trainingId);
+                    const progressFill = document.getElementById('progress-fill-' + trainingId);
+                    const progressText = document.getElementById('progress-text-' + trainingId);
+
+                    let total = parseInt(progressBar.dataset.total);
+                    let read = parseInt(progressBar.dataset.read) + 1;
+                    progressBar.dataset.read = read;
+
+                    let newProgress = total > 0 ? Math.round((read / total) * 100) : 0;
+                    progressFill.style.width = newProgress + '%';
+                    progressText.textContent = newProgress + '% Completed';
+
+                    // If 100%, enable certificate if available
+                    if (newProgress === 100) {
+                        // Assuming there's a certificate button, but since it's conditional, might need to reload or handle
+                    }
                 }
             });
         }

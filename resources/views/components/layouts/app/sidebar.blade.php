@@ -30,102 +30,67 @@
 
     {{-- Navigation --}}
     <flux:navlist variant="outline">
-        <flux:navlist.group :heading="__('Platform')" class="grid gap-5">
+        <flux:navlist.group :heading="__('Platform')" class="flex flex-col text-2xl gap-1">
+            @auth
+                @php
+                    $role = auth()->user()?->role;
 
-         @auth
-            @php $role = auth()->user()?->role; @endphp
+                    $menus = [
+                        'user' => [
+                            ['route' => 'dashboard', 'label' => __('User Dashboard'), 'icon' => 'home', 'active' => 'dashboard'],
+                            ['route' => 'events', 'label' => __('Events'), 'icon' => 'calendar-days', 'active' => 'events'],
+                            ['route' => 'news', 'label' => __('Events & Updates'), 'icon' => 'newspaper', 'active' => 'news'],
+                            ['route' => 'message', 'label' => __('Message'), 'icon' => 'chat-bubble-left-right', 'active' => 'message'],
+                            ['route' => 'profile.edit', 'label' => __('Profile'), 'icon' => 'user-circle', 'active' => 'profile.edit'],
+                            ['route' => 'donations', 'label' => __('Giving Back'), 'icon' => 'heart', 'active' => 'donations'],
+                            ['route' => 'resume-view', 'label' => __('Resume'), 'icon' => 'document-text', 'active' => 'resume-view'],
+                            ['route' => 'trainings.index', 'label' => __('Training'), 'icon' => 'academic-cap', 'active' => 'trainings.index'],
+                            ['route' => 'documents.index', 'label' => __('Documents'), 'icon' => 'document-duplicate', 'active' => 'documents.index'],
 
-            @if($role === 'user')
-                <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                    {{ __('User Dashboard') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="calendar-days" :href="route('events')" :current="request()->routeIs('events')" wire:navigate>
-                    {{ __('Events') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="building-office" :href="route('room')" :current="request()->routeIs('room')" wire:navigate>
-                    {{ __('Room') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="eye" :href="route('view')" :current="request()->routeIs('view')" wire:navigate>
-                    {{ __('View') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="eye" :href="route('message')" :current="request()->routeIs('message')" wire:navigate>
-                    {{ __('Message') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="eye" :href="route('profile.edit')" :current="request()->routeIs('profile.edit')" wire:navigate>
-                    {{ __('Profile') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="eye" :href="route('donations')" :current="request()->routeIs('donations')" wire:navigate>
-                    {{ __('Giving back') }}
-                </flux:navlist.item>
-                  <flux:navlist.item icon="eye" :href="route('resume-view')" :current="request()->routeIs('resume-view')" wire:navigate>
-                    {{ __('Resume') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="calendar-days" :href="route('events')" :current="request()->routeIs('events')" wire:navigate>
-                    {{ __('Events') }}
-                </flux:navlist.item>
-                <flux:navlist.item 
-    icon="calendar-days" 
-    :href="route('trainings.index')" 
-    :current="request()->routeIs('trainings.index')" 
-    wire:navigate>
-    {{ __('Training') }}
-</flux:navlist.item>
-            @endif
+                        ],
+                        'assistant' => [
+                            ['route' => 'dashboard', 'label' => __('Assistant Dashboard'), 'icon' => 'home', 'active' => 'dashboard'],
+                            ['route' => 'givingBack', 'label' => __('Giving'), 'icon' => 'heart', 'active' => 'givingBack'],
+                            ['route' => 'accounts', 'label' => __('Accounts'), 'icon' => 'users', 'active' => 'accounts'],
+                            ['route' => 'news', 'label' => __('News & Updates'), 'icon' => 'newspaper', 'active' => 'news'],
+                            ['route' => 'events', 'label' => __('Events'), 'icon' => 'calendar-days', 'active' => 'events'],
+                        ],
+                        'admin' => [
+                            ['route' => 'dashboard', 'label' => __('Dashboard'), 'icon' => 'home', 'active' => 'dashboard'],
+                            ['route' => 'givingBack', 'label' => __('Giving'), 'icon' => 'heart', 'active' => 'givingBack'],
+                            ['route' => 'accounts', 'label' => __('Accounts'), 'icon' => 'users', 'active' => 'accounts'],
+                            ['route' => 'news', 'label' => __('Events & Updates'), 'icon' => 'newspaper', 'active' => 'news'],
+                            ['route' => 'admin.events.index', 'label' => __('Events'), 'icon' => 'calendar-days', 'active' => 'admin.events.*'],
+                            ['route' => 'admin.registrations.index', 'label' => __('Registrations'), 'icon' => 'clipboard-document-list', 'active' => 'admin.registrations.*'],
+                            ['route' => 'resume', 'label' => __('Resume'), 'icon' => 'document-text', 'active' => 'resume'],
+                            ['route' => 'report', 'label' => __('Reports'), 'icon' => 'presentation-chart-bar', 'active' => 'report'],
+                            ['route' => 'admin.contributor', 'label' => __('Contributor'), 'icon' => 'users', 'active' => 'admin.contributor'],
+                            ['route' => 'admin.register.form', 'label' => __('Create Account'), 'icon' => 'user-plus', 'active' => 'admin.register.form'],
+                            ['route' => 'admin.trainings.create', 'label' => __('Training Ground'), 'icon' => 'academic-cap', 'active' => 'admin.trainings.create'],
+                            ['route' => 'admin.trainings.index', 'label' => __('Training Data'), 'icon' => 'rectangle-group', 'active' => 'admin.trainings.index'],
+                            ['route' => 'admin.document-requests.index', 'label' => __('Document Requests'), 'icon' => 'inbox', 'active' => 'admin.document-requests.*'],
+                        ],
+                    ];
 
-            @if($role === 'assistant')
-                <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                    {{ __('Assistant Dashboard') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="gift" :href="route('givingBack')" :current="request()->routeIs('givingBack')" wire:navigate>
-                    {{ __('Giving') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="users" :href="route('accounts')" :current="request()->routeIs('accounts')" wire:navigate>
-                    {{ __('Accounts') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="newspaper" :href="route('news')" :current="request()->routeIs('news')" wire:navigate>
-                    {{ __('News and Updates') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="calendar-days" :href="route('events')" :current="request()->routeIs('events')" wire:navigate>
-                    {{ __('Events') }}
-                </flux:navlist.item>
-            @endif
+                    $menuItems = $menus[$role] ?? [];
+                @endphp
 
-            @if($role === 'admin')
-                <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                    {{ __('Dashboard') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="gift" :href="route('givingBack')" :current="request()->routeIs('givingBack')" wire:navigate>
-                    {{ __('Giving') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="users" :href="route('accounts')" :current="request()->routeIs('accounts')" wire:navigate>
-                    {{ __('Accounts') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="newspaper" :href="route('news')" :current="request()->routeIs('news')" wire:navigate>
-                    {{ __('Events & Updates') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="calendar-days" :href="route('admin.events.index')" :current="request()->routeIs('admin.events.*')" wire:navigate>
-                    {{ __('Events') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="document-text" :href="route('resume')" :current="request()->routeIs('resume')" wire:navigate>
-                    {{ __('Resume') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="chart-bar" :href="route('report')" :current="request()->routeIs('report')" wire:navigate>
-                    {{ __('Reports') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="chart-bar" :href="route('admin.contributor')" :current="request()->routeIs('admin.contributor')" wire:navigate>
-                    {{ __('Contributor') }}
-                </flux:navlist.item>
-                <flux:navlist.item  icon="user-plus"  :href="route('admin.register.form')" :current="request()->routeIs('admin.register.form')" wire:navigate>
-                    {{ __('Create Account') }}
-                </flux:navlist.item>
-                <flux:navlist.item  icon="user-plus"  :href="route('admin.trainings.create')" :current="request()->routeIs('admin.trainings.create')" wire:navigate>
-                    {{ __('Training Ground') }}
-                </flux:navlist.item>
-                 <flux:navlist.item  icon="user-plus"  :href="route('admin.trainings.index')" :current="request()->routeIs('admin.trainings.index')" wire:navigate>
-                    {{ __('Training Data') }}
-                </flux:navlist.item>
-            @endif
-         @endauth
+                {{-- Auto-render menu items based on role --}}
+                @foreach($menuItems as $item)
+                    <flux:navlist.item
+                        :icon="$item['icon']"
+                        :href="route($item['route'])"
+                        :current="request()->routeIs($item['active'])"
+                        wire:navigate
+                        class="rounded-md px-3 py-2 text-sm font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
+                        {{ $item['label'] }}
+                    </flux:navlist.item>
+                @endforeach
+
+                @if(empty($menuItems))
+                    <div class="text-xs text-white/60 px-3 py-2">{{ __('No menu available') }}</div>
+                @endif
+            @endauth
         </flux:navlist.group>
     </flux:navlist>
 
