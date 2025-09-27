@@ -19,4 +19,9 @@ class Training extends Model
     {
         return $this->hasMany(TrainingFile::class);
     }
+
+    public function userProgress()
+    {
+        return $this->hasMany(UserTrainingProgress::class);
+    }
 }

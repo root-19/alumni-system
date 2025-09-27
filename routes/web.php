@@ -67,9 +67,47 @@ Route::get('/trainings', [\App\Http\Controllers\TrainingController::class, 'inde
 
     Route::post('/trainings/{training}/progress', [\App\Http\Controllers\TrainingController::class, 'updateProgress'])
         ->name('training.progress');
+
+    Route::post('/trainings/{training}/module-progress/{file}', [\App\Http\Controllers\TrainingController::class, 'updateModuleProgress'])
+        ->name('training.module.progress');
         
     Route::get('/trainings/{training}/certificate', [\App\Http\Controllers\TrainingController::class, 'downloadCertificate'])
         ->name('training.certificate');
+
+    // Test route to verify progress saving (remove in production)
+    Route::get('/test-progress/{training}', function(\App\Models\Training $training) {
+        $user = auth()->user();
+        $total = $training->files->where('type', 'module')->count();
+        $read = $user->reads()->whereIn('training_file_id', $training->files->pluck('id'))->count();
+        $calculatedProgress = $total > 0 ? round(($read / $total) * 100) : 0;
+        
+        // Get user-specific progress
+        $userProgress = \App\Models\UserTrainingProgress::where('user_id', $user->id)
+            ->where('training_id', $training->id)
+            ->first();
+        $storedProgress = $userProgress ? $userProgress->progress : 0;
+        
+        // Get detailed module progress
+        $moduleProgresses = \App\Models\UserModuleProgress::where('user_id', $user->id)
+            ->whereIn('training_file_id', $training->files->pluck('id'))
+            ->get();
+
+        return response()->json([
+            'training_id' => $training->id,
+            'training_title' => $training->title,
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'global_progress' => $training->progress, // Old global progress
+            'user_stored_progress' => $storedProgress,
+            'user_calculated_progress' => $calculatedProgress,
+            'total_modules' => $total,
+            'read_modules' => $read,
+            'read_records' => $user->reads()->whereIn('training_file_id', $training->files->pluck('id'))->get(),
+            'user_progress_record' => $userProgress,
+            'detailed_module_progress' => $moduleProgresses,
+            'average_completion' => $moduleProgresses->count() > 0 ? round($moduleProgresses->avg('completion_percentage')) : 0
+        ]);
+    })->name('test.progress');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

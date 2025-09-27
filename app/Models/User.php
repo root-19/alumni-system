@@ -23,6 +23,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the training progress for the user.
+     */
+    public function trainingProgress()
+    {
+        return $this->hasMany(UserTrainingProgress::class);
+    }
+
+    /**
+     * Get the module progress for the user.
+     */
+    public function moduleProgress()
+    {
+        return $this->hasMany(UserModuleProgress::class);
+    }
+
+    /**
      * Document requests submitted by the user.
      */
     public function documentRequests()
