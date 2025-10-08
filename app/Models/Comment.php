@@ -29,4 +29,8 @@ class Comment extends Model
     public function likedBy(User $user) {
         return $this->likes()->where('user_id', $user->id)->exists();
     }
+
+    public function getLikesCountAttribute() {
+        return $this->likes()->count();
+    }
 }

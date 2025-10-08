@@ -13,33 +13,47 @@
                 {{ $post->content ?? 'No content available' }}
             </h1>
 
-            <div class="flex items-center text-sm text-gray-500 space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2v-7H3v7a2 2 0 002 2z" />
-                </svg>
-                <span>Posted on {{ optional($post->created_at)->format('F j, Y \a\t g:i A') }}</span>
+            <div class="flex items-center text-xs uppercase tracking-wide text-gray-500 space-x-2">
+                <span class="font-semibold text-gray-600">Posted:</span>
+                <span>{{ optional($post->created_at)->format('F j, Y \a\t g:i A') }}</span>
             </div>
         </div>
 
         {{-- Comments Section --}}
         <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center space-x-2">
-                <span>💬</span>
-                <span>Comments ({{ $post->comments->count() }})</span>
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">
+                Comments ({{ $post->comments->count() }})
             </h2>
 
-            {{-- Add Comment Form --}}
+            {{-- Add Comment Button --}}
             @auth
-            <form action="{{ route('comments.store', $post->id) }}" method="POST" class="mb-6">
-                @csrf
-                <textarea name="content" rows="3" 
-                          class="border border-gray-300 rounded-lg w-full p-3 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition text-black" 
-                          placeholder="Write your comment..." required></textarea>
-                <button type="submit" 
-                        class="mt-3 bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg font-medium shadow-sm transition">
-                    Post Comment
+            <div class="mb-6">
+                <button type="button" onclick="document.getElementById('comment-form').classList.toggle('hidden')" 
+                        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm transition flex items-center space-x-2">
+                    <span>Add Comment</span>
+                    <svg class="w-4 h-4 transition-transform" id="comment-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
                 </button>
-            </form>
+                
+                {{-- Comment Form (Hidden by default) --}}
+                <form action="{{ route('comments.store', $post->id) }}" method="POST" id="comment-form" class="hidden mt-4">
+                    @csrf
+                    <textarea name="content" rows="3" 
+                              class="border border-gray-300 rounded-lg w-full p-3 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition text-black" 
+                              placeholder="Write your comment..." required></textarea>
+                    <div class="flex gap-2 mt-3">
+                        <button type="submit" 
+                                class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg font-medium shadow-sm transition">
+                            Post Comment
+                        </button>
+                        <button type="button" onclick="document.getElementById('comment-form').classList.add('hidden')" 
+                                class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-lg font-medium shadow-sm transition">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
             @else
             <p class="text-gray-500 mb-6">Please <a href="{{ route('login') }}" class="text-green-600 hover:underline">log in</a> to post a comment.</p>
             @endauth
@@ -67,20 +81,16 @@
                         {{-- Like Button --}}
                         <form action="{{ route('comments.like', $comment) }}" method="POST" class="inline">
                             @csrf
-                            <button type="submit" class="flex items-center space-x-1 hover:text-green-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="{{ $comment->likedBy(auth()->user()) ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
-                                </svg>
-                                <span>{{ $comment->likes_count ?? 0 }}</span>
+                            <button type="submit" class="flex items-center space-x-1 hover:text-green-600 transition-colors">
+                                <span class="text-gray-500">Like:</span>
+                                <span class="text-gray-600">{{ $comment->likes_count ?? 0 }}</span>
                             </button>
                         </form>
 
                         {{-- Reply Toggle --}}
-                        <button type="button" onclick="document.getElementById('reply-form-{{ $comment->id }}').classList.toggle('hidden')" class="flex items-center space-x-1 hover:text-green-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h4l3 3 4-4 4 4 3-3h4" />
-                            </svg>
-                            <span>{{ $comment->replies->count() ?? 0 }}</span>
+                        <button type="button" onclick="document.getElementById('reply-form-{{ $comment->id }}').classList.toggle('hidden')" class="flex items-center space-x-1 hover:text-green-600 transition-colors">
+                            <span class="text-gray-500">Reply:</span>
+                            <span class="text-gray-600">{{ $comment->replies->count() ?? 0 }}</span>
                         </button>
                     </div>
 
@@ -95,14 +105,20 @@
 
                         {{-- Reply Form --}}
                         @auth
-                        <form action="{{ route('comments.reply', $comment) }}" method="POST" id="reply-form-{{ $comment->id }}" class="mt-2 flex hidden">
+                        <form action="{{ route('comments.reply', $comment) }}" method="POST" id="reply-form-{{ $comment->id }}" class="mt-2 hidden">
                             @csrf
-                            <input type="text" name="content" 
-                                   placeholder="Write a reply..." 
-                                   class="border border-gray-300 rounded-lg p-2 flex-1 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition text-black">
-                            <button type="submit" class="ml-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition">
-                                Reply
-                            </button>
+                            <textarea name="content" rows="2" 
+                                      placeholder="Write a reply..." 
+                                      class="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition text-black"></textarea>
+                            <div class="flex gap-2 mt-2">
+                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition">
+                                    Reply
+                                </button>
+                                <button type="button" onclick="document.getElementById('reply-form-{{ $comment->id }}').classList.add('hidden')" 
+                                        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">
+                                    Cancel
+                                </button>
+                            </div>
                         </form>
                         @endauth
                     </div>
@@ -110,4 +126,28 @@
             @endforeach
         </div>
     </div>
+
+    <script>
+        // Toggle comment form with arrow rotation
+        function toggleCommentForm() {
+            const form = document.getElementById('comment-form');
+            const arrow = document.getElementById('comment-arrow');
+            
+            form.classList.toggle('hidden');
+            
+            if (form.classList.contains('hidden')) {
+                arrow.style.transform = 'rotate(0deg)';
+            } else {
+                arrow.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Update the button onclick to use the new function
+        document.addEventListener('DOMContentLoaded', function() {
+            const commentButton = document.querySelector('button[onclick*="comment-form"]');
+            if (commentButton) {
+                commentButton.setAttribute('onclick', 'toggleCommentForm()');
+            }
+        });
+    </script>
 </x-layouts.app>

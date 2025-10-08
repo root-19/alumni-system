@@ -139,7 +139,7 @@ Route::get('/donations', function () {
 Route::post('/donations', [DonationController::class, 'store'])->name('donations.store');
 
 Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
 Route::middleware(['auth'])->group(function () {
     Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_posts.store');
@@ -194,70 +194,11 @@ Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_p
     return view('admin.dashboard', compact('userCount','donations','totalDonationAmount','events','messages','messageCount','news'));
     })->name('admin.dashboard');
 
-    // Role-based notifications endpoint
-    Route::get('/notifications/feed', function () {
-        $activities = collect();
-        $isAdmin = Auth::user()->role === 'admin';
-
-        if ($isAdmin) {
-            // Admin sees everything
-            $activities = $activities->merge(\App\Models\Donation::with('user')->latest()->take(10)->get()->map(fn($d) => [
-                'type' => 'donation',
-                'message' => ($d->user->name ?? 'Someone')." donated ₱".number_format($d->amount,2),
-                'time' => $d->created_at,
-            ]));
-            
-            $activities = $activities->merge(\App\Models\Comment::with('user')->latest()->take(10)->get()->map(fn($c) => [
-                'type' => 'comment',
-                'message' => ($c->user->name ?? 'User')." commented: ".str($c->content)->limit(50),
-                'time' => $c->created_at,
-            ]));
-            
-            $activities = $activities->merge(\App\Models\Like::with('user')->latest()->take(10)->get()->map(fn($l) => [
-                'type' => 'like',
-                'message' => ($l->user->name ?? 'User')." liked a post",
-                'time' => $l->created_at,
-            ]));
-        }
-
-        // Both admin and users see events/posts
-        $activities = $activities->merge(\App\Models\AlumniPost::with('comments')->latest()->take(10)->get()->map(fn($p) => [
-            'type' => 'event',
-            'message' => 'New event/post: '.str($p->content)->limit(60),
-            'time' => $p->created_at,
-        ]));
-
-        // Users only see messages addressed to them, admins see all messages
-        if ($isAdmin) {
-            $messages = \App\Models\Message::with('sender')->latest()->take(10)->get();
-        } else {
-            $messages = \App\Models\Message::with('sender')
-                ->where('receiver_id', Auth::id())
-                ->latest()
-                ->take(10)
-                ->get();
-        }
-        
-        $activities = $activities->merge($messages->map(fn($m) => [
-            'type' => 'message',
-            'message' => ($m->sender->name ?? 'User').": ".str($m->message)->limit(50),
-            'time' => $m->created_at,
-        ]));
-
-        // Both see news
-        $activities = $activities->merge(\App\Models\News::latest()->take(10)->get()->map(fn($n) => [
-            'type' => 'news',
-            'message' => 'News: '.str($n->title)->limit(60),
-            'time' => $n->created_at,
-        ]));
-
-        $activities = $activities->sortByDesc('time')->take(25)->values()->map(function($a){
-            $a['time_human'] = $a['time']->diffForHumans();
-            return $a;
-        });
-
-        return response()->json($activities);
-    })->middleware('auth')->name('notifications.feed');
+    // Notification routes
+    Route::get('/notifications/feed', [\App\Http\Controllers\NotificationController::class, 'feed'])->name('notifications.feed');
+    Route::post('/notifications/mark-read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+    Route::post('/notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::get('/notifications/unread-count', [\App\Http\Controllers\NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
 
 
     // Events routes - accessible by both admin and users
@@ -404,6 +345,9 @@ Route::middleware(['auth'])->group(function () {
 */
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/assistant/dashboard', fn() => view('assistant.dashboard'))->name('assistant.dashboard');
+    Route::get('/assistant/document-requests', fn() => view('assistant.document-requests'))->name('assistant.document-requests');
+    Route::get('/assistant/account-management', fn() => view('assistant.account-management'))->name('assistant.account-management');
+    Route::get('/assistant/helpdesk', fn() => view('assistant.helpdesk'))->name('assistant.helpdesk');
 });
 
 /*

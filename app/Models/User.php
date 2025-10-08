@@ -47,6 +47,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the notifications for the user.
+     */
+    public function notifications()
+    {
+        return $this->hasMany(\App\Models\Notification::class);
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
@@ -117,6 +125,14 @@ class User extends Authenticatable
     public function isUser(): bool
     {
         return in_array($this->role, ['user', 'User']) || empty($this->role);
+    }
+
+    /**
+     * Check if the user is an assistant.
+     */
+    public function isAssistant(): bool
+    {
+        return in_array($this->role, ['assistant', 'Assistant']);
     }
 
     /**

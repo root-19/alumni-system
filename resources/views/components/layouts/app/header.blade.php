@@ -10,8 +10,8 @@
 
         {{-- Profile --}}
         <div class="flex items-center gap-2 cursor-pointer relative">
-            @if(auth()->user()?->profile_image)
-                <img src="{{ asset('storage/' . auth()->user()->profile_image) }}" 
+            @if(auth()->user()?->profile_image_path)
+                <img src="{{ asset('storage/' . auth()->user()->profile_image_path) }}" 
                      alt="Profile Image"
                      class="w-10 h-10 rounded-full object-cover border-2 border-gray-300">
             @else
@@ -39,20 +39,77 @@
             unreadCount: 0,
             init() {
                 this.fetchFeed();
+                this.fetchUnreadCount();
                 setInterval(() => this.fetchFeed(), 30000);
+                setInterval(() => this.fetchUnreadCount(), 10000);
             },
             fetchFeed() {
                 fetch('{{ route('notifications.feed') }}')
                     .then(r => r.json())
                     .then(data => {
-                        this.items = data.map(d => ({...d, read: false}));
-                        this.unreadCount = this.items.filter(i => !i.read).length;
+                        this.items = data;
                         this.loading = false;
                     });
             },
+            fetchUnreadCount() {
+                fetch('{{ route('notifications.unread-count') }}')
+                    .then(r => r.json())
+                    .then(data => {
+                        this.unreadCount = data.unread_count;
+                    });
+            },
+            markAsRead(notificationId) {
+                fetch('{{ route('notifications.mark-read') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        notification_id: notificationId
+                    })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        this.unreadCount = data.unread_count || 0;
+                        // Update the specific item
+                        const item = this.items.find(i => i.id === notificationId);
+                        if (item) {
+                            item.is_read = true;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error marking notification as read:', error);
+                    // Still update the UI even if the request fails
+                    const item = this.items.find(i => i.id === notificationId);
+                    if (item) {
+                        item.is_read = true;
+                    }
+                });
+            },
             markAllRead() {
-                this.items = this.items.map(i => ({...i, read: true}));
-                this.unreadCount = 0;
+                fetch('{{ route('notifications.mark-all-read') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        this.items = this.items.map(i => ({...i, is_read: true}));
+                        this.unreadCount = 0;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error marking all notifications as read:', error);
+                    // Still update the UI even if the request fails
+                    this.items = this.items.map(i => ({...i, is_read: true}));
+                    this.unreadCount = 0;
+                });
             },
             colorFor(type) {
                 return {
@@ -104,12 +161,15 @@
                         <li class="p-4 text-center text-xs text-gray-500">No notifications</li>
                     </template>
                     <template x-for="(item, idx) in items" :key="idx">
-                        <li class="px-4 py-3 text-sm flex gap-2 hover:bg-gray-50" :class="{'bg-blue-50': !item.read}">
+                        <li class="px-4 py-3 text-sm flex gap-2 hover:bg-gray-50 cursor-pointer" 
+                            :class="{'bg-blue-50': !item.is_read}"
+                            @click="markAsRead(item.id)">
                             <div class="w-2 h-2 mt-2 rounded-full" :class="colorFor(item.type)"></div>
                             <div class="flex-1">
                                 <p class="text-gray-700" x-text="item.message"></p>
                                 <span class="text-xs text-gray-400" x-text="item.time_human"></span>
                             </div>
+                            <div x-show="!item.is_read" class="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                         </li>
                     </template>
                 </ul>

@@ -62,9 +62,9 @@
 
         <div class="mb-3">
             <label class="block">Profile Image</label>
-            <input type="file" name="profile_image_path" class="border p-2 w-full">
+            <input type="file" name="profile_image" accept="image/*" class="border p-2 w-full">
             @if($user->profile_image_path)
-                <img src="{{ asset($user->profile_image_path) }}" class="w-20 mt-2">
+                <img src="{{ asset('storage/' . $user->profile_image_path) }}" class="w-20 mt-2">
             @endif
         </div>
 

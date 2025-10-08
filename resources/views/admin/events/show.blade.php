@@ -61,9 +61,8 @@
 
         {{-- Comments Section --}}
         <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center space-x-2">
-                <span>💬</span>
-                <span>Comments ({{ $post->comments->count() }})</span>
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">
+                Comments ({{ $post->comments->count() }})
             </h2>
 
             {{-- Add Comment Form --}}
@@ -106,18 +105,14 @@
                         <form action="{{ route('comments.like', $comment) }}" method="POST" class="inline">
                             @csrf
                             <button type="submit" class="flex items-center space-x-1 hover:text-green-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="{{ $comment->likedBy(auth()->user()) ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
-                                </svg>
+                                <span class="text-gray-500">Like:</span>
                                 <span>{{ $comment->likes_count ?? 0 }}</span>
                             </button>
                         </form>
 
                         {{-- Reply Toggle --}}
                         <button type="button" onclick="document.getElementById('reply-form-{{ $comment->id }}').classList.toggle('hidden')" class="flex items-center space-x-1 hover:text-green-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h4l3 3 4-4 4 4 3-3h4" />
-                            </svg>
+                            <span class="text-gray-500">comment:</span>
                             <span>{{ $comment->replies->count() ?? 0 }}</span>
                         </button>
                     </div>
@@ -133,14 +128,20 @@
 
                         {{-- Reply Form --}}
                         @auth
-                        <form action="{{ route('comments.reply', $comment) }}" method="POST" id="reply-form-{{ $comment->id }}" class="mt-2 flex hidden">
+                        <form action="{{ route('comments.reply', $comment) }}" method="POST" id="reply-form-{{ $comment->id }}" class="mt-2 hidden">
                             @csrf
-                            <input type="text" name="content" 
-                                   placeholder="Write a reply..." 
-                                   class="border border-gray-300 rounded-lg p-2 flex-1 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition text-black">
-                            <button type="submit" class="ml-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition">
-                                Reply
-                            </button>
+                            <textarea name="content" rows="2" 
+                                      placeholder="Write a reply..." 
+                                      class="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition text-black"></textarea>
+                            <div class="flex gap-2 mt-2">
+                                <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition">
+                                    Reply
+                                </button>
+                                <button type="button" onclick="document.getElementById('reply-form-{{ $comment->id }}').classList.add('hidden')" 
+                                        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">
+                                    Cancel
+                                </button>
+                            </div>
                         </form>
                         @endauth
                     </div>
@@ -207,4 +208,28 @@
         </div>
         @endif
     </div>
+
+    <script>
+        // Toggle comment form with arrow rotation
+        function toggleCommentForm() {
+            const form = document.getElementById('comment-form');
+            const arrow = document.getElementById('comment-arrow');
+            
+            form.classList.toggle('hidden');
+            
+            if (form.classList.contains('hidden')) {
+                arrow.style.transform = 'rotate(0deg)';
+            } else {
+                arrow.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Update the button onclick to use the new function
+        document.addEventListener('DOMContentLoaded', function() {
+            const commentButton = document.querySelector('button[onclick*="comment-form"]');
+            if (commentButton) {
+                commentButton.setAttribute('onclick', 'toggleCommentForm()');
+            }
+        });
+    </script>
 </x-layouts.app>

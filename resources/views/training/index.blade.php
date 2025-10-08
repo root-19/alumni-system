@@ -77,10 +77,24 @@
 
                         <!-- Progress -->
                         @php
+                            // Use the same progress calculation logic as training/take.blade.php
                             $total = $training->files->where('type', 'module')->count();
                             $read = auth()->user()->reads()->whereIn('training_file_id', $training->files->pluck('id'))->count();
-                            $calculatedProgress = $total > 0 ? round(($read / $total) * 100) : 0;
-                            $progress = max($calculatedProgress, $training->progress ?? 0);
+                            
+                            // Get detailed module progress (same as take page)
+                            $moduleProgresses = \App\Models\UserModuleProgress::where('user_id', auth()->id())
+                                ->whereIn('training_file_id', $training->files->pluck('id'))
+                                ->get();
+                            
+                            // Calculate progress from detailed module data (same as take page)
+                            if ($moduleProgresses->count() > 0) {
+                                $averageProgress = round($moduleProgresses->avg('completion_percentage'));
+                                $progress = $averageProgress;
+                            } else {
+                                // Fallback to simple read count
+                                $calculatedProgress = $total > 0 ? round(($read / $total) * 100) : 0;
+                                $progress = max($calculatedProgress, $training->progress ?? 0);
+                            }
                         @endphp
                         <div class="pt-4">
                             <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
@@ -93,8 +107,8 @@
                         <div class="pt-4 border-t border-gray-100">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl {{ ($progress >= 100 || $training->progress >= 100) ? 'bg-gradient-to-r from-green-100 to-emerald-100' : 'bg-gray-100' }} flex items-center justify-center">
-                                        @if(($progress >= 100 || $training->progress >= 100) && $training->certificate_path)
+                                    <div class="w-10 h-10 rounded-xl {{ $progress >= 100 ? 'bg-gradient-to-r from-green-100 to-emerald-100' : 'bg-gray-100' }} flex items-center justify-center">
+                                        @if($progress >= 100 && $training->certificate_path)
                                             <span class="text-green-600 text-lg">🎓</span>
                                         @else
                                             <span class="text-gray-400 text-lg">🔒</span>
@@ -102,15 +116,17 @@
                                     </div>
                                     <div>
                                         <p class="text-sm font-semibold text-gray-800">Certificate</p>
-                                        @if(($progress >= 100 || $training->progress >= 100) && $training->certificate_path)
+                                        @if($progress >= 100 && $training->certificate_path)
                                             <p class="text-xs text-green-600 font-medium">Ready to download</p>
+                                        @elseif($progress >= 100 && !$training->certificate_path)
+                                            <p class="text-xs text-amber-600 font-medium">Certificate not available</p>
                                         @else
-                                            <p class="text-xs text-gray-500">Complete all modules to unlock</p>
+                                            <p class="text-xs text-gray-500">Complete all modules to unlock ({{ $progress }}%)</p>
                                         @endif
                                     </div>
                                 </div>
                                 
-                                @if(($progress >= 100 || $training->progress >= 100) && $training->certificate_path)
+                                @if($progress >= 100 && $training->certificate_path)
                                     <a href="{{ route('training.certificate', $training) }}"
                                        class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl shadow-md hover:shadow-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105">
                                         <span>📥</span>
@@ -144,11 +160,26 @@
                 <div class="space-y-4">
                     @foreach($trainings as $trainingCert)
                         @php
+                            // Use the same progress calculation logic as training/take.blade.php
                             $totalC = $trainingCert->files->where('type','module')->count();
                             $readC = auth()->user()->reads()->whereIn('training_file_id', $trainingCert->files->pluck('id'))->count();
-                            $calculatedComplete = $totalC > 0 && $readC === $totalC;
-                            $complete = $calculatedComplete || ($trainingCert->progress >= 100);
-                            $progressC = max($trainingCert->progress ?? 0, $totalC>0 ? round(($readC/$totalC)*100) : 0);
+                            
+                            // Get detailed module progress (same as take page)
+                            $moduleProgressesC = \App\Models\UserModuleProgress::where('user_id', auth()->id())
+                                ->whereIn('training_file_id', $trainingCert->files->pluck('id'))
+                                ->get();
+                            
+                            // Calculate progress from detailed module data (same as take page)
+                            if ($moduleProgressesC->count() > 0) {
+                                $averageProgressC = round($moduleProgressesC->avg('completion_percentage'));
+                                $progressC = $averageProgressC;
+                            } else {
+                                // Fallback to simple read count
+                                $calculatedProgressC = $totalC > 0 ? round(($readC / $totalC) * 100) : 0;
+                                $progressC = max($calculatedProgressC, $trainingCert->progress ?? 0);
+                            }
+                            
+                            $complete = $progressC >= 100;
                         @endphp
                         <div class="border border-gray-100 rounded-2xl p-4 flex items-start gap-4 bg-gradient-to-br from-white to-gray-50 hover:shadow transition">
                             <div class="w-9 h-9 flex items-center justify-center rounded-lg {{ $complete ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400' }} text-lg">

@@ -14,7 +14,7 @@ Here are your details:
 - **Contact Number:** {{ $user->contact_number ?? 'N/A' }}
 - **Address:** {{ $user->address ?? 'N/A' }}
 
-@if($user->profile_image)
+@if($user->profile_image_path)
 You also uploaded a profile image ✅
 @endif
 

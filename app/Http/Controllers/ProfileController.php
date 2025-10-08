@@ -8,6 +8,13 @@ use App\Models\User;
 
 class ProfileController extends Controller
 {
+    // Show the profile page
+    public function show()
+    {
+        $user = Auth::user();
+        return view('profile', compact('user'));
+    }
+
     // Show the edit form
     public function edit()
     {
@@ -34,13 +41,14 @@ class ProfileController extends Controller
         ]);
 
         // Handle image upload
-      if ($request->hasFile('profile_image')) {
-    $path = $request->file('profile_image')->store('profiles', 'public');
-    $user->profile_image = $path; // ✅ use profile_image column
-}
+        if ($request->hasFile('profile_image')) {
+            $path = $request->file('profile_image')->store('profiles', 'public');
+            $user->profile_image_path = $path; // ✅ use correct database column
+        }
+        
         // Update other fields (except password!)
         $user->update($request->except(['password', 'profile_image']));
 
-        return redirect()->route('profile.edit')->with('success', 'Profile updated successfully!');
+        return redirect()->back()->with('success', 'Profile updated successfully!');
     }
 }

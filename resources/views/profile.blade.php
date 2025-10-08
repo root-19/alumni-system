@@ -2,11 +2,16 @@
     <x-slot name="title">Profile</x-slot>
 
     <div class="max-w-3xl mx-auto p-8 rounded-2xl shadow-lg border border-gray-100">
-        <h1 class="text-3xl font-bold text-blackmb-6">My Profile</h1>
+        <h1 class="text-3xl font-bold text-black mb-6">My Profile</h1>
+        
+        @if (session('success'))
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
+                {{ session('success') }}
+            </div>
+        @endif
 
         <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="space-y-6">
             @csrf
-            @method('PUT')
 
             {{-- Name --}}
             <div>
@@ -15,6 +20,9 @@
                     class="w-full border border-gray-300 text-black placeholder-gray-400 
                            focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 rounded-lg shadow-sm"
                     placeholder="Enter your name">
+                @error('name')
+                    <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+                @enderror
             </div>
 
             {{-- Middle Name --}}
@@ -42,6 +50,9 @@
                     class="w-full border border-gray-300 text-black placeholder-gray-400 
                            focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 rounded-lg shadow-sm"
                     placeholder="Enter graduation year">
+                @error('year_graduated')
+                    <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+                @enderror
             </div>
 
             {{-- Program --}}
@@ -80,6 +91,9 @@
                     class="w-full border border-gray-300 text-gray-900 placeholder-gray-400 
                            focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 rounded-lg shadow-sm"
                     placeholder="Enter contact number">
+                @error('contact_number')
+                    <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+                @enderror
             </div>
 
             {{-- Address --}}
@@ -94,9 +108,12 @@
             {{-- Profile Image --}}
             <div>
                 <label class="block text-sm font-medium text-black mb-1">Profile Image</label>
-                <input type="file" name="profile_image_path" 
+                <input type="file" name="profile_image" accept="image/*"
                     class="w-full border border-gray-300 text-black placeholder-gray-400 
                            focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 rounded-lg shadow-sm">
+                @error('profile_image')
+                    <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+                @enderror
                 @if($user->profile_image_path)
                     <img src="{{ asset('storage/' . $user->profile_image_path) }}" 
                          class="mt-4 w-28 h-28 rounded-full shadow-md object-cover border-2 border-gray-200">

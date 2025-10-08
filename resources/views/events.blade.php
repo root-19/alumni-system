@@ -21,6 +21,20 @@
                                 {{ $post->content }}
                             </p>
 
+                            {{-- Meta: likes & comments --}}
+                            <div class="flex items-center gap-8 mb-4 text-xs font-medium tracking-wide text-gray-600 uppercase">
+                                @php $likeCount = method_exists($post, 'likes') ? $post->likes->count() : ($post->like_count ?? 0); @endphp
+                                @php $commentCount = method_exists($post, 'comments') ? $post->comments->count() : ($post->comment_count ?? 0); @endphp
+                                <span class="flex items-center gap-1">
+                                    <span class="text-gray-500">Like:</span>
+                                    <span class="text-gray-800">{{ $likeCount }}</span>
+                                </span>
+                                <span class="flex items-center gap-1">
+                                    <span class="text-gray-500">Comment:</span>
+                                    <span class="text-gray-800">{{ $commentCount }}</span>
+                                </span>
+                            </div>
+
                             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-400">
                                 {{-- Date & Time --}}
                                 <span class="mb-2 sm:mb-0">

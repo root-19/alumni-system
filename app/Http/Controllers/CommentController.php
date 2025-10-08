@@ -40,10 +40,14 @@ class CommentController extends Controller
 
     public function like(Comment $comment)
     {
-        CommentLike::firstOrCreate([
-            'comment_id' => $comment->id,
-            'user_id'    => auth()->id()
-        ]);
+        $userId = auth()->id();
+        $like = $comment->likes()->where('user_id', $userId)->first();
+
+        if ($like) {
+            $like->delete(); // Unlike
+        } else {
+            $comment->likes()->create(['user_id' => $userId]);
+        }
 
         return back();
     }

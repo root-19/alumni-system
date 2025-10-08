@@ -77,8 +77,8 @@
                                         </td>
                                         {{-- Profile Image --}}
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            @if($user->profile_image)
-                                                <img src="{{ asset('storage/' . $user->profile_image) }}" alt="Profile Image" class="w-12 h-12 rounded-full object-cover border border-gray-300 shadow-sm">
+                                            @if($user->profile_image_path)
+                                                <img src="{{ asset('storage/' . $user->profile_image_path) }}" alt="Profile Image" class="w-12 h-12 rounded-full object-cover border border-gray-300 shadow-sm">
                                             @else
                                                 <span class="text-gray-500 italic">No Image</span>
                                             @endif

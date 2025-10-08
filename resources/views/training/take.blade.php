@@ -18,11 +18,11 @@
                     <span class="w-6 h-6 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 text-sm">📊</span>
                     Training Progress
                 </h3>
-                <span class="text-2xl font-bold text-indigo-600">{{ $progress }}%</span>
+                <span class="text-2xl font-bold text-green-600">{{ $progress }}%</span>
             </div>
             
             <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-                <div id="training-progress-fill" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-4 rounded-full transition-all duration-700 ease-out" style="width: {{ $progress }}%"></div>
+                <div id="training-progress-fill" class="bg-gradient-to-r from-green-400 to-emerald-500 h-4 rounded-full transition-all duration-700 ease-out" style="width: {{ $progress }}%"></div>
             </div>
             
             <div class="flex items-center justify-between mt-2">
@@ -55,10 +55,10 @@
                     <div class="mb-4 p-3 bg-gray-50 rounded-xl border border-gray-200">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-sm font-medium text-gray-700">Module Progress</span>
-                            <span class="text-sm font-bold {{ $moduleProgressPercent >= 100 ? 'text-green-600' : 'text-indigo-600' }}">{{ $moduleProgressPercent }}%</span>
+                            <span class="text-sm font-bold text-green-600">{{ $moduleProgressPercent }}%</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                            <div class="h-2.5 rounded-full transition-all duration-500 {{ $moduleProgressPercent >= 100 ? 'bg-gradient-to-r from-green-400 to-emerald-500' : 'bg-gradient-to-r from-indigo-400 to-purple-500' }}" style="width: {{ $moduleProgressPercent }}%"></div>
+                            <div class="h-2.5 rounded-full transition-all duration-500 bg-gradient-to-r from-green-400 to-emerald-500" style="width: {{ $moduleProgressPercent }}%"></div>
                         </div>
                         @if($moduleProgress)
                             <div class="flex items-center justify-between mt-2 text-xs text-gray-500">
@@ -222,18 +222,14 @@
             
             const fill = document.getElementById('training-progress-fill');
             const text = document.getElementById('training-progress-text');
-            const progressPercent = document.querySelector('.text-2xl.font-bold.text-indigo-600');
+            const progressPercent = document.querySelector('.text-2xl.font-bold.text-green-600');
             
             console.log(`Overall progress update: ${moduleCount} modules, total=${totalCompletion}, avg=${overallProgress}%`);
             
             if (fill) {
                 fill.style.width = overallProgress + '%';
                 // Update progress bar color based on completion
-                if (overallProgress >= 100) {
-                    fill.className = 'bg-gradient-to-r from-green-400 to-emerald-500 h-4 rounded-full transition-all duration-700 ease-out';
-                } else {
-                    fill.className = 'bg-gradient-to-r from-indigo-500 to-purple-500 h-4 rounded-full transition-all duration-700 ease-out';
-                }
+                fill.className = 'bg-gradient-to-r from-green-400 to-emerald-500 h-4 rounded-full transition-all duration-700 ease-out';
             }
             
             if (text) text.textContent = `${completedModules}/${moduleCount} modules completed`;

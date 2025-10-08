@@ -4,25 +4,25 @@
         <!-- LEFT COLUMN: Trainings List -->
         <div class="lg:col-span-2 space-y-8">
             <div class="flex items-center justify-between">
-                <h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                <h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
                     {{ __('My Trainings') }}
                 </h1>
             </div>
 
             @forelse($trainings as $training)
-                <div class="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all duration-300 overflow-hidden">
+                <div class="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-green-200 transition-all duration-300 overflow-hidden">
                     <div class="p-6 space-y-5">
                         <!-- Training Header -->
                         <div class="flex items-start justify-between gap-4">
                             <div>
-                                <h2 class="text-xl font-semibold text-gray-800 group-hover:text-indigo-600 transition">
+                                <h2 class="text-xl font-semibold text-gray-800 group-hover:text-green-600 transition">
                                     {{ $training->title }}
                                 </h2>
                                 <p class="text-xs uppercase tracking-wide text-gray-400 mt-1">
                                     Created {{ $training->created_at->format('M d, Y') }}
                                 </p>
                             </div>
-                            <span class="px-3 py-1 text-[11px] rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 font-medium shadow-sm">
+                            <span class="px-3 py-1 text-[11px] rounded-full bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 font-medium shadow-sm">
                                 Training
                             </span>
                         </div>
@@ -34,19 +34,19 @@
                         <!-- MODULES -->
                         <div>
                             <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                <span class="inline-flex w-6 h-6 items-center justify-center rounded-md bg-indigo-100 text-indigo-600 text-sm">📘</span>
+                                <span class="inline-flex w-6 h-6 items-center justify-center rounded-md bg-green-100 text-green-600 text-sm">📘</span>
                                 Modules
                             </h3>
-                            <div class="max-h-48 overflow-y-auto border border-dashed rounded-xl p-3 bg-gradient-to-br from-gray-50 to-white space-y-2 scrollbar-thin scrollbar-thumb-indigo-300/40">
+                            <div class="max-h-48 overflow-y-auto border border-dashed border-green-200 rounded-xl p-3 bg-gradient-to-br from-green-50 to-white space-y-2 scrollbar-thin scrollbar-thumb-green-300/40">
                                 @foreach($training->files->where('type', 'module') as $index => $file)
                                     @php
                                         $isRead = auth()->user()->reads()->where('training_file_id', $file->id)->exists();
                                     @endphp
-                                    <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-indigo-50 transition">
+                                    <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-green-50 transition">
                                         <div class="w-6 text-[11px] text-gray-400 font-mono">{{ $index + 1 }}</div>
-                                        <a href="{{ Storage::url($file->path) }}" target="_blank"
+                                        <a href="{{ route('training.take', $training->id) }}"
                                            id="module-{{ $file->id }}"
-                                           class="flex-1 text-sm font-medium truncate {{ $isRead ? 'text-indigo-600' : 'text-gray-700' }} hover:text-indigo-700"
+                                           class="flex-1 text-sm font-medium truncate {{ $isRead ? 'text-green-600' : 'text-gray-700' }} hover:text-green-700"
                                            onclick="markAsRead({{ $training->id }}, {{ $file->id }}, {{ $index + 1 }}, '{{ $file->original_name }}')">
                                             {{ $file->original_name }}
                                         </a>
@@ -85,7 +85,7 @@
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2 text-xs text-gray-500">
                                     <div class="w-24 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                                        <div id="progress-fill-{{ $training->id }}" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500"
+                                        <div id="progress-fill-{{ $training->id }}" class="h-full bg-gradient-to-r from-green-400 to-emerald-500 transition-all duration-500"
                                              style="width: {{ $progress }}%"></div>
                                     </div>
                                     <span>{{ $progress }}%</span>
@@ -98,7 +98,7 @@
                         </div>
 
                     <!-- CERTIFICATE SECTION -->
-                    <div class="mt-6 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl border border-gray-200">
+                    <div class="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <div class="w-12 h-12 rounded-xl {{ $progress >= 100 ? 'bg-gradient-to-r from-green-100 to-emerald-100' : 'bg-gray-100' }} flex items-center justify-center">
@@ -145,7 +145,7 @@
         <aside class="space-y-6">
             <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
                 <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-4">
-                    <span class="w-8 h-8 flex items-center justify-center rounded-xl bg-indigo-100 text-indigo-600 text-xl">🎓</span>
+                    <span class="w-8 h-8 flex items-center justify-center rounded-xl bg-green-100 text-green-600 text-xl">🎓</span>
                     Certificates
                 </h3>
                 <p class="text-xs text-gray-500 mb-4">Unlock certificates by completing every module in a training.</p>
@@ -183,7 +183,7 @@
                                 <p class="text-[11px] uppercase mt-0.5 {{ $complete ? 'text-green-600' : 'text-gray-400' }}">{{ $complete ? 'Ready' : 'Locked' }}</p>
                                 <div class="mt-2 flex items-center gap-2">
                                     <div class="w-28 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                                        <div class="h-full {{ $complete ? 'bg-green-500' : 'bg-indigo-400/60' }}" style="width: {{ $progressC }}%"></div>
+                                        <div class="h-full bg-gradient-to-r from-green-400 to-emerald-500" style="width: {{ $progressC }}%"></div>
                                     </div>
                                     <span class="text-[11px] text-gray-500">{{ $readC }}/{{ $totalC }}</span>
                                 </div>
@@ -203,7 +203,7 @@
                                     </button>
                                 @endif
                                 <a href="{{ route('training.take', $trainingCert->id) }}" 
-                                   class="text-[11px] text-indigo-600 hover:text-indigo-700 hover:underline font-medium transition-colors">Open Training</a>
+                                   class="text-[11px] text-green-600 hover:text-green-700 hover:underline font-medium transition-colors">Open Training</a>
                             </div>
                         </div>
                     @endforeach
@@ -212,8 +212,8 @@
 
             <!-- Overall Progress Summary -->
             <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 text-center">
-                <div class="w-16 h-16 mx-auto bg-gradient-to-r from-indigo-100 to-purple-100 flex items-center justify-center rounded-full mb-4">
-                    <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2"
+                <div class="w-16 h-16 mx-auto bg-gradient-to-r from-green-100 to-emerald-100 flex items-center justify-center rounded-full mb-4">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" stroke-width="2"
                          viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round"
                               d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -248,12 +248,12 @@
 
                 <div class="mb-4">
                     <div class="w-full bg-gray-200 rounded-full h-3">
-                        <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-3 rounded-full transition-all duration-700" style="width: {{ $overallProgress }}%"></div>
+                        <div class="bg-gradient-to-r from-green-400 to-emerald-500 h-3 rounded-full transition-all duration-700" style="width: {{ $overallProgress }}%"></div>
                     </div>
                     <p class="text-xs text-gray-500 mt-2">{{ $completedTrainings }}/{{ $totalTrainings }} trainings completed</p>
                 </div>
 
-                <div class="text-2xl font-bold text-indigo-600 mb-2">{{ $overallProgress }}%</div>
+                <div class="text-2xl font-bold text-green-600 mb-2">{{ $overallProgress }}%</div>
                 <p class="text-xs text-gray-500">Overall completion rate</p>
             </div>
         </aside>
