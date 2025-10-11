@@ -14,6 +14,18 @@ class CommentController extends Controller
     {
         $request->validate(['content' => 'required|string']);
 
+        // Check for duplicate comment within last 30 seconds
+        $recentComment = Comment::where('user_id', auth()->id())
+            ->where('alumni_post_id', $post->id)
+            ->where('parent_id', null)
+            ->where('content', $request->content)
+            ->where('created_at', '>=', now()->subSeconds(30))
+            ->first();
+
+        if ($recentComment) {
+            return back()->with('error', 'Please wait before posting the same comment again.');
+        }
+
         Comment::create([
             'user_id' => auth()->id(),
             'alumni_post_id' => $post->id,
@@ -21,12 +33,23 @@ class CommentController extends Controller
             'content' => $request->content
         ]);
 
-        return back();
+        return back()->with('success', 'Comment posted successfully!');
     }
 
     public function reply(Request $request, Comment $comment)
     {
         $request->validate(['content' => 'required|string']);
+
+        // Check for duplicate reply within last 30 seconds
+        $recentReply = Comment::where('user_id', auth()->id())
+            ->where('parent_id', $comment->id)
+            ->where('content', $request->content)
+            ->where('created_at', '>=', now()->subSeconds(30))
+            ->first();
+
+        if ($recentReply) {
+            return back()->with('error', 'Please wait before posting the same reply again.');
+        }
 
         Comment::create([
             'user_id' => auth()->id(),
@@ -35,7 +58,7 @@ class CommentController extends Controller
             'content' => $request->content
         ]);
 
-        return back();
+        return back()->with('success', 'Reply posted successfully!');
     }
 
     public function like(Comment $comment)

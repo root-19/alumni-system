@@ -5,6 +5,12 @@
                 {{ session('success') }}
             </div>
         @endif
+        
+        @if (session('error'))
+            <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl">
+                {{ session('error') }}
+            </div>
+        @endif
 
         {{-- Event Card --}}
         <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
@@ -45,8 +51,7 @@
                             <select name="category" class="border border-gray-300 rounded-md text-sm px-2 py-1 text-black">
                                 <option value="Alumni">Alumni</option>
                                 <option value="Student">Student</option>
-                                <option value="Faculty">Faculty</option>
-                                <option value="Guest">Guest</option>
+                               
                             </select>
                             <button type="submit" class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition">
                                 Register
@@ -112,21 +117,87 @@
 
                         {{-- Reply Toggle --}}
                         <button type="button" onclick="document.getElementById('reply-form-{{ $comment->id }}').classList.toggle('hidden')" class="flex items-center space-x-1 hover:text-green-600">
-                            <span class="text-gray-500">comment:</span>
+                            <span class="text-gray-500">reply:</span>
                             <span>{{ $comment->replies->count() ?? 0 }}</span>
                         </button>
                     </div>
 
                     {{-- Replies --}}
-                    <div class="ml-6 mt-3 space-y-2">
+                    <div class="ml-6 mt-3 space-y-3">
                         @foreach($comment->replies as $reply)
                         <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                            <strong class="text-gray-900">{{ $reply->user?->name ?? 'Unknown User' }}</strong>
-                            <p class="text-gray-800">{{ $reply->content }}</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <strong class="text-gray-900">{{ $reply->user?->name ?? 'Unknown User' }}</strong>
+                                    <span class="text-xs text-gray-400">{{ $reply->created_at?->diffForHumans() ?? '' }}</span>
+                                </div>
+                            </div>
+                            <p class="text-gray-800 mt-1">{{ $reply->content }}</p>
+                            
+                            {{-- Reply Action Buttons --}}
+                            <div class="flex items-center mt-2 space-x-4 text-sm text-gray-500">
+                                {{-- Like Button for Reply --}}
+                                <form action="{{ route('comments.like', $reply) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="flex items-center space-x-1 hover:text-green-600 transition-colors">
+                                        <span class="text-gray-500">Like:</span>
+                                        <span class="text-gray-600">{{ $reply->likes_count ?? 0 }}</span>
+                                    </button>
+                                </form>
+
+                                {{-- Reply to Reply Toggle --}}
+                                <button type="button" onclick="document.getElementById('reply-to-reply-form-{{ $reply->id }}').classList.toggle('hidden')" class="flex items-center space-x-1 hover:text-green-600 transition-colors">
+                                    <span class="text-gray-500">Reply:</span>
+                                    <span class="text-gray-600">{{ $reply->replies->count() ?? 0 }}</span>
+                                </button>
+                            </div>
+
+                            {{-- Nested Replies (Replies to Replies) --}}
+                            <div class="ml-6 mt-3 space-y-2">
+                                @foreach($reply->replies as $nestedReply)
+                                <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 shadow-sm">
+                                    <div class="flex items-center space-x-2">
+                                        <strong class="text-gray-900">{{ $nestedReply->user?->name ?? 'Unknown User' }}</strong>
+                                        <span class="text-xs text-gray-400">{{ $nestedReply->created_at?->diffForHumans() ?? '' }}</span>
+                                    </div>
+                                    <p class="text-gray-800 mt-1">{{ $nestedReply->content }}</p>
+                                    
+                                    {{-- Like Button for Nested Reply --}}
+                                    <div class="mt-2">
+                                        <form action="{{ route('comments.like', $nestedReply) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit" class="flex items-center space-x-1 hover:text-green-600 transition-colors text-sm text-gray-500">
+                                                <span class="text-gray-500">Like:</span>
+                                                <span class="text-gray-600">{{ $nestedReply->likes_count ?? 0 }}</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                @endforeach
+
+                                {{-- Reply to Reply Form --}}
+                                @auth
+                                <form action="{{ route('comments.reply', $reply) }}" method="POST" id="reply-to-reply-form-{{ $reply->id }}" class="mt-2 hidden">
+                                    @csrf
+                                    <textarea name="content" rows="2" 
+                                              placeholder="Write a reply to {{ $reply->user?->name }}..." 
+                                              class="border border-gray-300 rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 transition text-black"></textarea>
+                                    <div class="flex gap-2 mt-2">
+                                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition">
+                                            Reply
+                                        </button>
+                                        <button type="button" onclick="document.getElementById('reply-to-reply-form-{{ $reply->id }}').classList.add('hidden')" 
+                                                class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </form>
+                                @endauth
+                            </div>
                         </div>
                         @endforeach
 
-                        {{-- Reply Form --}}
+                        {{-- Reply Form for Main Comment --}}
                         @auth
                         <form action="{{ route('comments.reply', $comment) }}" method="POST" id="reply-form-{{ $comment->id }}" class="mt-2 hidden">
                             @csrf
@@ -150,7 +221,7 @@
         </div>
 
         {{-- Public Attendees List --}}
-        <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+        {{-- <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
             <h2 class="text-xl font-semibold text-gray-900 mb-4">Attendees</h2>
             @if($post->registrations->isEmpty())
                 <p class="text-sm text-gray-500">No attendees yet. Be the first to register.</p>
@@ -164,7 +235,7 @@
                     @endforeach
                 </ul>
             @endif
-        </div>
+        </div> --}}
 
         @if(auth()->check() && auth()->user()->isAdmin())
         <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">

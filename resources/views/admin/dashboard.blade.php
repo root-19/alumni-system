@@ -155,11 +155,51 @@
                 <h3 class="text-lg font-semibold text-gray-800">Create Event</h3>
                 <div class="grid md:grid-cols-3 gap-4">
                     <div class="space-y-2 md:col-span-3">
-                        <form action="{{ route('alumni_posts.store') }}" method="POST" enctype="multipart/form-data" class="bg-gray-50 p-4 rounded-xl border">
+                        <form action="{{ route('alumni_posts.store') }}" method="POST" enctype="multipart/form-data" class="bg-gray-50 p-4 rounded-xl border space-y-4">
                             @csrf
-                            <textarea name="content" placeholder="Event details..." class="w-full rounded-md border border-gray-300 text-black px-3 py-2 mb-2 focus:ring-blue-500 focus:border-blue-500" required></textarea>
-                            <input type="file" name="image" class="text-sm text-blue-500 font-bold mb-2" />
-                            <button type="submit" class="bg-gradient-to-b from-green-700 to-green-500 cursor-pointer text-white px-4 py-2 rounded-md hover:bg-blue-700">Post Event</button>
+                            
+                            <!-- Event Title -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Event Title</label>
+                                <input type="text" name="title" placeholder="Enter event title..." value="{{ old('title') }}"
+                                       class="w-full rounded-md border border-gray-300 text-black px-3 py-2 focus:ring-blue-500 focus:border-blue-500" />
+                            </div>
+                            
+                            <!-- Event Description -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Event Description</label>
+                                <textarea name="description" placeholder="Enter event description..." rows="3"
+                                          class="w-full rounded-md border border-gray-300 text-black px-3 py-2 focus:ring-blue-500 focus:border-blue-500">{{ old('description') }}</textarea>
+                            </div>
+                            
+                            <!-- Event Date -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Event Date & Time</label>
+                                <input type="datetime-local" name="event_date" value="{{ old('event_date') }}"
+                                       class="w-full rounded-md border border-gray-300 text-black px-3 py-2 focus:ring-blue-500 focus:border-blue-500" />
+                            </div>
+                            
+                            <!-- Event Location -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Event Location</label>
+                                <input type="text" name="location" placeholder="Enter event location..." value="{{ old('location') }}"
+                                       class="w-full rounded-md border border-gray-300 text-black px-3 py-2 focus:ring-blue-500 focus:border-blue-500" />
+                            </div>
+                            
+                            <!-- Event Content -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Event Content</label>
+                                <textarea name="content" placeholder="Event details and information..." rows="4"
+                                          class="w-full rounded-md border border-gray-300 text-black px-3 py-2 focus:ring-blue-500 focus:border-blue-500" required>{{ old('content') }}</textarea>
+                            </div>
+                            
+                            <!-- Event Image -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Event Image</label>
+                                <input type="file" name="image" class="text-sm text-blue-500 font-bold" />
+                            </div>
+                            
+                            <button type="submit" class="bg-gradient-to-b from-green-700 to-green-500 cursor-pointer text-white px-6 py-2 rounded-md hover:bg-blue-700">Create Event</button>
                         </form>
                     </div>
                 </div>

@@ -207,6 +207,12 @@ Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_p
     Route::post('/events/{post}/register', [EventRegistrationController::class, 'register'])->name('events.register');
     Route::delete('/events/{post}/register', [EventRegistrationController::class, 'unregister'])->name('events.unregister');
     
+    // User attendance routes
+    Route::middleware(['auth'])->group(function () {
+        Route::post('/events/{post}/attendance', [\App\Http\Controllers\AttendanceController::class, 'store'])->name('events.attendance.store');
+        Route::put('/attendance/{attendance}', [\App\Http\Controllers\AttendanceController::class, 'update'])->name('attendance.update');
+    });
+    
     // Admin-only events management
     Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
         Route::get('/events', [AlumniController::class, 'adminIndex'])->name('admin.events.index');
@@ -214,6 +220,15 @@ Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_p
         Route::get('/events/{post}', [AlumniController::class, 'adminShow'])->name('admin.events.show');
         Route::delete('/events/{post}/registrants/{registration}', [EventRegistrationController::class, 'destroy'])->name('admin.events.registrants.destroy');
         Route::get('/registrations', [EventRegistrationController::class, 'index'])->name('admin.registrations.index');
+        
+        // Attendance management routes
+        Route::get('/attendance', [\App\Http\Controllers\AttendanceController::class, 'index'])->name('admin.attendance.index');
+        Route::post('/attendance/{post}', [\App\Http\Controllers\AttendanceController::class, 'store'])->name('admin.attendance.store');
+        Route::put('/attendance/{attendance}', [\App\Http\Controllers\AttendanceController::class, 'update'])->name('admin.attendance.update');
+        Route::post('/attendance/{registration}/mark-attended', [\App\Http\Controllers\AttendanceController::class, 'markAttended'])->name('admin.attendance.mark-attended');
+        Route::delete('/attendance/{registration}', [\App\Http\Controllers\AttendanceController::class, 'destroy'])->name('admin.attendance.destroy');
+        Route::get('/attendance/{post}/stats', [\App\Http\Controllers\AttendanceController::class, 'getEventStats'])->name('admin.attendance.stats');
+        Route::get('/attendance/{post}/export', [\App\Http\Controllers\AttendanceController::class, 'export'])->name('admin.attendance.export');
     });
     
     // User interactions with events (likes, comments)
@@ -348,6 +363,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/assistant/document-requests', fn() => view('assistant.document-requests'))->name('assistant.document-requests');
     Route::get('/assistant/account-management', fn() => view('assistant.account-management'))->name('assistant.account-management');
     Route::get('/assistant/helpdesk', fn() => view('assistant.helpdesk'))->name('assistant.helpdesk');
+    
+    // Assistant access to attendance management
+    Route::middleware(['auth', 'assistant'])->prefix('assistant')->group(function () {
+        Route::get('/attendance', [\App\Http\Controllers\AttendanceController::class, 'index'])->name('assistant.attendance.index');
+        Route::post('/attendance/{post}', [\App\Http\Controllers\AttendanceController::class, 'store'])->name('assistant.attendance.store');
+        Route::put('/attendance/{attendance}', [\App\Http\Controllers\AttendanceController::class, 'update'])->name('assistant.attendance.update');
+        Route::post('/attendance/{registration}/mark-attended', [\App\Http\Controllers\AttendanceController::class, 'markAttended'])->name('assistant.attendance.mark-attended');
+        Route::delete('/attendance/{registration}', [\App\Http\Controllers\AttendanceController::class, 'destroy'])->name('assistant.attendance.destroy');
+        Route::get('/attendance/{post}/stats', [\App\Http\Controllers\AttendanceController::class, 'getEventStats'])->name('assistant.attendance.stats');
+        Route::get('/attendance/{post}/export', [\App\Http\Controllers\AttendanceController::class, 'export'])->name('assistant.attendance.export');
+    });
 });
 
 /*

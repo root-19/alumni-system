@@ -26,11 +26,19 @@ class AlumniController extends Controller
     {
         $request->validate([
             'content' => 'required|string',
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'event_date' => 'nullable|date',
+            'location' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         $data = [
             'content' => $request->content,
+            'title' => $request->title,
+            'description' => $request->description,
+            'event_date' => $request->event_date,
+            'location' => $request->location,
             'user_id' => auth()->id(),
         ];
 
@@ -42,7 +50,7 @@ class AlumniController extends Controller
 
         AlumniPost::create($data);
 
-        return redirect()->back()->with('success', 'Post created successfully!');
+        return redirect()->back()->with('success', 'Event created successfully!');
     }
 
     // Show a single post with comments and likes
@@ -64,6 +72,18 @@ class AlumniController extends Controller
     {
         $request->validate(['content' => 'required|string']);
 
+        // Check for duplicate comment within last 30 seconds
+        $recentComment = Comment::where('user_id', auth()->id())
+            ->where('alumni_post_id', $post->id)
+            ->where('parent_id', null)
+            ->where('content', $request->content)
+            ->where('created_at', '>=', now()->subSeconds(30))
+            ->first();
+
+        if ($recentComment) {
+            return redirect()->back()->with('error', 'Please wait before posting the same comment again.');
+        }
+
         Comment::create([
             'user_id' => auth()->id(),
             'alumni_post_id' => $post->id, // Make sure your comments table has alumni_post_id
@@ -71,13 +91,24 @@ class AlumniController extends Controller
             'content' => $request->content
         ]);
 
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Comment posted successfully!');
     }
 
     // Store a reply
     public function reply(Request $request, Comment $comment)
     {
         $request->validate(['content' => 'required|string']);
+
+        // Check for duplicate reply within last 30 seconds
+        $recentReply = Comment::where('user_id', auth()->id())
+            ->where('parent_id', $comment->id)
+            ->where('content', $request->content)
+            ->where('created_at', '>=', now()->subSeconds(30))
+            ->first();
+
+        if ($recentReply) {
+            return redirect()->back()->with('error', 'Please wait before posting the same reply again.');
+        }
 
         Comment::create([
             'user_id' => auth()->id(),
@@ -86,7 +117,7 @@ class AlumniController extends Controller
             'content' => $request->content
         ]);
 
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Reply posted successfully!');
     }
 
     public function like(\App\Models\Comment $comment) {
