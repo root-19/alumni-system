@@ -109,7 +109,7 @@
                         <!-- Bulk Status Update -->
                         <div class="border border-gray-200 rounded-lg p-4">
                             <h4 class="font-medium text-gray-900 mb-3">Bulk Status Update</h4>
-                            <form action="{{ route('admin.users.bulk-update') }}" method="POST" class="space-y-3">
+                            <form action="{{ route('admin.users.bulk-update') }}" method="POST" class="space-y-3 text-black">
                                 @csrf
                                 <select name="filter_field" class="w-full rounded-md border-gray-300 text-sm">
                                     <option value="">Select Filter</option>
@@ -133,7 +133,7 @@
                         <!-- Bulk Role Update -->
                         <div class="border border-gray-200 rounded-lg p-4">
                             <h4 class="font-medium text-gray-900 mb-3">Bulk Role Update</h4>
-                            <form action="{{ route('admin.users.bulk-update') }}" method="POST" class="space-y-3">
+                            <form action="{{ route('admin.users.bulk-update') }}" method="POST" class="space-y-3 text-black">
                                 @csrf
                                 <select name="filter_field" class="w-full rounded-md border-gray-300 text-sm">
                                     <option value="">Select Filter</option>
