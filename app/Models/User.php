@@ -73,6 +73,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'is_alumni',
     ];
 
     /**
@@ -149,6 +150,22 @@ class User extends Authenticatable
     public static function getRegularUsers()
     {
         return static::where('role', 'user')->orWhereNull('role')->get();
+    }
+
+    /**
+     * Check if the user is an alumni.
+     */
+    public function isAlumni(): bool
+    {
+        return $this->is_alumni === true;
+    }
+
+    /**
+     * Get all alumni users.
+     */
+    public static function getAlumni()
+    {
+        return static::where('is_alumni', true)->get();
     }
 //     return $this->hasMany(TrainingRead::class);
 // }

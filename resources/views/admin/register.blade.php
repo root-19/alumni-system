@@ -134,6 +134,47 @@
                     </div>
                 </div>
 
+                <!-- Alumni Status Selection -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Alumni Status</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="relative">
+                            <input 
+                                type="radio" 
+                                id="alumni_yes" 
+                                name="is_alumni" 
+                                value="1" 
+                                {{ old('is_alumni') == '1' ? 'checked' : '' }}
+                                class="sr-only peer"
+                                required
+                            >
+                            <label for="alumni_yes" class="flex flex-col items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-blue-300 transition-all duration-200">
+                                <svg class="w-6 h-6 text-gray-600 peer-checked:text-blue-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span class="text-sm font-medium text-gray-700 peer-checked:text-blue-700">Alumni</span>
+                            </label>
+                        </div>
+                        <div class="relative">
+                            <input 
+                                type="radio" 
+                                id="alumni_no" 
+                                name="is_alumni" 
+                                value="0" 
+                                {{ old('is_alumni') == '0' ? 'checked' : '' }}
+                                class="sr-only peer"
+                                required
+                            >
+                            <label for="alumni_no" class="flex flex-col items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-blue-300 transition-all duration-200">
+                                <svg class="w-6 h-6 text-gray-600 peer-checked:text-blue-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                <span class="text-sm font-medium text-gray-700 peer-checked:text-blue-700">Not Alumni</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Password -->
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Password</label>

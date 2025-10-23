@@ -147,76 +147,34 @@
                 </div>
             </div>
 
-            <!-- Divider -->
-            <hr class="my-8">
-
-            <!-- Post New Event -->
-            <div class="space-y-6">
-                <h3 class="text-lg font-semibold text-gray-800">Create Event</h3>
-                <div class="grid md:grid-cols-3 gap-4">
-                    <div class="space-y-2 md:col-span-3">
-                        <form action="{{ route('alumni_posts.store') }}" method="POST" enctype="multipart/form-data" class="bg-gray-50 p-4 rounded-xl border space-y-4">
-                            @csrf
-                            
-                            <!-- Event Title -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Event Title</label>
-                                <input type="text" name="title" placeholder="Enter event title..." value="{{ old('title') }}"
-                                       class="w-full rounded-md border border-gray-300 text-black px-3 py-2 focus:ring-blue-500 focus:border-blue-500" />
-                            </div>
-                            
-                            <!-- Event Description -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Event Description</label>
-                                <textarea name="description" placeholder="Enter event description..." rows="3"
-                                          class="w-full rounded-md border border-gray-300 text-black px-3 py-2 focus:ring-blue-500 focus:border-blue-500">{{ old('description') }}</textarea>
-                            </div>
-                            
-                            <!-- Event Date -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Event Date & Time</label>
-                                <input type="datetime-local" name="event_date" value="{{ old('event_date') }}"
-                                       class="w-full rounded-md border border-gray-300 text-black px-3 py-2 focus:ring-blue-500 focus:border-blue-500" />
-                            </div>
-                            
-                            <!-- Event Location -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Event Location</label>
-                                <input type="text" name="location" placeholder="Enter event location..." value="{{ old('location') }}"
-                                       class="w-full rounded-md border border-gray-300 text-black px-3 py-2 focus:ring-blue-500 focus:border-blue-500" />
-                            </div>
-                            
-                            <!-- Event Content -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Event Content</label>
-                                <textarea name="content" placeholder="Event details and information..." rows="4"
-                                          class="w-full rounded-md border border-gray-300 text-black px-3 py-2 focus:ring-blue-500 focus:border-blue-500" required>{{ old('content') }}</textarea>
-                            </div>
-                            
-                            <!-- Event Image -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Event Image</label>
-                                <input type="file" name="image" class="text-sm text-blue-500 font-bold" />
-                            </div>
-                            
-                            <button type="submit" class="bg-gradient-to-b from-green-700 to-green-500 cursor-pointer text-white px-6 py-2 rounded-md hover:bg-blue-700">Create Event</button>
-                        </form>
-                    </div>
+            <!-- Quick Actions Section -->
+            <div class="mt-8 space-y-6">
+                <h3 class="text-lg font-semibold text-gray-800">Quick Actions</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <a href="{{ route('admin.news') }}" class="flex items-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200 hover:from-green-100 hover:to-emerald-100 transition-all duration-200">
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Manage News & Events</h4>
+                            <p class="text-sm text-gray-600">Create and manage news articles and events</p>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ route('accounts') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hover:from-blue-100 hover:to-indigo-100 transition-all duration-200">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">User Management</h4>
+                            <p class="text-sm text-gray-600">Manage user accounts and permissions</p>
+                        </div>
+                    </a>
                 </div>
-            </div>
-
-            <!-- News Section -->
-            <div class="mt-10 space-y-4">
-                <h3 class="text-lg font-semibold text-gray-800">Create News</h3>
-                <form action="{{ route('news.store') }}" method="POST" enctype="multipart/form-data" class="bg-gray-50 p-4 rounded-xl border">
-                    @csrf
-                    <input type="text" name="title" placeholder="News Title..." class="w-full rounded-md border text-black border-gray-300 px-3 py-2 mb-4 focus:ring-blue-500 focus:border-blue-500" required />
-                    <textarea name="content" rows="4" placeholder="Type news content here..." class="w-full rounded-md border text-black border-gray-300 px-3 py-2 focus:ring-blue-500 focus:border-blue-500" required></textarea>
-                    <div class="flex justify-between items-center mt-4">
-                        <input type="file" name="image" class="text-sm text-blue-500 font-bold" />
-                        <button type="submit" class="bg-gradient-to-b from-green-700 to-green-500 cursor-pointer text-white px-4 py-2 rounded-md hover:bg-blue-700">Post News</button>
-                    </div>
-                </form>
             </div>
 
         </div>

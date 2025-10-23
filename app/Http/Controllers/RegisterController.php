@@ -21,6 +21,7 @@ class RegisterController extends Controller
             'email'    => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
             'role'     => 'required|in:user,assistant',
+            'is_alumni' => 'required|in:0,1',
         ]);
 
         // Save user
@@ -29,6 +30,7 @@ class RegisterController extends Controller
             'email'    => $request->email,
             'password' => Hash::make($request->password),
             'role'     => $request->role,
+            'is_alumni' => (bool) $request->is_alumni,
         ]);
 
         // Send email with credentials (with error handling)

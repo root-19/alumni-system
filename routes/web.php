@@ -258,7 +258,7 @@ Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_p
         $featuredAlumni = $alumniPosts->first();
 
         return view('admin.news', compact('news', 'alumniPosts', 'featuredNews', 'featuredAlumni'));
-    })->name('news');
+    })->name('admin.news');
 
     // Admin Static Pages
 //     Route::get('/admin/giving-back', fn() => view('admin.givingBack'))->name('givingBack');

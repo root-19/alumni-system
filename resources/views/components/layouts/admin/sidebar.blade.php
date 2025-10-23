@@ -29,7 +29,7 @@
         <flux:navlist.item :href="route('accounts')" :current="request()->routeIs('accounts')" wire:navigate>
             {{ __('Acounts') }}
         </flux:navlist.item>
-        <flux:navlist.item :href="route('news')" :current="request()->routeIs('news')" wire:navigate>
+        <flux:navlist.item :href="route('admin.news')" :current="request()->routeIs('admin.news')" wire:navigate>
             {{ __('News and updates') }}
         </flux:navlist.item>
           <flux:navlist.item :href="route('events')" :current="request()->routeIs('events')" wire:navigate>
