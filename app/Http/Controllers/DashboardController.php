@@ -29,15 +29,9 @@ class DashboardController extends Controller
             ->take(3)
             ->get();
         
-        // Get top 5 contributors from donations table
-        $topContributors = User::select('users.id', 'users.name')
-            ->join('donations', 'users.id', '=', 'donations.user_id')
-            ->groupBy('users.id', 'users.name')
-            ->selectRaw('SUM(donations.amount) as total_donated')
-            ->orderByDesc('total_donated')
-            ->take(5)
-            ->get();
+        // Get recent events for the events section
+        $events = AlumniPost::latest()->take(5)->get();
 
-        return view('dashboard', compact('featuredNews', 'latestAlumniPosts', 'upcomingEvents', 'topContributors'));
+        return view('dashboard', compact('featuredNews', 'latestAlumniPosts', 'upcomingEvents', 'events'));
     }
 }

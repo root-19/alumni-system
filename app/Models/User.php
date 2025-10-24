@@ -167,6 +167,30 @@ class User extends Authenticatable
     {
         return static::where('is_alumni', true)->get();
     }
+
+    /**
+     * Get the reviews written by the user.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(\App\Models\Review::class);
+    }
+
+    /**
+     * Get the event registrations for the user.
+     */
+    public function eventRegistrations()
+    {
+        return $this->hasMany(\App\Models\EventRegistration::class);
+    }
+
+    /**
+     * Get the donations made by the user.
+     */
+    public function donations()
+    {
+        return $this->hasMany(\App\Models\Donation::class);
+    }
 //     return $this->hasMany(TrainingRead::class);
 // }
 }

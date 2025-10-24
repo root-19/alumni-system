@@ -51,132 +51,304 @@
             </div>
         </div>
 
-        <!-- Feedback and Activity -->
+        <!-- Event Analytics -->
         <div class="bg-white rounded-2xl shadow p-6 text-black">
-
             <!-- Header -->
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-semibold text-gray-800">Feedbacks and Activity</h2>
-                <a href="#" class="text-sm text-blue-600 hover:underline">View all</a>
+                <h2 class="text-xl font-semibold text-gray-800">Event Analytics</h2>
+                <a href="{{ route('events') }}" class="text-sm text-blue-600 hover:underline">View all events</a>
             </div>
 
-            <!-- Tabs (client-side filter) -->
-            <div x-data="{tab:'all'}" class="mb-6">
-                <div class="border-b border-gray-200 mb-4">
-                    <nav class="flex space-x-6 text-sm font-medium text-black">
-                        <button @click="tab='all'" :class="tab==='all' ? 'border-blue-600 text-blue-600' : 'hover:text-blue-600'" class="pb-2 border-b-2" :class="tab==='all' ? 'border-blue-600' : 'border-transparent'">All</button>
-                        <button @click="tab='events'" :class="tab==='events' ? 'border-blue-600 text-blue-600' : 'hover:text-blue-600'" class="pb-2 border-b-2">Events</button>
-                        <button @click="tab='giving'" :class="tab==='giving' ? 'border-blue-600 text-blue-600' : 'hover:text-blue-600'" class="pb-2 border-b-2">Giving Back</button>
-                        <button @click="tab='messages'" :class="tab==='messages' ? 'border-blue-600 text-blue-600' : 'hover:text-blue-600'" class="pb-2 border-b-2">Messages</button>
-                        <button @click="tab='news'" :class="tab==='news' ? 'border-blue-600 text-blue-600' : 'hover:text-blue-600'" class="pb-2 border-b-2">News & Updates</button>
-                    </nav>
+            <!-- Chart Section -->
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Event Performance</h3>
+                    <div class="flex items-center gap-4">
+                        <!-- Event Selection Dropdown -->
+                        <div class="flex items-center gap-2">
+                            <label class="text-sm font-medium text-gray-700">Event:</label>
+                            <select id="eventSelect" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="all">All Events</option>
+                                @foreach($eventsList as $event)
+                                    <option value="{{ $event->id }}">{{ Str::limit($event->content, 50) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <!-- Chart Legend -->
+                        <div class="flex items-center gap-4 text-sm text-gray-600">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                                Reviews
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                                Attendance
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="h-80">
+                    <canvas id="analyticsChart"></canvas>
+                </div>
                 </div>
 
-                <!-- Combined Feed -->
-                <div class="space-y-6">
-                    <!-- Giving Back (Donations) -->
-                    <template x-if="tab==='all' || tab==='giving'">
-                        <div>
-                            <h4 class="text-sm font-semibold text-gray-500 mb-3">Recent Donations</h4>
-                            <ul class="space-y-3">
-                                @forelse($donations as $d)
-                                    <li class="flex justify-between text-sm">
-                                        <div class="flex items-center gap-3">
-                                            <img src="https://ui-avatars.com/api/?name={{ urlencode($d->user->name ?? 'User') }}" class="w-8 h-8 rounded-full" alt="avatar">
-                                            <span><strong>{{ $d->user->name ?? 'Unknown' }}</strong> donated ₱{{ number_format($d->amount,2) }}</span>
+            <!-- Reviews Table -->
+            <div class="bg-white rounded-xl border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800">Event Reviews</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comment</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse($reviews as $review)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">{{ Str::limit($review->alumniPost->content ?? 'N/A', 40) }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://ui-avatars.com/api/?name={{ urlencode($review->user->name ?? 'User') }}" class="w-8 h-8 rounded-full mr-3" alt="avatar">
+                                            <div class="text-sm font-medium text-gray-900">{{ $review->user->name ?? 'Anonymous' }}</div>
                                         </div>
-                                        <span class="text-xs text-gray-500">{{ $d->created_at->diffForHumans() }}</span>
-                                    </li>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <svg class="w-4 h-4 {{ $i <= $review->rating ? 'text-yellow-400' : 'text-gray-300' }}" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                </svg>
+                                            @endfor
+                                            <span class="ml-2 text-sm text-gray-600">({{ $review->rating }}/5)</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm text-gray-900 max-w-xs">{{ Str::limit($review->comment, 100) }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ $review->created_at->format('M d, Y') }}
+                                    </td>
+                                </tr>
                                 @empty
-                                    <li class="text-xs text-gray-500">No donations yet.</li>
+                                <tr>
+                                    <td colspan="5" class="px-6 py-12 text-center">
+                                        <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                                        </svg>
+                                        <h3 class="text-sm font-medium text-gray-500 mb-1">No Reviews Yet</h3>
+                                        <p class="text-xs text-gray-400">Reviews will appear here once users start rating events.</p>
+                                    </td>
+                                </tr>
                                 @endforelse
-                            </ul>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
                         </div>
-                    </template>
 
-                    <!-- Events -->
-                    <template x-if="tab==='all' || tab==='events'">
-                        <div>
-                            <h4 class="text-sm font-semibold text-gray-500 mb-3">Recent Events</h4>
-                            <ul class="space-y-3">
-                                @forelse($events as $e)
-                                    <li class="flex justify-between text-sm">
-                                        <span class="line-clamp-1">{{ Str::limit($e->content, 60) }}</span>
-                                        <span class="text-xs text-gray-500">{{ $e->created_at->diffForHumans() }}</span>
-                                    </li>
-                                @empty
-                                    <li class="text-xs text-gray-500">No events posted.</li>
-                                @endforelse
-                            </ul>
-                        </div>
-                    </template>
+        <!-- Chart.js CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            // Chart data
+            const chartData = {!! json_encode($chartData) !!};
+            const eventsData = {!! json_encode($eventsData) !!};
+            
+            // Initialize chart
+            const ctx = document.getElementById('analyticsChart').getContext('2d');
+            let chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Reviews',
+                        data: chartData.reviews,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgb(59, 130, 246)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }, {
+                        label: 'Attendance',
+                        data: chartData.attendance,
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgb(34, 197, 94)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            hoverBackgroundColor: function(context) {
+                                return context.dataset.borderColor;
+                            }
+                        }
+                    }
+                }
+            });
 
-                    <!-- Messages -->
-                    <template x-if="tab==='all' || tab==='messages'">
-                        <div>
-                            <h4 class="text-sm font-semibold text-gray-500 mb-3">Recent Messages</h4>
-                            <ul class="space-y-3">
-                                @forelse($messages as $m)
-                                    <li class="flex justify-between text-sm">
-                                        <span><strong>{{ $m->sender->name ?? 'User' }}:</strong> {{ Str::limit($m->message,50) }}</span>
-                                        <span class="text-xs text-gray-500">{{ $m->created_at->diffForHumans() }}</span>
-                                    </li>
-                                @empty
-                                    <li class="text-xs text-gray-500">No messages yet.</li>
-                                @endforelse
-                            </ul>
-                        </div>
-                    </template>
+            // Event selection handler
+            document.getElementById('eventSelect').addEventListener('change', function() {
+                const selectedEventId = this.value;
+                
+                if (selectedEventId === 'all') {
+                    // Show all events data
+                    chart.data.datasets[0].data = chartData.reviews;
+                    chart.data.datasets[1].data = chartData.attendance;
+                } else {
+                    // Show specific event data
+                    const eventData = eventsData[selectedEventId];
+                    if (eventData) {
+                        chart.data.datasets[0].data = eventData.reviews;
+                        chart.data.datasets[1].data = eventData.attendance;
+                    }
+                }
+                
+                chart.update();
+            });
+        </script>
 
-                    <!-- News -->
-                    <template x-if="tab==='all' || tab==='news'">
-                        <div>
-                            <h4 class="text-sm font-semibold text-gray-500 mb-3">Latest News</h4>
-                            <ul class="space-y-3">
-                                @forelse($news as $n)
-                                    <li class="flex justify-between text-sm">
-                                        <span class="line-clamp-1 font-medium">{{ Str::limit($n->title, 70) }}</span>
-                                        <span class="text-xs text-gray-500">{{ $n->created_at->diffForHumans() }}</span>
-                                    </li>
-                                @empty
-                                    <li class="text-xs text-gray-500">No news posted.</li>
-                                @endforelse
-                            </ul>
                         </div>
-                    </template>
+
+        <!-- Top Contributors Section -->
+        <div class="bg-white rounded-2xl shadow p-6 text-black">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-800">Top Contributors</h2>
+                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                    </svg>
                 </div>
             </div>
 
-            <!-- Quick Actions Section -->
-            <div class="mt-8 space-y-6">
-                <h3 class="text-lg font-semibold text-gray-800">Quick Actions</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <a href="{{ route('admin.news') }}" class="flex items-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200 hover:from-green-100 hover:to-emerald-100 transition-all duration-200">
-                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+            <!-- Contributors Grid -->
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                @forelse($topContributors as $index => $contributor)
+                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200 hover:shadow-lg transition-all duration-300">
+                        <!-- Rank Badge -->
+                        <div class="flex items-center justify-between mb-3">
+                            @if($index < 3)
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
+                                    {{ $index === 0 ? 'bg-yellow-100 text-yellow-600' : '' }}
+                                    {{ $index === 1 ? 'bg-gray-100 text-gray-600' : '' }}
+                                    {{ $index === 2 ? 'bg-orange-100 text-orange-600' : '' }}">
+                                    @if($index === 0)
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                    @elseif($index === 1)
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                    @else
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                             </svg>
+                                    @endif
+                                </div>
+                            @else
+                                <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-sm font-bold">
+                                    {{ $index + 1 }}
+                                </div>
+                            @endif
+                            
+                            <!-- Contribution Score -->
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-gray-900">{{ $contributor->contribution_score ?? 0 }}</div>
+                                <div class="text-xs text-gray-500">points</div>
+                            </div>
                         </div>
-                        <div>
-                            <h4 class="font-semibold text-gray-900">Manage News & Events</h4>
-                            <p class="text-sm text-gray-600">Create and manage news articles and events</p>
+
+                        <!-- User Info -->
+                        <div class="text-center">
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode($contributor->name ?? 'User') }}&background=random" class="w-16 h-16 rounded-full mx-auto mb-3" alt="avatar">
+                            <h4 class="text-sm font-semibold text-gray-900 mb-1">{{ $contributor->name ?? 'Anonymous' }}</h4>
+                            <p class="text-xs text-gray-500 mb-3">{{ $contributor->email ?? 'No email' }}</p>
+                            
+                            <!-- Activity Stats -->
+                            <div class="flex justify-between text-xs text-gray-600">
+                                <div class="text-center">
+                                    <div class="font-semibold">{{ $contributor->review_count ?? 0 }}</div>
+                                    <div>Reviews</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="font-semibold">{{ $contributor->attendance_count ?? 0 }}</div>
+                                    <div>Events</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="font-semibold">{{ $contributor->donation_count ?? 0 }}</div>
+                                    <div>Donations</div>
+                                </div>
+                            </div>
                         </div>
-                    </a>
-                    
-                    <a href="{{ route('accounts') }}" class="flex items-center p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hover:from-blue-100 hover:to-indigo-100 transition-all duration-200">
-                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </div>
+                @empty
+                    <div class="col-span-full text-center py-12">
+                        <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                             </svg>
+                        <h3 class="text-lg font-medium text-gray-500 mb-2">No Contributors Yet</h3>
+                        <p class="text-sm text-gray-400">Contributors will appear here once users start participating.</p>
                         </div>
-                        <div>
-                            <h4 class="font-semibold text-gray-900">User Management</h4>
-                            <p class="text-sm text-gray-600">Manage user accounts and permissions</p>
+                @endforelse
                         </div>
+
+            <!-- View All Link -->
+            @if($topContributors->count() > 0)
+                <div class="mt-6 pt-4 border-t border-gray-200 text-center">
+                    <a href="#" class="text-sm text-blue-600 hover:text-blue-800 hover:underline font-medium">
+                        View All Contributors →
                     </a>
                 </div>
-            </div>
-
+            @endif
         </div>
 
     </div>

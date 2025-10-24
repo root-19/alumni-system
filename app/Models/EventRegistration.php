@@ -14,6 +14,11 @@ class EventRegistration extends Model
         return $this->belongsTo(AlumniPost::class, 'alumni_post_id');
     }
 
+    public function alumniPost(): BelongsTo
+    {
+        return $this->belongsTo(AlumniPost::class, 'alumni_post_id');
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

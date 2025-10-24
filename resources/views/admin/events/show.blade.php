@@ -48,11 +48,9 @@
                     @else
                         <form method="POST" action="{{ route('events.register', $post) }}" class="flex items-center gap-2">
                             @csrf
-                            <select name="category" class="border border-gray-300 rounded-md text-sm px-2 py-1 text-black">
-                                <option value="Alumni">Alumni</option>
-                                <option value="Student">Student</option>
-                               
-                            </select>
+                            <span class="border border-gray-300 rounded-md text-sm px-2 py-1 bg-white text-black">
+                                {{ auth()->user()->is_alumni ? 'Alumni' : 'Student' }}
+                            </span>
                             <button type="submit" class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition">
                                 Register
                             </button>

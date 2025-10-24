@@ -18,7 +18,7 @@
                     {{-- Document Type --}}
                     <div>
                         <label class="block text-sm font-medium mb-1">Document Type <span class="text-red-500">*</span></label>
-                        <select name="type" class="w-full rounded-lg border-gray-300 focus:ring-green-500 focus:border-green-500" required>
+                        <select name="type" class="w-full bg-white rounded-xl border border-gray-200 px-4 py-3 shadow-sm transition-all focus:border-green-500 focus:ring-4 focus:ring-green-100 focus:outline-none focus:shadow-md placeholder:text-gray-400" required>
                             <option value="">Select a document</option>
                             <option value="Alumni ID">Alumni ID</option>
                             <option value="DOR">DOR (Document of Records)</option>
@@ -34,7 +34,7 @@
                     {{-- Purpose --}}
                     <div>
                         <label class="block text-sm font-medium mb-1">Purpose (optional)</label>
-                        <input type="text" name="purpose" class="w-full rounded-lg border-gray-300 focus:ring-green-500 focus:border-green-500" placeholder="e.g., Job application, Scholarship" value="{{ old('purpose') }}">
+                        <input type="text" name="purpose" class="w-full bg-white rounded-xl border border-gray-200 px-4 py-3 shadow-sm transition-all focus:border-green-500 focus:ring-4 focus:ring-green-100 focus:outline-none focus:shadow-md placeholder:text-gray-400" placeholder="e.g., Job application, Scholarship" value="{{ old('purpose') }}">
                         @error('purpose')
                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                         @enderror
@@ -43,7 +43,7 @@
                     {{-- Message --}}
                     <div>
                         <label class="block text-sm font-medium mb-1">Message (optional)</label>
-                        <textarea name="message" rows="4" class="w-full rounded-lg border-gray-300 focus:ring-green-500 focus:border-green-500" placeholder="Additional details">{{ old('message') }}</textarea>
+                        <textarea name="message" rows="4" class="w-full bg-white rounded-xl border border-gray-200 px-4 py-3 shadow-sm transition-all focus:border-green-500 focus:ring-4 focus:ring-green-100 focus:outline-none focus:shadow-md placeholder:text-gray-400" placeholder="Additional details">{{ old('message') }}</textarea>
                         @error('message')
                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                         @enderror

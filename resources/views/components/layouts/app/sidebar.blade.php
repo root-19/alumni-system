@@ -22,7 +22,15 @@
                 {{ auth()->user()?->name }}
             </div>
             <div class="text-ml text-gray-300 capitalize">
-                {{ auth()->user()?->role }}
+                @php
+                    $role = auth()->user()?->role;
+                    $isAlumni = auth()->user()?->is_alumni;
+                @endphp
+                @if($role === 'user')
+                    {{ $isAlumni ? 'Alumni' : 'Student' }}
+                @else
+                    {{ $role }}
+                @endif
             </div>
         </div>
     </div>

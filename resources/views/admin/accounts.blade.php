@@ -66,6 +66,7 @@
                                     <th class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Contact</th>
                                     <th class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Address</th>
                                     <th class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Email</th>
+                                    <th class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Events Attended</th>
                                     <th class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Role</th>
                                 </tr>
                             </thead>
@@ -112,6 +113,31 @@
                                         {{-- Email --}}
                                         <td class="px-6 py-4 whitespace-nowrap text-black">
                                             {{ $user->email }}
+                                        </td>
+
+                                        {{-- Events Attended --}}
+                                        <td class="px-6 py-4 text-black">
+                                            @if($user->eventRegistrations && $user->eventRegistrations->count() > 0)
+                                                <div class="max-w-xs">
+                                                    <div class="text-sm font-semibold text-green-600 mb-1">
+                                                        {{ $user->eventRegistrations->count() }} event{{ $user->eventRegistrations->count() > 1 ? 's' : '' }}
+                                                    </div>
+                                                    <div class="space-y-1">
+                                                        @foreach($user->eventRegistrations->take(3) as $registration)
+                                                            <div class="text-xs bg-green-50 text-green-800 px-2 py-1 rounded border border-green-200">
+                                                                {{ Str::limit($registration->alumniPost->content ?? 'Event', 30) }}
+                                                            </div>
+                                                        @endforeach
+                                                        @if($user->eventRegistrations->count() > 3)
+                                                            <div class="text-xs text-gray-500 italic">
+                                                                +{{ $user->eventRegistrations->count() - 3 }} more...
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <span class="text-gray-400 italic text-sm">No events attended</span>
+                                            @endif
                                         </td>
 
                                         {{-- Role --}}

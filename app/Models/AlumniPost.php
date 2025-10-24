@@ -4,6 +4,7 @@ namespace App\Models;
 use App\Models\Like;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use App\Models\Review;
 
 
 class AlumniPost extends Model
@@ -27,9 +28,24 @@ public function registrations()
     return $this->hasMany(EventRegistration::class, 'alumni_post_id')->with('user');
 }
 
+public function eventRegistrations()
+{
+    return $this->hasMany(EventRegistration::class, 'alumni_post_id');
+}
+
 public function attendances()
 {
     return $this->hasMany(Attendance::class, 'alumni_post_id')->with('user');
+}
+
+public function reviews()
+{
+    return $this->hasMany(Review::class, 'alumni_post_id')->with('user');
+}
+
+public function approvedReviews()
+{
+    return $this->hasMany(Review::class, 'alumni_post_id')->where('is_approved', true)->with('user');
 }
 
 public function isRegisteredBy(?User $user): bool

@@ -93,42 +93,49 @@
             {{-- Right Column: Widgets --}}
             <div class="md:col-span-1 space-y-4">
 
-                {{-- Top Contributors from Donations --}}
+                {{-- Events Section --}}
                 <div class="bg-white p-4 rounded-lg shadow">
-                    <h4 class="font-semibold mb-3 text-gray-800">Top Contributors</h4>
+                    <!-- <div class="flex items-center justify-between mb-3">
+                        <h4 class="font-semibold text-gray-800">Events</h4>
+                        <button onclick="openAddEventModal()" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg font-medium transition-colors">
+                            Add Event
+                        </button>
+                    </div> -->
                     
-                    @if($topContributors->count() > 0)
+                    @if($events->count() > 0)
                         <div class="space-y-3">
-                            @foreach($topContributors as $index => $contributor)
+                            @foreach($events as $event)
                                 <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                                    <div class="relative">
-                                        {{-- Always use initials since we're not fetching profile image data --}}
-                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-semibold text-sm border-2 border-gray-200">
-                                            {{ substr($contributor->name, 0, 2) }}
+                                    @if($event->image_path)
+                                        <img src="{{ asset('storage/'.$event->image_path) }}" 
+                                             alt="Event Image" 
+                                             class="w-12 h-12 rounded-md object-cover">
+                                    @else
+                                        <div class="w-12 h-12 rounded-md bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
                                         </div>
-                                        {{-- Rank badge --}}
-                                        @if($index < 3)
-                                            @php
-                                                $rankColors = ['bg-yellow-500', 'bg-gray-400', 'bg-orange-500'];
-                                                $rankIcons = ['🥇', '🥈', '🥉'];
-                                            @endphp
-                                            <div class="absolute -top-1 -right-1 w-5 h-5 {{ $rankColors[$index] }} rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                                {{ $rankIcons[$index] }}
-                                            </div>
-                                        @endif
-                                    </div>
+                                    @endif
                                     <div class="flex-1 min-w-0">
-                                        <p class="font-medium text-sm text-gray-800 truncate">{{ $contributor->name }}</p>
-                                        <p class="text-xs text-green-600 font-semibold">
-                                            ₱{{ number_format($contributor->total_donated, 2) }}
-                                        </p>
+                                        <p class="font-medium text-sm text-gray-800 truncate">{{ $event->title ?? \Illuminate\Support\Str::limit($event->content, 30) }}</p>
+                                        <p class="text-xs text-gray-500">{{ $event->created_at->format('M d, Y') }}</p>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <button onclick="openReviewModal({{ $event->id }})" class="text-xs text-blue-600 hover:text-blue-700 font-medium">
+                                                Add Review
+                                            </button>
+                                            <span class="text-xs text-gray-400">•</span>
+                                            <a href="{{ route('events.show', $event) }}" class="text-xs text-green-600 hover:text-green-700 font-medium">
+                                                View Details
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
                         </div>
                         <div class="mt-3 pt-3 border-t border-gray-100">
-                            <a href="{{ route('donations') }}" class="text-sm text-green-600 hover:text-green-700 font-medium inline-flex items-center gap-1">
-                                View All Donations
+                            <a href="{{ route('events') }}" class="text-sm text-green-600 hover:text-green-700 font-medium inline-flex items-center gap-1">
+                                View All Events
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                 </svg>
@@ -138,14 +145,14 @@
                         <div class="text-center py-4">
                             <div class="w-12 h-12 mx-auto mb-2 bg-gray-100 rounded-full flex items-center justify-center">
                                 <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
                             </div>
-                            <p class="text-sm text-gray-500 mb-2">No confirmed donations yet</p>
-                            <p class="text-xs text-gray-400 mb-2">Only confirmed donations are counted</p>
-                            <a href="{{ route('donations') }}" class="text-sm text-green-600 hover:text-green-700 font-medium">
-                                Be the first to donate
-                            </a>
+                            <p class="text-sm text-gray-500 mb-2">No events available yet</p>
+                            <p class="text-xs text-gray-400 mb-2">Create your first event</p>
+                            <button onclick="openAddEventModal()" class="text-sm text-green-600 hover:text-green-700 font-medium">
+                                Add First Event
+                            </button>
                         </div>
                     @endif
                 </div>
@@ -318,4 +325,198 @@
         </section>
 
     </div>
+
+    {{-- Add Event Modal --}}
+    <div id="addEventModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Add New Event</h3>
+                        <button onclick="closeAddEventModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <form action="{{ route('alumni_posts.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                        @csrf
+                        <div>
+                            <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Event Title</label>
+                            <input type="text" name="title" id="title" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                        </div>
+                        
+                        <div>
+                            <label for="content" class="block text-sm font-medium text-gray-700 mb-1">Event Description</label>
+                            <textarea name="content" id="content" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" required></textarea>
+                        </div>
+                        
+                        <div>
+                            <label for="event_date" class="block text-sm font-medium text-gray-700 mb-1">Event Date</label>
+                            <input type="datetime-local" name="event_date" id="event_date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        
+                        <div>
+                            <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                            <input type="text" name="location" id="location" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        
+                        <div>
+                            <label for="image" class="block text-sm font-medium text-gray-700 mb-1">Event Image</label>
+                            <input type="file" name="image" id="image" accept="image/*" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        
+                        <div class="flex justify-end space-x-3 pt-4">
+                            <button type="button" onclick="closeAddEventModal()" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
+                                Cancel
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                                Create Event
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Add Review Modal --}}
+    <div id="addReviewModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Add Review</h3>
+                        <button onclick="closeReviewModal()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <form id="reviewForm" method="POST" class="space-y-4">
+                        @csrf
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                            <div class="flex space-x-1" id="starRating">
+                                <button type="button" class="star text-2xl text-gray-300 hover:text-yellow-400" data-rating="1">★</button>
+                                <button type="button" class="star text-2xl text-gray-300 hover:text-yellow-400" data-rating="2">★</button>
+                                <button type="button" class="star text-2xl text-gray-300 hover:text-yellow-400" data-rating="3">★</button>
+                                <button type="button" class="star text-2xl text-gray-300 hover:text-yellow-400" data-rating="4">★</button>
+                                <button type="button" class="star text-2xl text-gray-300 hover:text-yellow-400" data-rating="5">★</button>
+                            </div>
+                            <input type="hidden" name="rating" id="ratingInput" required>
+                        </div>
+                        
+                        <div>
+                            <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">Comment (Optional)</label>
+                            <textarea name="comment" id="comment" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Share your thoughts about this event..."></textarea>
+                        </div>
+                        
+                        <div class="flex justify-end space-x-3 pt-4">
+                            <button type="button" onclick="closeReviewModal()" class="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
+                                Cancel
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                                Submit Review
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentEventId = null;
+        let selectedRating = 0;
+
+        function openAddEventModal() {
+            document.getElementById('addEventModal').classList.remove('hidden');
+        }
+
+        function closeAddEventModal() {
+            document.getElementById('addEventModal').classList.add('hidden');
+        }
+
+        function openReviewModal(eventId) {
+            currentEventId = eventId;
+            document.getElementById('reviewForm').action = `/events/${eventId}/reviews`;
+            document.getElementById('addReviewModal').classList.remove('hidden');
+            resetStarRating();
+        }
+
+        function closeReviewModal() {
+            document.getElementById('addReviewModal').classList.add('hidden');
+            resetStarRating();
+        }
+
+        function resetStarRating() {
+            selectedRating = 0;
+            document.querySelectorAll('.star').forEach(star => {
+                star.classList.remove('text-yellow-400');
+                star.classList.add('text-gray-300');
+            });
+            document.getElementById('ratingInput').value = '';
+        }
+
+        // Star rating functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.star').forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    selectedRating = rating;
+                    document.getElementById('ratingInput').value = rating;
+                    
+                    // Update star display
+                    document.querySelectorAll('.star').forEach((s, index) => {
+                        if (index < rating) {
+                            s.classList.remove('text-gray-300');
+                            s.classList.add('text-yellow-400');
+                        } else {
+                            s.classList.remove('text-yellow-400');
+                            s.classList.add('text-gray-300');
+                        }
+                    });
+                });
+
+                star.addEventListener('mouseenter', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    document.querySelectorAll('.star').forEach((s, index) => {
+                        if (index < rating) {
+                            s.classList.remove('text-gray-300');
+                            s.classList.add('text-yellow-400');
+                        } else {
+                            s.classList.remove('text-yellow-400');
+                            s.classList.add('text-gray-300');
+                        }
+                    });
+                });
+            });
+
+            // Reset stars on mouse leave
+            document.getElementById('starRating').addEventListener('mouseleave', function() {
+                document.querySelectorAll('.star').forEach((s, index) => {
+                    if (index < selectedRating) {
+                        s.classList.remove('text-gray-300');
+                        s.classList.add('text-yellow-400');
+                    } else {
+                        s.classList.remove('text-yellow-400');
+                        s.classList.add('text-gray-300');
+                    }
+                });
+            });
+        });
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'addEventModal') {
+                closeAddEventModal();
+            }
+            if (e.target.id === 'addReviewModal') {
+                closeReviewModal();
+            }
+        });
+    </script>
 </x-layouts.app>

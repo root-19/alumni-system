@@ -21,6 +21,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DonationController;
 use App\Http\Controllers\DocumentRequestController;
+use App\Http\Controllers\ReviewController;
 // use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\Admin\TrainingController;
 // use App\Http\Controllers\TrainingController;
@@ -187,11 +188,95 @@ Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_p
     $userCount = User::where('role', 'user')->count();
     $donations = \App\Models\Donation::with('user')->latest()->take(15)->get();
     $totalDonationAmount = \App\Models\Donation::sum('amount');
-    $events = \App\Models\AlumniPost::latest()->take(15)->get();
-    $messages = \App\Models\Message::with('sender')->latest()->take(15)->get();
     $messageCount = \App\Models\Message::count();
-    $news = \App\Models\News::latest()->take(15)->get();
-    return view('admin.dashboard', compact('userCount','donations','totalDonationAmount','events','messages','messageCount','news'));
+    
+    // Get events list for dropdown
+    $eventsList = \App\Models\AlumniPost::latest()->take(20)->get();
+    
+    // Get all reviews with event and user data (no approval filter)
+    $reviews = \App\Models\Review::with(['alumniPost', 'user'])
+        ->latest()
+        ->take(50)
+        ->get();
+    
+    // Get top 7 contributors based on activity
+    $topContributors = \App\Models\User::where('role', 'user')
+        ->withCount([
+            'reviews as review_count',
+            'eventRegistrations as attendance_count',
+            'donations as donation_count'
+        ])
+        ->get()
+        ->map(function($user) {
+            // Calculate contribution score based on various activities
+            $reviewScore = $user->review_count * 5; // 5 points per review
+            $attendanceScore = $user->attendance_count * 3; // 3 points per event attendance
+            $donationScore = \App\Models\Donation::where('user_id', $user->id)->sum('amount') * 0.1; // 0.1 points per peso donated
+            
+            $user->contribution_score = $reviewScore + $attendanceScore + $donationScore;
+            return $user;
+        })
+        ->sortByDesc('contribution_score')
+        ->take(7);
+    
+    // Prepare chart data - last 12 months
+    $chartData = [
+        'labels' => [],
+        'reviews' => [],
+        'attendance' => []
+    ];
+    
+    // Generate last 12 months labels
+    for ($i = 11; $i >= 0; $i--) {
+        $date = now()->subMonths($i);
+        $chartData['labels'][] = $date->format('M Y');
+        
+        // Count reviews for this month (all reviews, no approval filter)
+        $reviewsCount = \App\Models\Review::whereYear('created_at', $date->year)
+            ->whereMonth('created_at', $date->month)
+            ->count();
+        $chartData['reviews'][] = $reviewsCount;
+        
+        // Count attendance for this month
+        $attendanceCount = \App\Models\EventRegistration::whereYear('created_at', $date->year)
+            ->whereMonth('created_at', $date->month)
+            ->count();
+        $chartData['attendance'][] = $attendanceCount;
+    }
+    
+    // Prepare individual event data for dropdown selection
+    $eventsData = [];
+    foreach ($eventsList as $event) {
+        $eventData = [
+            'labels' => [],
+            'reviews' => [],
+            'attendance' => []
+        ];
+        
+        // Generate last 12 months for this specific event
+        for ($i = 11; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $eventData['labels'][] = $date->format('M Y');
+            
+            // Count reviews for this specific event this month (all reviews, no approval filter)
+            $reviewsCount = \App\Models\Review::where('alumni_post_id', $event->id)
+                ->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+            $eventData['reviews'][] = $reviewsCount;
+            
+            // Count attendance for this specific event this month
+            $attendanceCount = \App\Models\EventRegistration::where('alumni_post_id', $event->id)
+                ->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+            $eventData['attendance'][] = $attendanceCount;
+        }
+        
+        $eventsData[$event->id] = $eventData;
+    }
+    
+    return view('admin.dashboard', compact('userCount','donations','totalDonationAmount','messageCount','eventsList','reviews','chartData','eventsData','topContributors'));
     })->name('admin.dashboard');
 
     // Notification routes
@@ -231,11 +316,17 @@ Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_p
         Route::get('/attendance/{post}/export', [\App\Http\Controllers\AttendanceController::class, 'export'])->name('admin.attendance.export');
     });
     
-    // User interactions with events (likes, comments)
+    // User interactions with events (likes, comments, reviews)
     Route::middleware(['auth'])->group(function () {
         Route::post('/posts/{post}/like', [AlumniController::class, 'likePost'])->name('posts.like');
         Route::post('/comments/{comment}/like', [AlumniController::class, 'like'])->name('comments.like');
         Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_posts.store');
+        
+        // Review routes
+        Route::post('/events/{post}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+        Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+        Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+        Route::get('/events/{post}/reviews', [ReviewController::class, 'getEventReviews'])->name('reviews.index');
     });
 
 
@@ -284,6 +375,9 @@ Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_p
         // Donation management routes
         Route::patch('/donations/{donation}/status', [DonationController::class, 'updateStatus'])->name('admin.donations.status');
         Route::delete('/donations/{donation}', [DonationController::class, 'destroy'])->name('admin.donations.destroy');
+        
+        // Review management routes
+        Route::post('/reviews/{review}/approve', [ReviewController::class, 'approve'])->name('admin.reviews.approve');
     });
 
 
@@ -348,7 +442,9 @@ Route::middleware(['auth'])->group(function () {
         // Route::get('/admin/reports', fn() => view('reports'))->name('reports');
 
     Route::get('/accounts', function () {
-        $users = \App\Models\User::where('role', 'user')->get();
+        $users = \App\Models\User::where('role', 'user')
+            ->with(['eventRegistrations.alumniPost'])
+            ->get();
         return view('admin.accounts', compact('users'));
     })->name('accounts');
 });
