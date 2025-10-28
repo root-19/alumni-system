@@ -31,6 +31,11 @@ class EventRegistrationController extends Controller
             return redirect()->route('login');
         }
 
+        // Check if event is full
+        if ($post->isFull()) {
+            return back()->with('error', 'This event is already full. No more registrations are accepted.');
+        }
+
         $validated = $request->validate([
             'category' => 'nullable|string|max:100',
         ]);

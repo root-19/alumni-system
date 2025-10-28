@@ -131,10 +131,5 @@ new #[Layout('components.layouts.auth')] class extends Component {
         </div>
     </form>
 
-    <!-- @if (Route::has('register'))
-        <div class="space-x-1 rtl:space-x-reverse text-center text-green text-sm text-green-600 ">
-            <span>{{ __('Don\'t have an account?') }}</span>
-            <flux:link :href="route('register')" class="text-green-600 font-bold"  wire:navigate>{{ __('Sign up') }}</flux:link>
-        </div>
-    @endif -->
+
 </div>

@@ -49,7 +49,7 @@ Route::get('/', function () {
 
     Route::get('/news', function () {
         $news = \App\Models\News::latest()->get();
-        $alumniPosts = \App\Models\AlumniPost::latest()->get();
+        $alumniPosts = \App\Models\AlumniPost::where('is_archived', false)->latest()->get();
 
         $featuredNews = $news->first();
         $featuredAlumni = $alumniPosts->first();
@@ -130,7 +130,7 @@ Route::get('events/{post}', [AlumniController::class, 'show'])
 
 Route::get('/donations', function () {
     $news = \App\Models\News::latest()->get();
-    $alumniPosts = \App\Models\AlumniPost::latest()->get();
+    $alumniPosts = \App\Models\AlumniPost::where('is_archived', false)->latest()->get();
 
     $featuredNews = $news->first();
     $featuredAlumni = $alumniPosts->first();
@@ -191,7 +191,7 @@ Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_p
     $messageCount = \App\Models\Message::count();
     
     // Get events list for dropdown
-    $eventsList = \App\Models\AlumniPost::latest()->take(20)->get();
+    $eventsList = \App\Models\AlumniPost::where('is_archived', false)->latest()->take(20)->get();
     
     // Get all reviews with event and user data (no approval filter)
     $reviews = \App\Models\Review::with(['alumniPost', 'user'])
@@ -303,8 +303,17 @@ Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_p
         Route::get('/events', [AlumniController::class, 'adminIndex'])->name('admin.events.index');
         Route::post('/events', [AlumniController::class, 'store'])->name('admin.events.store');
         Route::get('/events/{post}', [AlumniController::class, 'adminShow'])->name('admin.events.show');
+        Route::get('/events/{post}/edit', [AlumniController::class, 'edit'])->name('admin.events.edit');
+        Route::put('/events/{post}', [AlumniController::class, 'update'])->name('admin.events.update');
+        Route::delete('/events/{post}', [AlumniController::class, 'destroy'])->name('admin.events.destroy');
         Route::delete('/events/{post}/registrants/{registration}', [EventRegistrationController::class, 'destroy'])->name('admin.events.registrants.destroy');
         Route::get('/registrations', [EventRegistrationController::class, 'index'])->name('admin.registrations.index');
+        
+        // Event Logs (Archived Events)
+        Route::get('/event-logs', [\App\Http\Controllers\EventLogsController::class, 'index'])->name('admin.event-logs.index');
+        Route::post('/events/{post}/archive', [\App\Http\Controllers\EventLogsController::class, 'archive'])->name('admin.events.archive');
+        Route::post('/events/{post}/unarchive', [\App\Http\Controllers\EventLogsController::class, 'unarchive'])->name('admin.events.unarchive');
+        Route::delete('/event-logs/{post}', [\App\Http\Controllers\EventLogsController::class, 'destroy'])->name('admin.event-logs.destroy');
         
         // Attendance management routes
         Route::get('/attendance', [\App\Http\Controllers\AttendanceController::class, 'index'])->name('admin.attendance.index');
@@ -343,7 +352,7 @@ Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_p
 
     Route::get('/admin/news', function () {
         $news = \App\Models\News::latest()->get();
-        $alumniPosts = \App\Models\AlumniPost::latest()->get();
+        $alumniPosts = \App\Models\AlumniPost::where('is_archived', false)->latest()->get();
 
         $featuredNews = $news->first();
         $featuredAlumni = $alumniPosts->first();

@@ -140,6 +140,16 @@
                         </div>
                         
                         <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Maximum Participants (Optional)</label>
+                            <input type="number" name="max_registrations" placeholder="Leave empty for unlimited..." value="{{ old('max_registrations') }}" 
+                                   class="w-full rounded-lg border border-gray-300 text-gray-900 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" min="1" />
+                            <p class="text-xs text-gray-500 mt-1">Set maximum number of registrations. Leave empty for unlimited registrations.</p>
+                            @error('max_registrations')
+                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        
+                        <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Event Details</label>
                             <textarea name="content" placeholder="Detailed event information..." rows="4" 
                                       class="w-full rounded-lg border border-gray-300 text-gray-900 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required>{{ old('content') }}</textarea>

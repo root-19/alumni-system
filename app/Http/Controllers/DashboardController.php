@@ -23,14 +23,15 @@ class DashboardController extends Controller
 
         // Get the data for the user dashboard
         $featuredNews = News::latest()->first();
-        $latestAlumniPosts = AlumniPost::latest()->take(5)->get();
-        $upcomingEvents = AlumniPost::where('created_at', '>=', now())
+        $latestAlumniPosts = AlumniPost::where('is_archived', false)->latest()->take(5)->get();
+        $upcomingEvents = AlumniPost::where('is_archived', false)
+            ->where('created_at', '>=', now())
             ->orderBy('created_at', 'asc')
             ->take(3)
             ->get();
         
         // Get recent events for the events section
-        $events = AlumniPost::latest()->take(5)->get();
+        $events = AlumniPost::where('is_archived', false)->latest()->take(5)->get();
 
         return view('dashboard', compact('featuredNews', 'latestAlumniPosts', 'upcomingEvents', 'events'));
     }

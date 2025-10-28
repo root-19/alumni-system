@@ -67,10 +67,13 @@
                             ['route' => 'dashboard', 'label' => __('Dashboard'), 'icon' => 'home', 'active' => 'dashboard'],
 
                             ['route' => 'accounts', 'label' => __('Accounts'), 'icon' => 'users', 'active' => 'accounts'],
-                            ['route' => 'admin.news', 'label' => __('Events & Updates'), 'icon' => 'newspaper', 'active' => 'admin.news'],
-                            ['route' => 'admin.events.index', 'label' => __('Events'), 'icon' => 'calendar-days', 'active' => 'admin.events.*'],
-                            ['route' => 'admin.registrations.index', 'label' => __('Registrations'), 'icon' => 'clipboard-document-list', 'active' => 'admin.registrations.*'],
-                            ['route' => 'admin.attendance.index', 'label' => __('Attendance'), 'icon' => 'check-circle', 'active' => 'admin.attendance.*'],
+                            ['group' => 'Events & Activities', 'items' => [
+                                ['route' => 'admin.news', 'label' => __('Events & Updates'), 'icon' => 'newspaper', 'active' => 'admin.news'],
+                                ['route' => 'admin.events.index', 'label' => __('Events'), 'icon' => 'calendar-days', 'active' => 'admin.events.*'],
+                                ['route' => 'admin.registrations.index', 'label' => __('Registrations'), 'icon' => 'clipboard-document-list', 'active' => 'admin.registrations.*'],
+                                ['route' => 'admin.attendance.index', 'label' => __('Attendance'), 'icon' => 'check-circle', 'active' => 'admin.attendance.*'],
+                                ['route' => 'admin.event-logs.index', 'label' => __('Event Logs'), 'icon' => 'archive-box', 'active' => 'admin.event-logs.*'],
+                            ]],
                             ['route' => 'resume', 'label' => __('Resume'), 'icon' => 'document-text', 'active' => 'resume'],
                             ['route' => 'report', 'label' => __('Reports'), 'icon' => 'chat-bubble', 'active' => 'messages'],
                             ['route' => 'admin.contributor', 'label' => __('Contributor'), 'icon' => 'users', 'active' => 'admin.contributor'],
@@ -88,14 +91,47 @@
 
                 {{-- Auto-render menu items based on role --}}
                 @foreach($menuItems as $item)
-                    <flux:navlist.item
-                        :icon="$item['icon']"
-                        :href="route($item['route'])"
-                        :current="request()->routeIs($item['active'])"
-                        wire:navigate
-                        class="rounded-md px-3 py-2 text-sm font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
-                        {{ $item['label'] }}
-                    </flux:navlist.item>
+                    @if(isset($item['group']))
+                        {{-- Render collapsible group --}}
+                        <div x-data="{ open: false }" class="space-y-1">
+                            <button @click="open = !open" class="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition rounded-md text-white">
+                                <span class="flex items-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
+                                    </svg>
+                                    {{ $item['group'] }}
+                                </span>
+                                <svg x-show="!open" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                                <svg x-show="open" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                </svg>
+                            </button>
+                            <div x-show="open" x-collapse class="ml-4 space-y-1">
+                                @foreach($item['items'] as $subItem)
+                                    <flux:navlist.item
+                                        :icon="$subItem['icon']"
+                                        :href="route($subItem['route'])"
+                                        :current="request()->routeIs($subItem['active'])"
+                                        wire:navigate
+                                        class="rounded-md px-3 py-2 text-sm font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
+                                        {{ $subItem['label'] }}
+                                    </flux:navlist.item>
+                                @endforeach
+                            </div>
+                        </div>
+                    @else
+                        {{-- Render regular menu item --}}
+                        <flux:navlist.item
+                            :icon="$item['icon']"
+                            :href="route($item['route'])"
+                            :current="request()->routeIs($item['active'])"
+                            wire:navigate
+                            class="rounded-md px-3 py-2 text-sm font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
+                            {{ $item['label'] }}
+                        </flux:navlist.item>
+                    @endif
                 @endforeach
 
                 @if(empty($menuItems))

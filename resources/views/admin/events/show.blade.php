@@ -33,10 +33,21 @@
 
             <div class="mt-4 flex items-center justify-between">
                 <div class="text-sm text-gray-700">
-                    {{ $post->registrations->count() }} attendee{{ $post->registrations->count() === 1 ? '' : 's' }} registered
+                    @php
+                        $registeredCount = $post->registrations->count();
+                        $maxRegistrations = $post->max_registrations;
+                    @endphp
+                    {{ $registeredCount }} / 
+                    @if($maxRegistrations)
+                        {{ $maxRegistrations }}
+                    @else
+                        ∞
+                    @endif
+                    registered
                 </div>
                 @auth
                     @php $isRegistered = $post->isRegisteredBy(auth()->user()); @endphp
+                    @php $isFull = $post->isFull(); @endphp
                     @if($isRegistered)
                         <form method="POST" action="{{ route('events.unregister', $post) }}">
                             @csrf
@@ -45,6 +56,10 @@
                                 Cancel Registration
                             </button>
                         </form>
+                    @elseif($isFull)
+                        <button type="button" disabled class="px-4 py-2 rounded-lg bg-gray-400 cursor-not-allowed text-white text-sm font-medium">
+                            Event Full
+                        </button>
                     @else
                         <form method="POST" action="{{ route('events.register', $post) }}" class="flex items-center gap-2">
                             @csrf

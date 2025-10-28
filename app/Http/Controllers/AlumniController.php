@@ -11,13 +11,13 @@ class AlumniController extends Controller
 
     public function index()
 {
-    $alumniPosts = AlumniPost::latest()->get();
+    $alumniPosts = AlumniPost::where('is_archived', false)->latest()->get();
     return view('events', compact('alumniPosts'));
 }
 
     public function adminIndex()
 {
-    $alumniPosts = AlumniPost::latest()->get();
+    $alumniPosts = AlumniPost::where('is_archived', false)->latest()->get();
     return view('admin.eventsAdmin', compact('alumniPosts'));
 }
 
@@ -30,6 +30,7 @@ class AlumniController extends Controller
             'description' => 'nullable|string|max:1000',
             'event_date' => 'nullable|date',
             'location' => 'nullable|string|max:255',
+            'max_registrations' => 'nullable|integer|min:1',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
@@ -39,6 +40,7 @@ class AlumniController extends Controller
             'description' => $request->description,
             'event_date' => $request->event_date,
             'location' => $request->location,
+            'max_registrations' => $request->max_registrations,
             'user_id' => auth()->id(),
         ];
 
@@ -157,6 +159,64 @@ class AlumniController extends Controller
         ]);
 
         return view('admin.events.show', compact('post'));
+    }
+
+    /**
+     * Show form to edit an event
+     */
+    public function edit(AlumniPost $post)
+    {
+        return view('admin.events.edit', compact('post'));
+    }
+
+    /**
+     * Update an event
+     */
+    public function update(Request $request, AlumniPost $post)
+    {
+        $request->validate([
+            'content' => 'required|string',
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'event_date' => 'nullable|date',
+            'location' => 'nullable|string|max:255',
+            'max_registrations' => 'nullable|integer|min:1',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        $data = [
+            'content' => $request->content,
+            'title' => $request->title,
+            'description' => $request->description,
+            'event_date' => $request->event_date,
+            'location' => $request->location,
+            'max_registrations' => $request->max_registrations,
+        ];
+
+        // Handle image upload if provided
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($post->image_path && \Storage::disk('public')->exists($post->image_path)) {
+                \Storage::disk('public')->delete($post->image_path);
+            }
+            
+            $imagePath = $request->file('image')->store('alumni-posts', 'public');
+            $data['image_path'] = $imagePath;
+        }
+
+        $post->update($data);
+
+        return redirect()->route('admin.events.index')->with('success', 'Event updated successfully!');
+    }
+
+    /**
+     * Delete an event (soft delete/archive)
+     */
+    public function destroy(AlumniPost $post)
+    {
+        $post->update(['is_archived' => true]);
+        
+        return redirect()->route('admin.events.index')->with('success', 'Event archived successfully!');
     }
 
 }
