@@ -11,14 +11,50 @@ class AlumniController extends Controller
 
     public function index()
 {
-    $alumniPosts = AlumniPost::where('is_archived', false)->latest()->get();
-    return view('events', compact('alumniPosts'));
+    // Automatically mark events as completed if their event_date has passed
+    AlumniPost::where('is_archived', false)
+        ->where('is_completed', false)
+        ->whereNotNull('event_date')
+        ->where('event_date', '<', now())
+        ->update(['is_completed' => true]);
+    
+    // Get active (not completed) events
+    $alumniPosts = AlumniPost::where('is_archived', false)
+        ->where('is_completed', false)
+        ->latest()
+        ->get();
+    
+    // Get completed events
+    $completedEvents = AlumniPost::where('is_archived', false)
+        ->where('is_completed', true)
+        ->latest()
+        ->get();
+    
+    return view('events', compact('alumniPosts', 'completedEvents'));
 }
 
     public function adminIndex()
 {
-    $alumniPosts = AlumniPost::where('is_archived', false)->latest()->get();
-    return view('admin.eventsAdmin', compact('alumniPosts'));
+    // Automatically mark events as completed if their event_date has passed
+    AlumniPost::where('is_archived', false)
+        ->where('is_completed', false)
+        ->whereNotNull('event_date')
+        ->where('event_date', '<', now())
+        ->update(['is_completed' => true]);
+    
+    // Get active (not completed) events
+    $alumniPosts = AlumniPost::where('is_archived', false)
+        ->where('is_completed', false)
+        ->latest()
+        ->get();
+    
+    // Get completed events
+    $completedEvents = AlumniPost::where('is_archived', false)
+        ->where('is_completed', true)
+        ->latest()
+        ->get();
+    
+    return view('admin.eventsAdmin', compact('alumniPosts', 'completedEvents'));
 }
 
     // Store a new alumni post

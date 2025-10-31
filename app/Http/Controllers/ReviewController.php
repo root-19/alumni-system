@@ -94,9 +94,21 @@ class ReviewController extends Controller
 
     /**
      * Get reviews for a specific event.
+     * Only show reviews if event has attendees or is completed.
      */
     public function getEventReviews(AlumniPost $post)
     {
+        // Check if event has attendees or is completed
+        $hasAttendees = $post->eventRegistrations()->where('status', 'attended')->exists();
+        
+        if (!$hasAttendees && !$post->is_completed) {
+            return response()->json([
+                'reviews' => [],
+                'average_rating' => 0,
+                'total_reviews' => 0,
+            ]);
+        }
+
         $reviews = $post->approvedReviews()
             ->with('user')
             ->latest()

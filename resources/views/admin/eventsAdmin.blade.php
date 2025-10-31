@@ -13,8 +13,10 @@
             </div>
         @endif
 
+        {{-- Active Events --}}
         @if($alumniPosts->count())
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Active Events</h2>
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gradient-to-r from-green-50 to-emerald-50">
                         <tr>
@@ -115,7 +117,114 @@
                     </tbody>
                 </table>
             </div>
-        @else
+        @endif
+
+        {{-- Completed Events --}}
+        @if(isset($completedEvents) && $completedEvents->count())
+            <h2 class="text-2xl font-bold text-gray-600 mb-6 mt-12">Completed Events</h2>
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden opacity-75">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Event</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Title</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Location</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach($completedEvents as $post)
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                        @if($post->image_path)
+                                            <img class="h-16 w-24 object-cover rounded-lg mr-4 border border-gray-200 grayscale" 
+                                                 src="{{ asset('storage/' . $post->image_path) }}" alt="Event">
+                                        @else
+                                            <div class="h-16 w-24 bg-gray-200 rounded-lg mr-4 flex items-center justify-center">
+                                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                </svg>
+                                            </div>
+                                        @endif
+                                        <div class="text-xs text-gray-500">
+                                            {{ $post->created_at->format('M d, Y') }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="max-w-xs">
+                                        @if($post->title)
+                                            <div class="text-sm font-semibold text-gray-900">{{ $post->title }}</div>
+                                        @endif
+                                        <div class="text-sm text-gray-600 mt-1">{{ Str::limit($post->description ?? $post->content, 60) }}</div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($post->event_date)
+                                        <div class="flex items-center text-sm">
+                                            <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
+                                            <div>
+                                                <div class="font-medium text-gray-900">{{ \Carbon\Carbon::parse($post->event_date)->format('M j, Y') }}</div>
+                                                <div class="text-xs text-gray-500">{{ \Carbon\Carbon::parse($post->event_date)->format('g:i A') }}</div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <span class="text-sm text-gray-400">Not set</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if($post->location)
+                                        <div class="flex items-center text-sm text-gray-600">
+                                            <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            </svg>
+                                            <span class="max-w-xs truncate">{{ $post->location }}</span>
+                                        </div>
+                                    @else
+                                        <span class="text-sm text-gray-400">Not set</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-500 text-white">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Completed
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex items-center gap-2">
+                                        <a href="{{ route('admin.events.show', $post) }}" 
+                                           class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded transition text-xs font-semibold flex items-center gap-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                            </svg>
+                                            View
+                                        </a>
+                                        <a href="{{ route('admin.events.edit', $post) }}" 
+                                           class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded transition text-xs font-semibold flex items-center gap-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            </svg>
+                                            Edit
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+
+        @if(!$alumniPosts->count() && (!isset($completedEvents) || !$completedEvents->count()))
             <div class="text-center py-16 bg-white rounded-2xl shadow">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>

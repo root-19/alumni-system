@@ -10,7 +10,7 @@ use App\Models\Review;
 class AlumniPost extends Model
 {
     protected $table = 'alumni_posts';
-    protected $fillable = ['content', 'title', 'description', 'event_date', 'location', 'image_path', 'user_id', 'is_archived', 'max_registrations'];
+    protected $fillable = ['content', 'title', 'description', 'event_date', 'location', 'image_path', 'user_id', 'is_archived', 'is_completed', 'max_registrations'];
 
     public function comments() {
         return $this->hasMany(Comment::class)->with('user', 'replies', 'likes');

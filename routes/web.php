@@ -193,8 +193,20 @@ Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_p
     // Get events list for dropdown
     $eventsList = \App\Models\AlumniPost::where('is_archived', false)->latest()->take(20)->get();
     
-    // Get all reviews with event and user data (no approval filter)
+    // Get all reviews with event and user data - only show reviews for events that:
+    // 1. Have at least one user marked as "attended" (status='attended' in EventRegistration)
+    // 2. OR the event is completed (is_completed = true)
     $reviews = \App\Models\Review::with(['alumniPost', 'user'])
+        ->whereHas('alumniPost', function($query) {
+            $query->where(function($q) {
+                // Event has attendees (status = 'attended')
+                $q->whereHas('eventRegistrations', function($regQuery) {
+                    $regQuery->where('status', 'attended');
+                })
+                // OR event is completed
+                ->orWhere('is_completed', true);
+            });
+        })
         ->latest()
         ->take(50)
         ->get();
@@ -231,9 +243,17 @@ Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_p
         $date = now()->subMonths($i);
         $chartData['labels'][] = $date->format('M Y');
         
-        // Count reviews for this month (all reviews, no approval filter)
+        // Count reviews for this month - only for events with attendees or completed
         $reviewsCount = \App\Models\Review::whereYear('created_at', $date->year)
             ->whereMonth('created_at', $date->month)
+            ->whereHas('alumniPost', function($query) {
+                $query->where(function($q) {
+                    $q->whereHas('eventRegistrations', function($regQuery) {
+                        $regQuery->where('status', 'attended');
+                    })
+                    ->orWhere('is_completed', true);
+                });
+            })
             ->count();
         $chartData['reviews'][] = $reviewsCount;
         
@@ -258,11 +278,18 @@ Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_p
             $date = now()->subMonths($i);
             $eventData['labels'][] = $date->format('M Y');
             
-            // Count reviews for this specific event this month (all reviews, no approval filter)
-            $reviewsCount = \App\Models\Review::where('alumni_post_id', $event->id)
-                ->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
+            // Count reviews for this specific event this month - only if event has attendees or is completed
+            $hasAttendees = \App\Models\EventRegistration::where('alumni_post_id', $event->id)
+                ->where('status', 'attended')
+                ->exists();
+            
+            $reviewsCount = 0;
+            if ($hasAttendees || $event->is_completed) {
+                $reviewsCount = \App\Models\Review::where('alumni_post_id', $event->id)
+                    ->whereYear('created_at', $date->year)
+                    ->whereMonth('created_at', $date->month)
+                    ->count();
+            }
             $eventData['reviews'][] = $reviewsCount;
             
             // Count attendance for this specific event this month
