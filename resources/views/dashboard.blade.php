@@ -121,10 +121,12 @@
                                         <p class="font-medium text-sm text-gray-800 truncate">{{ $event->title ?? \Illuminate\Support\Str::limit($event->content, 30) }}</p>
                                         <p class="text-xs text-gray-500">{{ $event->created_at->format('M d, Y') }}</p>
                                         <div class="flex items-center gap-2 mt-1">
-                                            <button onclick="openReviewModal({{ $event->id }})" class="text-xs text-blue-600 hover:text-blue-700 font-medium">
-                                                Add Review
-                                            </button>
-                                            <span class="text-xs text-gray-400">•</span>
+                                            @if($event->created_at->gte(now()->subDays(5)))
+                                                <button onclick="openReviewModal({{ $event->id }})" class="text-xs text-blue-600 hover:text-blue-700 font-medium">
+                                                    Add Review
+                                                </button>
+                                                <span class="text-xs text-gray-400">•</span>
+                                            @endif
                                             <a href="{{ route('events.show', $event) }}" class="text-xs text-green-600 hover:text-green-700 font-medium">
                                                 View Details
                                             </a>

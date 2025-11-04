@@ -30,8 +30,12 @@ class DashboardController extends Controller
             ->take(3)
             ->get();
         
-        // Get recent events for the events section
-        $events = AlumniPost::where('is_archived', false)->latest()->take(5)->get();
+        // Get recent events for the events section - only show events created within the last 5 days
+        $events = AlumniPost::where('is_archived', false)
+            ->where('created_at', '>=', now()->subDays(5))
+            ->latest()
+            ->take(5)
+            ->get();
 
         return view('dashboard', compact('featuredNews', 'latestAlumniPosts', 'upcomingEvents', 'events'));
     }
