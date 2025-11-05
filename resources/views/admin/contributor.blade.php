@@ -256,7 +256,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex space-x-2">
                                                 @if($donation->status === 'Pending')
-                                                    <form method="POST" action="{{ url('/admin/donations/'.$donation->id.'/status') }}">
+                                                    <form method="POST" action="{{ url('/admin/donations/'.$donation->id.'/status') }}" class="confirm-donation-form" data-donation-id="{{ $donation->id }}">
                                                         @csrf
                                                         @method('PATCH')
                                                         <input type="hidden" name="status" value="Confirmed">
@@ -299,4 +299,78 @@
             {{ session('success') }}
         </div>
     @endif
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle form submission with SweetAlert confirmation
+            const forms = document.querySelectorAll('.confirm-donation-form');
+            
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const form = this;
+                    const donationId = form.dataset.donationId;
+                    
+                    // Show confirmation popup
+                    Swal.fire({
+                        title: 'Confirm Donation?',
+                        text: 'Are you sure you want to confirm this donation?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#10b981',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Yes, confirm it!',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Create form data
+                            const formData = new FormData(form);
+                            
+                            // Submit via fetch
+                            fetch(form.action, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
+                                }
+                            })
+                            .then(response => {
+                                if (response.ok) {
+                                    // Show success popup
+                                    Swal.fire({
+                                        title: 'Done!',
+                                        text: 'Donation confirmed successfully!',
+                                        icon: 'success',
+                                        confirmButtonColor: '#10b981',
+                                        confirmButtonText: 'OK'
+                                    }).then(() => {
+                                        // Reload the page to update the status
+                                        window.location.reload();
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: 'Something went wrong. Please try again.',
+                                        icon: 'error',
+                                        confirmButtonText: 'OK'
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: 'Something went wrong. Please try again.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 </x-layouts.app>

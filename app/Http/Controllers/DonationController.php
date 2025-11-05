@@ -33,11 +33,7 @@ class DonationController extends Controller
 
         $donation->update(['status' => $request->status]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Donation status updated successfully',
-            'status' => $donation->status
-        ]);
+        return back()->with('success', 'Donation status updated successfully!');
     }
 
     public function destroy(Donation $donation)
