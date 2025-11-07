@@ -11,11 +11,18 @@ class AlumniController extends Controller
 
     public function index()
 {
-    // Automatically mark events as completed if their event_date has passed
+    // Reset events that are incorrectly marked as completed but their event_date hasn't passed yet
+    AlumniPost::where('is_archived', false)
+        ->where('is_completed', true)
+        ->whereNotNull('event_date')
+        ->where('event_date', '>=', now()->startOfDay())
+        ->update(['is_completed' => false]);
+    
+    // Automatically mark events as completed only if their event_date has completely passed (after end of event day)
     AlumniPost::where('is_archived', false)
         ->where('is_completed', false)
         ->whereNotNull('event_date')
-        ->where('event_date', '<', now())
+        ->where('event_date', '<', now()->startOfDay())
         ->update(['is_completed' => true]);
     
     // Get active (not completed) events
@@ -35,11 +42,18 @@ class AlumniController extends Controller
 
     public function adminIndex()
 {
-    // Automatically mark events as completed if their event_date has passed
+    // Reset events that are incorrectly marked as completed but their event_date hasn't passed yet
+    AlumniPost::where('is_archived', false)
+        ->where('is_completed', true)
+        ->whereNotNull('event_date')
+        ->where('event_date', '>=', now()->startOfDay())
+        ->update(['is_completed' => false]);
+    
+    // Automatically mark events as completed only if their event_date has completely passed (after end of event day)
     AlumniPost::where('is_archived', false)
         ->where('is_completed', false)
         ->whereNotNull('event_date')
-        ->where('event_date', '<', now())
+        ->where('event_date', '<', now()->startOfDay())
         ->update(['is_completed' => true]);
     
     // Get active (not completed) events
@@ -78,6 +92,7 @@ class AlumniController extends Controller
             'location' => $request->location,
             'max_registrations' => $request->max_registrations,
             'user_id' => auth()->id(),
+            'is_completed' => false, // Explicitly set to false when creating
         ];
 
         // Handle image upload if provided
@@ -227,6 +242,7 @@ class AlumniController extends Controller
             'event_date' => $request->event_date,
             'location' => $request->location,
             'max_registrations' => $request->max_registrations,
+            'is_completed' => false, // Explicitly set to false when updating
         ];
 
         // Handle image upload if provided

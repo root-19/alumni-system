@@ -37,6 +37,7 @@
             items: [],
             loading: true,
             unreadCount: 0,
+            isAdmin: {{ auth()->user()->role === 'admin' || auth()->user()->role === 'assistant' ? 'true' : 'false' }},
             init() {
                 this.fetchFeed();
                 this.fetchUnreadCount();
@@ -150,7 +151,9 @@
                 
                 <div class="flex items-center justify-between px-4 py-2 border-b bg-gray-50">
                     <h4 class="font-semibold text-gray-700 text-sm">Notifications</h4>
-                    <button @click="markAllRead" class="text-xs text-blue-600 hover:underline">Mark all read</button>
+                    @if(auth()->user()->role === 'admin' || auth()->user()->role === 'assistant')
+                        <button @click="markAllRead" class="text-xs text-blue-600 hover:underline">Mark all read</button>
+                    @endif
                 </div>
 
                 <ul class="max-h-96 overflow-y-auto divide-y divide-gray-100">
@@ -161,9 +164,9 @@
                         <li class="p-4 text-center text-xs text-gray-500">No notifications</li>
                     </template>
                     <template x-for="(item, idx) in items" :key="idx">
-                        <li class="px-4 py-3 text-sm flex gap-2 hover:bg-gray-50 cursor-pointer" 
-                            :class="{'bg-blue-50': !item.is_read}"
-                            @click="markAsRead(item.id)">
+                        <li class="px-4 py-3 text-sm flex gap-2" 
+                            :class="{'bg-blue-50': !item.is_read, 'hover:bg-gray-50 cursor-pointer': isAdmin, 'cursor-default': !isAdmin}"
+                            @click="isAdmin ? markAsRead(item.id) : null">
                             <div class="w-2 h-2 mt-2 rounded-full" :class="colorFor(item.type)"></div>
                             <div class="flex-1">
                                 <p class="text-gray-700" x-text="item.message"></p>
@@ -175,7 +178,11 @@
                 </ul>
 
                 <div class="px-4 py-2 bg-gray-50 text-center">
-                    <a href="{{ route('admin.dashboard') }}" class="text-xs text-blue-600 hover:underline">View dashboard activity</a>
+                    @if(auth()->user()->role === 'admin' || auth()->user()->role === 'assistant')
+                        <a href="{{ route('admin.dashboard') }}" class="text-xs text-blue-600 hover:underline">View dashboard activity</a>
+                    @else
+                        <a href="{{ route('dashboard') }}" class="text-xs text-blue-600 hover:underline">View dashboard</a>
+                    @endif
                 </div>
             </div>
         </div>

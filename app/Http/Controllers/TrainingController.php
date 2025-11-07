@@ -14,13 +14,33 @@ class TrainingController extends Controller
 {
     public function index()
     {
-        $trainings = Training::with('files')->get();
-        return view('training.index', compact('trainings'));
+        $trainings = Training::with(['files', 'quizzes', 'finalAssessments'])->get();
+        $user = Auth::user();
+        
+        // Get all quiz attempts for all trainings (get latest attempt for each quiz)
+        $allQuizIds = $trainings->flatMap->quizzes->pluck('id');
+        $quizAttempts = \App\Models\UserQuizAttempt::where('user_id', $user->id)
+            ->whereIn('quiz_id', $allQuizIds)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->unique('quiz_id')
+            ->keyBy('quiz_id');
+        
+        // Get all final assessment attempts for all trainings
+        $allFinalAssessmentIds = $trainings->flatMap->finalAssessments->pluck('id');
+        $finalAssessmentAttempts = \App\Models\UserFinalAssessmentAttempt::where('user_id', $user->id)
+            ->whereIn('final_assessment_id', $allFinalAssessmentIds)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->unique('final_assessment_id')
+            ->keyBy('final_assessment_id');
+        
+        return view('training', compact('trainings', 'quizAttempts', 'finalAssessmentAttempts'));
     }
 
     public function take($id)
 {
-    $training = \App\Models\Training::with('files')->findOrFail($id);
+    $training = \App\Models\Training::with(['files', 'quizzes', 'finalAssessments'])->findOrFail($id);
     $user = Auth::user();
 
     // Get user's existing progress
@@ -52,7 +72,22 @@ class TrainingController extends Controller
         ['progress' => $averageProgress]
     );
 
-    return view('training.take', compact('training', 'total', 'read', 'moduleProgresses', 'averageProgress'));
+    // Get quiz and final assessment attempts for this user (get latest attempt for each)
+    $quizAttempts = \App\Models\UserQuizAttempt::where('user_id', $user->id)
+        ->whereIn('quiz_id', $training->quizzes->pluck('id'))
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->unique('quiz_id')
+        ->keyBy('quiz_id');
+    
+    $finalAssessmentAttempts = \App\Models\UserFinalAssessmentAttempt::where('user_id', $user->id)
+        ->whereIn('final_assessment_id', $training->finalAssessments->pluck('id'))
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->unique('final_assessment_id')
+        ->keyBy('final_assessment_id');
+
+    return view('training.take', compact('training', 'total', 'read', 'moduleProgresses', 'averageProgress', 'quizAttempts', 'finalAssessmentAttempts'));
 }
 
  public function markAsRead(Training $training, TrainingFile $file)
@@ -126,11 +161,46 @@ class TrainingController extends Controller
             ->first();
         $storedProgress = $userProgress ? $userProgress->progress : 0;
         
-        // User must have 100% progress to download certificate
-        if (($calculatedProgress >= 100 || $storedProgress >= 100) && $training->certificate_path) {
+        // Check if all quizzes are passed (if exists)
+        $hasQuiz = $training->quizzes()->where('is_active', true)->count() > 0;
+        $allQuizzesPassed = true;
+        
+        if ($hasQuiz) {
+            $quizIds = $training->quizzes()->where('is_active', true)->pluck('id');
+            $quizAttempts = \App\Models\UserQuizAttempt::where('user_id', $user->id)
+                ->whereIn('quiz_id', $quizIds)
+                ->whereNotNull('completed_at')
+                ->get()
+                ->unique('quiz_id')
+                ->keyBy('quiz_id');
+            
+            // Check if all quizzes are passed
+            foreach ($quizIds as $quizId) {
+                $quizAttempt = $quizAttempts[$quizId] ?? null;
+                if (!$quizAttempt || !$quizAttempt->passed) {
+                    $allQuizzesPassed = false;
+                    break;
+                }
+            }
+        }
+        
+        // Certificate download logic:
+        // If quizzes exist: allow download if ALL quizzes are PASSED (regardless of module completion)
+        // If no quizzes: allow download if modules are 100% complete
+        if ($hasQuiz) {
+            $canDownload = $allQuizzesPassed && $training->certificate_path;
+        } else {
+            $canDownload = ($calculatedProgress >= 100 || $storedProgress >= 100) && $training->certificate_path;
+        }
+        
+        if ($canDownload) {
             $path = storage_path('app/public/' . $training->certificate_path);
             $fileName = Str::slug($training->title) . '-certificate.' . pathinfo($training->certificate_path, PATHINFO_EXTENSION);
             return response()->download($path, $fileName);
+        }
+        
+        if ($hasFinalAssessment && !$finalAssessmentPassed) {
+            return back()->with('error', 'Certificate not available. Pass the final assessment first.');
         }
         
         return back()->with('error', 'Certificate not available. Complete all modules first.');

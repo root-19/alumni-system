@@ -21,19 +21,39 @@ class DashboardController extends Controller
             }
         }
 
+        // Reset and mark events as completed based on event_date
+        AlumniPost::where('is_archived', false)
+            ->where('is_completed', true)
+            ->whereNotNull('event_date')
+            ->where('event_date', '>=', now()->startOfDay())
+            ->update(['is_completed' => false]);
+        
+        AlumniPost::where('is_archived', false)
+            ->where('is_completed', false)
+            ->whereNotNull('event_date')
+            ->where('event_date', '<', now()->startOfDay())
+            ->update(['is_completed' => true]);
+
         // Get the data for the user dashboard
         $featuredNews = News::latest()->first();
         $latestAlumniPosts = AlumniPost::where('is_archived', false)->latest()->take(5)->get();
+        
+        // Get upcoming events - events where event_date is today or in the future
         $upcomingEvents = AlumniPost::where('is_archived', false)
-            ->where('created_at', '>=', now())
-            ->orderBy('created_at', 'asc')
+            ->where('is_completed', false)
+            ->whereNotNull('event_date')
+            ->where('event_date', '>=', now()->startOfDay())
+            ->orderBy('event_date', 'asc')
             ->take(3)
             ->get();
         
-        // Get recent events for the events section - only show events created within the last 5 days
+        // Get completed events for the events section - only show events completed within the last 3 days
         $events = AlumniPost::where('is_archived', false)
-            ->where('created_at', '>=', now()->subDays(5))
-            ->latest()
+            ->where('is_completed', true)
+            ->whereNotNull('event_date')
+            ->where('event_date', '>=', now()->subDays(3)->startOfDay())
+            ->where('event_date', '<', now()->startOfDay())
+            ->latest('event_date')
             ->take(5)
             ->get();
 

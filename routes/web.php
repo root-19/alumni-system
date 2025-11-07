@@ -62,6 +62,22 @@ Route::get('/trainings', [\App\Http\Controllers\TrainingController::class, 'inde
 
     Route::get('/trainings/{training}/take', [\App\Http\Controllers\TrainingController::class, 'take'])
         ->name('training.take');
+    
+    // Quiz Routes (User)
+    Route::get('/quizzes', [\App\Http\Controllers\QuizController::class, 'index'])->name('quizzes.index');
+    Route::get('/quizzes/{id}', [\App\Http\Controllers\QuizController::class, 'show'])->name('quizzes.show');
+    Route::get('/quizzes/{id}/take', [\App\Http\Controllers\QuizController::class, 'take'])->name('quizzes.take');
+    Route::post('/quizzes/{id}/submit', [\App\Http\Controllers\QuizController::class, 'submit'])->name('quizzes.submit');
+    Route::get('/quizzes/result/{attemptId}', [\App\Http\Controllers\QuizController::class, 'result'])->name('quizzes.result');
+    Route::post('/quizzes/{id}/retake', [\App\Http\Controllers\QuizController::class, 'retake'])->name('quizzes.retake');
+    
+    // Final Assessment Routes (User)
+    Route::get('/final-assessments', [\App\Http\Controllers\FinalAssessmentController::class, 'index'])->name('final-assessments.index');
+    Route::get('/final-assessments/{id}', [\App\Http\Controllers\FinalAssessmentController::class, 'show'])->name('final-assessments.show');
+    Route::get('/final-assessments/{id}/take', [\App\Http\Controllers\FinalAssessmentController::class, 'take'])->name('final-assessments.take');
+    Route::post('/final-assessments/{id}/submit', [\App\Http\Controllers\FinalAssessmentController::class, 'submit'])->name('final-assessments.submit');
+    Route::get('/final-assessments/result/{attemptId}', [\App\Http\Controllers\FinalAssessmentController::class, 'result'])->name('final-assessments.result');
+    Route::post('/final-assessments/{id}/retake', [\App\Http\Controllers\FinalAssessmentController::class, 'retake'])->name('final-assessments.retake');
 
     Route::post('/trainings/{training}/read/{file}', [\App\Http\Controllers\TrainingController::class, 'markAsRead'])
         ->name('training.read');
@@ -112,13 +128,19 @@ Route::get('/trainings', [\App\Http\Controllers\TrainingController::class, 'inde
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+// Resume Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/resumes/create', [ResumeController::class, 'create'])->name('resumes.create');
+    Route::post('/resumes/generate', [ResumeController::class, 'generate'])->name('resumes.generate');
+    Route::get('/resumes/{id}/download', [ResumeController::class, 'downloadPdf'])->name('resumes.download');
+});
+
 Route::get('/resumes/{resume}', [ResumeController::class, 'show'])->name('resumes.show');
 Route::get('/resume-view', [ResumeController::class, 'showResumeViewer'])->name('resume-view');
 
 Route::get('/resume-view/{id}', [ResumeController::class, 'viewResumeInViewer'])->name('resume-view.show');
 Route::get('/resumes', [ResumeController::class, 'index'])->name('resumes.index');
 Route::post('/resumes', [ResumeController::class, 'store'])->name('resumes.store');
-Route::get('/resumes/{resume}', [ResumeController::class, 'show'])->name('resumes.show'); // <--
 Route::delete('/resumes/{resume}', [ResumeController::class, 'destroy'])->name('resumes.destroy');
 
 Route::get('/resumes/view/{id}', [ResumeController::class, 'viewResume'])->name('resumes.view');
@@ -160,6 +182,37 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('trainings', [TrainingController::class, 'index'])->name('trainings.index');
     Route::get('trainings/create', [TrainingController::class, 'create'])->name('trainings.create');
     Route::post('trainings', [TrainingController::class, 'store'])->name('trainings.store');
+    Route::get('trainings/{id}', [TrainingController::class, 'show'])->name('trainings.show');
+    
+    // Quiz Management Routes
+    Route::get('quizzes', [\App\Http\Controllers\Admin\QuizController::class, 'index'])->name('quizzes.index');
+    Route::get('quizzes/create', [\App\Http\Controllers\Admin\QuizController::class, 'create'])->name('quizzes.create');
+    Route::post('quizzes', [\App\Http\Controllers\Admin\QuizController::class, 'store'])->name('quizzes.store');
+    Route::get('quizzes/{id}/participants', [\App\Http\Controllers\Admin\QuizController::class, 'getParticipants'])->name('quizzes.participants');
+    Route::get('quizzes/{id}', [\App\Http\Controllers\Admin\QuizController::class, 'show'])->name('quizzes.show');
+    Route::get('quizzes/{id}/edit', [\App\Http\Controllers\Admin\QuizController::class, 'edit'])->name('quizzes.edit');
+    Route::put('quizzes/{id}', [\App\Http\Controllers\Admin\QuizController::class, 'update'])->name('quizzes.update');
+    Route::delete('quizzes/{id}', [\App\Http\Controllers\Admin\QuizController::class, 'destroy'])->name('quizzes.destroy');
+    Route::get('quizzes/{id}/add-question', [\App\Http\Controllers\Admin\QuizController::class, 'addQuestion'])->name('quizzes.add-question');
+    Route::post('quizzes/{id}/questions', [\App\Http\Controllers\Admin\QuizController::class, 'storeQuestion'])->name('quizzes.store-question');
+    Route::get('quizzes/{quizId}/questions/{questionId}/edit', [\App\Http\Controllers\Admin\QuizController::class, 'editQuestion'])->name('quizzes.edit-question');
+    Route::put('quizzes/{quizId}/questions/{questionId}', [\App\Http\Controllers\Admin\QuizController::class, 'updateQuestion'])->name('quizzes.update-question');
+    Route::delete('quizzes/{quizId}/questions/{questionId}', [\App\Http\Controllers\Admin\QuizController::class, 'deleteQuestion'])->name('quizzes.delete-question');
+    
+    // Final Assessment Management Routes
+    Route::get('final-assessments', [\App\Http\Controllers\Admin\FinalAssessmentController::class, 'index'])->name('final-assessments.index');
+    Route::get('final-assessments/create', [\App\Http\Controllers\Admin\FinalAssessmentController::class, 'create'])->name('final-assessments.create');
+    Route::post('final-assessments', [\App\Http\Controllers\Admin\FinalAssessmentController::class, 'store'])->name('final-assessments.store');
+    Route::get('final-assessments/{id}', [\App\Http\Controllers\Admin\FinalAssessmentController::class, 'show'])->name('final-assessments.show');
+    Route::get('final-assessments/{id}/edit', [\App\Http\Controllers\Admin\FinalAssessmentController::class, 'edit'])->name('final-assessments.edit');
+    Route::put('final-assessments/{id}', [\App\Http\Controllers\Admin\FinalAssessmentController::class, 'update'])->name('final-assessments.update');
+    Route::delete('final-assessments/{id}', [\App\Http\Controllers\Admin\FinalAssessmentController::class, 'destroy'])->name('final-assessments.destroy');
+    Route::get('final-assessments/{id}/add-question', [\App\Http\Controllers\Admin\FinalAssessmentController::class, 'addQuestion'])->name('final-assessments.add-question');
+    Route::post('final-assessments/{id}/questions', [\App\Http\Controllers\Admin\FinalAssessmentController::class, 'storeQuestion'])->name('final-assessments.store-question');
+    Route::get('final-assessments/{assessmentId}/questions/{questionId}/edit', [\App\Http\Controllers\Admin\FinalAssessmentController::class, 'editQuestion'])->name('final-assessments.edit-question');
+    Route::put('final-assessments/{assessmentId}/questions/{questionId}', [\App\Http\Controllers\Admin\FinalAssessmentController::class, 'updateQuestion'])->name('final-assessments.update-question');
+    Route::delete('final-assessments/{assessmentId}/questions/{questionId}', [\App\Http\Controllers\Admin\FinalAssessmentController::class, 'deleteQuestion'])->name('final-assessments.delete-question');
+    
     // Bulk user update (admin)
     Route::post('users/bulk-update', [AdminUserController::class, 'bulkUpdate'])
         ->middleware(['auth','admin'])
@@ -303,7 +356,56 @@ Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_p
         $eventsData[$event->id] = $eventData;
     }
     
-    return view('admin.dashboard', compact('userCount','donations','totalDonationAmount','messageCount','eventsList','reviews','chartData','eventsData','topContributors'));
+    // Training Analytics
+    $trainings = \App\Models\Training::with(['quizzes.userAttempts'])->get();
+    $trainingAnalytics = [];
+    
+    foreach ($trainings as $training) {
+        $quizIds = $training->quizzes->where('is_active', true)->pluck('id');
+        
+        // Get all unique users who took quizzes for this training
+        $uniqueUsers = \App\Models\UserQuizAttempt::whereIn('quiz_id', $quizIds)
+            ->distinct('user_id')
+            ->pluck('user_id');
+        
+        $totalTakers = $uniqueUsers->count();
+        
+        // Count how many passed (passed at least one quiz)
+        $passedUsers = 0;
+        foreach ($uniqueUsers as $userId) {
+            $userAttempts = \App\Models\UserQuizAttempt::whereIn('quiz_id', $quizIds)
+                ->where('user_id', $userId)
+                ->get();
+            
+            // Check if user passed all quizzes
+            $allQuizzes = $training->quizzes->where('is_active', true);
+            $passedAll = true;
+            foreach ($allQuizzes as $quiz) {
+                $userQuizAttempt = $userAttempts->where('quiz_id', $quiz->id)->where('passed', true)->first();
+                if (!$userQuizAttempt) {
+                    $passedAll = false;
+                    break;
+                }
+            }
+            
+            if ($passedAll && $allQuizzes->count() > 0) {
+                $passedUsers++;
+            }
+        }
+        
+        $failedUsers = $totalTakers - $passedUsers;
+        
+        $trainingAnalytics[] = [
+            'training_id' => $training->id,
+            'training_title' => $training->title,
+            'total_takers' => $totalTakers,
+            'passed' => $passedUsers,
+            'failed' => $failedUsers,
+            'total_quizzes' => $training->quizzes->where('is_active', true)->count(),
+        ];
+    }
+    
+    return view('admin.dashboard', compact('userCount','donations','totalDonationAmount','messageCount','eventsList','reviews','chartData','eventsData','topContributors','trainingAnalytics'));
     })->name('admin.dashboard');
 
     // Notification routes

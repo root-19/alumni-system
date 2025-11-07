@@ -209,12 +209,7 @@
             </form>
 
             <!-- Login link -->
-            <div class="text-center mt-8 pt-6 border-t border-gray-200">
-                <p class="text-sm text-gray-600">
-                    Already have an account?
-                    <a href="{{ route('login') }}" class="text-green-600 hover:text-green-700 font-semibold hover:underline transition-colors duration-200">Sign in here</a>
-                </p>
-            </div>
+            
         </div>
     </div>
 </x-layouts.app>

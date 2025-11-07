@@ -24,4 +24,14 @@ class Training extends Model
     {
         return $this->hasMany(UserTrainingProgress::class);
     }
+
+    public function quizzes()
+    {
+        return $this->hasMany(Quiz::class);
+    }
+
+    public function finalAssessments()
+    {
+        return $this->hasMany(FinalAssessment::class);
+    }
 }

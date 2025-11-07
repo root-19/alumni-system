@@ -257,6 +257,82 @@
 
                         </div>
 
+        <!-- Training Analytics Section -->
+        <div class="bg-white rounded-2xl shadow p-6 text-black">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-800">Training Analytics</h2>
+                <a href="{{ route('admin.trainings.index') }}" class="text-sm text-blue-600 hover:underline">View all trainings</a>
+            </div>
+
+            @if(isset($trainingAnalytics) && count($trainingAnalytics) > 0)
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Training</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Total Quizzes</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Total Takers</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Passed</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Failed</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Pass Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach($trainingAnalytics as $analytics)
+                                @php
+                                    $passRate = $analytics['total_takers'] > 0 ? 
+                                        round(($analytics['passed'] / $analytics['total_takers']) * 100, 1) : 0;
+                                @endphp
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            <a href="{{ route('admin.trainings.show', $analytics['training_id']) }}" 
+                                               class="text-blue-600 hover:text-blue-800 hover:underline">
+                                                {{ $analytics['training_title'] }}
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {{ $analytics['total_quizzes'] }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                                        {{ $analytics['total_takers'] }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                            {{ $analytics['passed'] }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                            {{ $analytics['failed'] }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                                <div class="bg-green-600 h-2 rounded-full" style="width: {{ $passRate }}%"></div>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-900">{{ $passRate }}%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="text-center py-12">
+                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-500 mb-2">No Training Data Yet</h3>
+                    <p class="text-sm text-gray-400">Training analytics will appear here once users start taking quizzes.</p>
+                </div>
+            @endif
+        </div>
+
         <!-- Top Contributors Section -->
         <div class="bg-white rounded-2xl shadow p-6 text-black">
             <!-- Header -->

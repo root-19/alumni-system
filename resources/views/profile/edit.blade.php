@@ -22,6 +22,18 @@
                         placeholder="Enter first name">
                 </div>
 
+                {{-- Last Name --}}
+                <div>
+                    <label class="block text-gray-700 font-medium mb-1">Last Name</label>
+                    <input type="text" name="last_name" value="{{ old('last_name', $user->last_name) }}"
+                        class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 placeholder-gray-400
+                               focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                        placeholder="Enter last name">
+                    @error('last_name')
+                        <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 {{-- Middle Name --}}
                 <div>
                     <label class="block text-gray-700 font-medium mb-1">Middle Name</label>
