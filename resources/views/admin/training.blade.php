@@ -12,7 +12,7 @@
               class="space-y-6 bg-white p-6 rounded shadow">
             @csrf
 
-            <div>
+            <div class= "gap-4">
                 <label class="block text-sm font-medium text-gray-700">Title</label>
                 <input type="text" name="title" value="{{ old('title') }}" required
                        class="mt-1 block w-full border rounded p-2">

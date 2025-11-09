@@ -184,10 +184,10 @@
                 </h1>
             </div>
 
-            <div class="space-y-8">
+            <div class="space-y-10">
                 @forelse($trainings as $training)
                 <div class="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-green-200 transition-all duration-300 overflow-hidden">
-                    <div class="p-6 space-y-5">
+                    <div class="p-6 space-y-6">
                         <!-- Training Header -->
                         <div class="flex items-start justify-between gap-4">
                             <div>
@@ -208,7 +208,7 @@
                         </p>
 
                         <!-- MODULES -->
-                        <div>
+                        <div class="mt-8">
                             <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                                 <span class="inline-flex w-6 h-6 items-center justify-center rounded-md bg-green-100 text-green-600 text-sm">📘</span>
                                 Modules
@@ -220,15 +220,23 @@
                                     @endphp
                                     <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-green-50 transition">
                                         <div class="w-6 text-[11px] text-gray-400 font-mono">{{ $index + 1 }}</div>
-                                        <a href="{{ route('training.take', $training->id) }}"
-                                           id="module-{{ $file->id }}"
-                                           class="flex-1 text-sm font-medium truncate {{ $isRead ? 'text-green-600' : 'text-gray-700' }} hover:text-green-700"
-                                           onclick="markAsRead({{ $training->id }}, {{ $file->id }}, {{ $index + 1 }}, '{{ $file->original_name }}')">
+                                        <span class="flex-1 text-sm font-medium truncate {{ $isRead ? 'text-green-600' : 'text-gray-700' }}">
                                             {{ $file->original_name }}
-                                        </a>
+                                        </span>
                                         <span class="text-xs {{ $isRead ? 'text-green-600' : 'text-gray-400' }}">
                                             {{ $isRead ? '✓' : '…' }}
                                         </span>
+                                        <a href="{{ Storage::url($file->path) }}" 
+                                           target="_blank"
+                                           id="module-{{ $file->id }}"
+                                           class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-sm hover:shadow-md"
+                                           onclick="markAsRead({{ $training->id }}, {{ $file->id }}, {{ $index + 1 }}, '{{ $file->original_name }}')">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                            </svg>
+                                            View
+                                        </a>
                                     </div>
                                 @endforeach
                             </div>
@@ -236,7 +244,7 @@
 
                         <!-- QUIZ SECTION -->
                         @if($training->quizzes->where('is_active', true)->count() > 0)
-                            <div class="mt-6">
+                            <div class="mt-8">
                                 <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                                     <span class="inline-flex w-6 h-6 items-center justify-center rounded-md bg-blue-100 text-blue-600 text-sm">📝</span>
                                     Quiz
@@ -313,7 +321,7 @@
                                     }
                                 }
                             @endphp
-                            <div class="mt-6 {{ !$allQuizzesPassed && $hasQuiz ? 'opacity-50' : '' }}">
+                            <div class="mt-8 {{ !$allQuizzesPassed && $hasQuiz ? 'opacity-50' : '' }}">
                                 <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                                     <span class="inline-flex w-6 h-6 items-center justify-center rounded-md bg-purple-100 text-purple-600 text-sm">🎯</span>
                                     Final Assessment
@@ -385,6 +393,7 @@
                         @endif
 
                         <!-- PROGRESS -->
+                        <div class="mt-8">
                         @php
                             // Use the same progress calculation logic as training/take.blade.php
                             $total = $training->files->where('type', 'module')->count();
@@ -422,6 +431,8 @@
                             </div>
                             <p id="progress-text-{{ $training->id }}" class="text-xs text-gray-500 mt-2 font-medium">{{ $progress }}% Completed</p>
                         </div>
+                        </div>
+                    </div>
 
                     <!-- CERTIFICATE SECTION -->
                     @php
@@ -454,7 +465,8 @@
                             $certificateUnlocked = $progress >= 100;
                         }
                     @endphp
-                    <div class="mt-6 p-4 {{ $certificateUnlocked && $training->certificate_path ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' : 'bg-gray-50 border-gray-200' }} rounded-xl border">
+                    <div class="px-6 pb-6">
+                        <div class="p-4 gap-4 {{ $certificateUnlocked && $training->certificate_path ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' : 'bg-gray-50 border-gray-200' }} rounded-xl border">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
                                 <div class="w-12 h-12 rounded-xl {{ $certificateUnlocked && $training->certificate_path ? 'bg-gradient-to-r from-green-100 to-emerald-100' : 'bg-gray-100' }} flex items-center justify-center shadow-sm">
@@ -501,6 +513,7 @@
                                     Locked
                                 </button>
                             @endif
+                        </div>
                         </div>
                     </div>
                 </div>

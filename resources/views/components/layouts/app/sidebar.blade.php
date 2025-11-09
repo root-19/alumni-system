@@ -67,7 +67,7 @@
                             ['route' => 'dashboard', 'label' => __('Dashboard'), 'icon' => 'home', 'active' => 'dashboard'],
 
                             ['route' => 'accounts', 'label' => __('Accounts'), 'icon' => 'users', 'active' => 'accounts'],
-                            ['group' => 'Events & Activities', 'items' => [
+                            ['group' => 'views', 'items' => [
                                 ['route' => 'admin.news', 'label' => __('Events & Updates'), 'icon' => 'newspaper', 'active' => 'admin.news'],
                                 ['route' => 'admin.events.index', 'label' => __('Events'), 'icon' => 'calendar-days', 'active' => 'admin.events.*'],
                                 ['route' => 'admin.registrations.index', 'label' => __('Registrations'), 'icon' => 'clipboard-document-list', 'active' => 'admin.registrations.*'],
@@ -115,7 +115,7 @@
                                         :href="route($subItem['route'])"
                                         :current="request()->routeIs($subItem['active'])"
                                         wire:navigate
-                                        class="rounded-md px-3 py-2 text-sm font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
+                                        class="rounded-md px-3 py-2 text-sm text-black font-bold tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
                                         {{ $subItem['label'] }}
                                     </flux:navlist.item>
                                 @endforeach
