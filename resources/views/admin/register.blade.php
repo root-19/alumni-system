@@ -135,7 +135,7 @@
                 </div>
 
                 <!-- Alumni Status Selection -->
-                <div>
+                <div id="alumni-status-section">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Alumni Status</label>
                     <div class="grid grid-cols-2 gap-3">
                         <div class="relative">
@@ -146,7 +146,6 @@
                                 value="1" 
                                 {{ old('is_alumni') == '1' ? 'checked' : '' }}
                                 class="sr-only peer"
-                                required
                             >
                             <label for="alumni_yes" class="flex flex-col items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-blue-300 transition-all duration-200">
                                 <svg class="w-6 h-6 text-gray-600 peer-checked:text-blue-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -163,7 +162,6 @@
                                 value="0" 
                                 {{ old('is_alumni') == '0' ? 'checked' : '' }}
                                 class="sr-only peer"
-                                required
                             >
                             <label for="alumni_no" class="flex flex-col items-center p-4 border-2 border-gray-200 rounded-xl cursor-pointer peer-checked:border-blue-500 peer-checked:bg-blue-50 hover:border-blue-300 transition-all duration-200">
                                 <svg class="w-6 h-6 text-gray-600 peer-checked:text-blue-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,6 +172,9 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Hidden input for assistant role (default to 0) -->
+                <input type="hidden" name="is_alumni" id="assistant_alumni" value="0">
 
                 <!-- Password -->
                 <div>
@@ -212,4 +213,49 @@
             
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const roleInputs = document.querySelectorAll('input[name="role"]');
+            const alumniSection = document.getElementById('alumni-status-section');
+            const assistantAlumniInput = document.getElementById('assistant_alumni');
+            const alumniYesInput = document.getElementById('alumni_yes');
+            const alumniNoInput = document.getElementById('alumni_no');
+            
+            function toggleAlumniSection() {
+                const selectedRole = document.querySelector('input[name="role"]:checked')?.value;
+                
+                if (selectedRole === 'assistant') {
+                    // Hide alumni section and set default value to 0
+                    alumniSection.style.display = 'none';
+                    assistantAlumniInput.name = 'is_alumni';
+                    assistantAlumniInput.value = '0';
+                    // Disable and uncheck alumni radio inputs
+                    alumniYesInput.required = false;
+                    alumniNoInput.required = false;
+                    alumniYesInput.checked = false;
+                    alumniNoInput.checked = false;
+                    alumniYesInput.disabled = true;
+                    alumniNoInput.disabled = true;
+                } else {
+                    // Show alumni section
+                    alumniSection.style.display = 'block';
+                    assistantAlumniInput.name = '';
+                    // Enable and make required alumni radio inputs
+                    alumniYesInput.required = true;
+                    alumniNoInput.required = true;
+                    alumniYesInput.disabled = false;
+                    alumniNoInput.disabled = false;
+                }
+            }
+            
+            // Add event listeners to role inputs
+            roleInputs.forEach(input => {
+                input.addEventListener('change', toggleAlumniSection);
+            });
+            
+            // Check on page load
+            toggleAlumniSection();
+        });
+    </script>
 </x-layouts.app>

@@ -13,7 +13,8 @@ class ResumeController extends Controller
     // Show resume creation form
     public function create()
     {
-        return view('resume.create');
+        $resume = Resume::where('user_id', Auth::id())->first();
+        return view('resume.create', compact('resume'));
     }
     // List all resumes
     public function index()
@@ -88,17 +89,37 @@ class ResumeController extends Controller
             'work_experience' => 'nullable|string',
         ]);
 
-        // Create resume record
-        $resume = Resume::create([
-            'user_id' => Auth::id(),
-            'full_name' => $request->full_name,
-            'contact_number' => $request->contact_number,
-            'email' => $request->email,
-            'objective' => $request->objective,
-            'educational_attainment' => $request->educational_attainment,
-            'training_seminars' => $request->training_seminars,
-            'work_experience' => $request->work_experience,
-        ]);
+        // Check if user already has a resume
+        $resume = Resume::where('user_id', Auth::id())->first();
+        
+        if ($resume) {
+            // Update existing resume
+            $resume->update([
+                'full_name' => $request->full_name,
+                'contact_number' => $request->contact_number,
+                'email' => $request->email,
+                'objective' => $request->objective,
+                'educational_attainment' => $request->educational_attainment,
+                'training_seminars' => $request->training_seminars,
+                'work_experience' => $request->work_experience,
+            ]);
+            
+            $message = 'Resume updated successfully!';
+        } else {
+            // Create new resume record
+            $resume = Resume::create([
+                'user_id' => Auth::id(),
+                'full_name' => $request->full_name,
+                'contact_number' => $request->contact_number,
+                'email' => $request->email,
+                'objective' => $request->objective,
+                'educational_attainment' => $request->educational_attainment,
+                'training_seminars' => $request->training_seminars,
+                'work_experience' => $request->work_experience,
+            ]);
+            
+            $message = 'Resume generated successfully!';
+        }
 
         // Generate PDF
         $pdf = Pdf::loadView('resume.pdf', compact('resume'));
@@ -116,7 +137,7 @@ class ResumeController extends Controller
         ]);
 
         return redirect()->route('resumes.show', $resume->id)
-            ->with('success', 'Resume generated successfully!');
+            ->with('success', $message);
     }
 
     // Download PDF

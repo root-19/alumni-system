@@ -48,6 +48,12 @@ class AttendanceController extends Controller
             return redirect()->route('login');
         }
 
+        // Prevent admin and assistant from registering
+        $user = Auth::user();
+        if ($user->isAdmin() || $user->isAssistant()) {
+            return back()->with('error', 'Administrators and assistants cannot register for events.');
+        }
+
         $validated = $request->validate([
             'status' => 'required|in:attending,not_attending,maybe',
         ]);

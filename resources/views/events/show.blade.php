@@ -82,85 +82,92 @@
             </div>
         </div>
 
-        {{-- Attendance Section --}}
-        @auth
-        <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
-            <h2 class="text-xl font-semibold text-gray-900 mb-6">Event Attendance</h2>
-            
-            @php
-                $userAttendance = $post->attendances()->where('user_id', auth()->id())->first();
-            @endphp
-            
-            @if($userAttendance)
-                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="font-semibold text-green-800">Your Attendance Status</h3>
-                            <p class="text-green-700">
-                                Status: <span class="font-medium">{{ ucfirst(str_replace('_', ' ', $userAttendance->status)) }}</span>
-                                @if($userAttendance->title)
-                                    <br>Event: {{ $userAttendance->title }}
-                                @endif
-                            </p>
-                        </div>
-                        @if($userAttendance->checked_in_at)
-                            <div class="text-right">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    Checked In
-                                </span>
-                                <p class="text-xs text-green-600 mt-1">{{ $userAttendance->checked_in_at->format('M j, Y g:i A') }}</p>
-                            </div>
-                        @endif
-                    </div>
-                </div>
+        {{-- Attendance Section -- Only show if event is not completed and user is not admin/assistant --}}
+        @php
+            $isEventComplete = $post->is_completed || ($post->event_date && \Carbon\Carbon::parse($post->event_date)->isPast());
+            $isAdminOrAssistant = auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isAssistant());
+        @endphp
+        
+        @if(!$isEventComplete && !$isAdminOrAssistant)
+            @auth
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+                <h2 class="text-xl font-semibold text-gray-900 mb-6">Event Attendance</h2>
                 
-                {{-- Update Attendance Form --}}
-                <form action="{{ route('attendance.update', $userAttendance) }}" method="POST" class="space-y-4">
-                    @csrf
-                    @method('PUT')
-                    
-                    <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Update Your Attendance Status</label>
-                        <select name="status" id="status" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400">
-                            <option value="attending" {{ $userAttendance->status === 'attending' ? 'selected' : '' }}>Yes, I will attend</option>
-                            <option value="maybe" {{ $userAttendance->status === 'maybe' ? 'selected' : '' }}>Maybe, I'm not sure yet</option>
-                            <option value="not_attending" {{ $userAttendance->status === 'not_attending' ? 'selected' : '' }}>No, I cannot attend</option>
-                        </select>
+                @php
+                    $userAttendance = $post->attendances()->where('user_id', auth()->id())->first();
+                @endphp
+                
+                @if($userAttendance)
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-semibold text-green-800">Your Attendance Status</h3>
+                                <p class="text-green-700">
+                                    Status: <span class="font-medium">{{ ucfirst(str_replace('_', ' ', $userAttendance->status)) }}</span>
+                                    @if($userAttendance->title)
+                                        <br>Event: {{ $userAttendance->title }}
+                                    @endif
+                                </p>
+                            </div>
+                            @if($userAttendance->checked_in_at)
+                                <div class="text-right">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Checked In
+                                    </span>
+                                    <p class="text-xs text-green-600 mt-1">{{ $userAttendance->checked_in_at->format('M j, Y g:i A') }}</p>
+                                </div>
+                            @endif
+                        </div>
                     </div>
                     
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium shadow-sm transition">
-                        Update Attendance
-                    </button>
-                </form>
+                    {{-- Update Attendance Form --}}
+                    <form action="{{ route('attendance.update', $userAttendance) }}" method="POST" class="space-y-4">
+                        @csrf
+                        @method('PUT')
+                        
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Update Your Attendance Status</label>
+                            <select name="status" id="status" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400">
+                                <option value="attending" {{ $userAttendance->status === 'attending' ? 'selected' : '' }}>Yes, I will attend</option>
+                                <option value="maybe" {{ $userAttendance->status === 'maybe' ? 'selected' : '' }}>Maybe, I'm not sure yet</option>
+                                <option value="not_attending" {{ $userAttendance->status === 'not_attending' ? 'selected' : '' }}>No, I cannot attend</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium shadow-sm transition">
+                            Update Attendance
+                        </button>
+                    </form>
+                @else
+                    {{-- Register Attendance Form --}}
+                    <form action="{{ route('events.attendance.store', $post) }}" method="POST" class="space-y-4">
+                        @csrf
+                        
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Will you attend this event?</label>
+                            <select name="status" id="status" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400">
+                                <option value="attending">Yes, I will attend</option>
+                                <option value="maybe">Maybe, I'm not sure yet</option>
+                                <option value="not_attending">No, I cannot attend</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium shadow-sm transition">
+                            Register Attendance
+                        </button>
+                    </form>
+                @endif
+            </div>
             @else
-                {{-- Register Attendance Form --}}
-                <form action="{{ route('events.attendance.store', $post) }}" method="POST" class="space-y-4">
-                    @csrf
-                    
-                    <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Will you attend this event?</label>
-                        <select name="status" id="status" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400">
-                            <option value="attending">Yes, I will attend</option>
-                            <option value="maybe">Maybe, I'm not sure yet</option>
-                            <option value="not_attending">No, I cannot attend</option>
-                        </select>
-                    </div>
-                    
-                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium shadow-sm transition">
-                        Register Attendance
-                    </button>
-                </form>
-            @endif
-        </div>
-        @else
-        <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4">Event Attendance</h2>
-            <p class="text-gray-500">Please <a href="{{ route('login') }}" class="text-green-600 hover:underline">log in</a> to register your attendance for this event.</p>
-        </div>
-        @endauth
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Event Attendance</h2>
+                <p class="text-gray-500">Please <a href="{{ route('login') }}" class="text-green-600 hover:underline">log in</a> to register your attendance for this event.</p>
+            </div>
+            @endauth
+        @endif
 
         {{-- Comments Section --}}
         <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100">

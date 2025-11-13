@@ -31,6 +31,12 @@ class EventRegistrationController extends Controller
             return redirect()->route('login');
         }
 
+        // Prevent admin and assistant from registering
+        $user = Auth::user();
+        if ($user->isAdmin() || $user->isAssistant()) {
+            return back()->with('error', 'Administrators and assistants cannot register for events.');
+        }
+
         // Check if event is full
         if ($post->isFull()) {
             return back()->with('error', 'This event is already full. No more registrations are accepted.');

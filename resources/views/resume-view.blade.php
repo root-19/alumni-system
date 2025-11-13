@@ -24,9 +24,12 @@
                             @endif
                         @endif
                         @auth
+                            @php
+                                $userResume = \App\Models\Resume::where('user_id', auth()->id())->first();
+                            @endphp
                             <a href="{{ route('resumes.create') }}" 
                                class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition duration-200">
-                                Create New Resume
+                                {{ $userResume ? 'Update Resume' : 'Create New Resume' }}
                             </a>
                         @endauth
                     </div>
@@ -124,9 +127,12 @@
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">No Resume Found</h2>
                 <p class="text-gray-600 mb-6">Create your first resume to get started.</p>
                 @auth
+                    @php
+                        $userResume = \App\Models\Resume::where('user_id', auth()->id())->first();
+                    @endphp
                     <a href="{{ route('resumes.create') }}" 
                        class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg shadow-md transition duration-200">
-                        Create Resume
+                        {{ $userResume ? 'Update Resume' : 'Create Resume' }}
                     </a>
                 @endauth
             </div>

@@ -151,10 +151,6 @@
                                 </svg>
                             </div>
                             <p class="text-sm text-gray-500 mb-2">No events available yet</p>
-                            <p class="text-xs text-gray-400 mb-2">Create your first event</p>
-                            <button onclick="openAddEventModal()" class="text-sm text-green-600 hover:text-green-700 font-medium">
-                                Add First Event
-                            </button>
                         </div>
                     @endif
                 </div>
@@ -248,13 +244,8 @@
                                 </div>
                             @endif
                             <div class="absolute top-4 left-4">
-                                @php
-                                    $categories = ['Alumni', 'Achievement', 'Event', 'Education', 'Community'];
-                                    $colors = ['bg-blue-600', 'bg-purple-600', 'bg-orange-600', 'bg-green-600', 'bg-red-600'];
-                                    $category = $categories[$index % count($categories)];
-                                    $color = $colors[$index % count($colors)];
-                                @endphp
-                                <span class="px-3 py-1 {{ $color }} text-white text-xs font-semibold rounded-full">{{ $category }}</span>
+                             
+                                {{-- <span class="px-3 py-1 {{ $color }} text-white text-xs font-semibold rounded-full">{{ $category }}</span> --}}
                             </div>
                         </div>
                         <div class="p-6">

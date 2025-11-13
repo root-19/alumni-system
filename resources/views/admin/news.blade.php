@@ -1,12 +1,12 @@
 <x-layouts.app :title="__('News and updates')">
     <div class="min-h-screen space-y-10">
         <!-- Header Section -->
-        <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl shadow-lg overflow-hidden">
             <div class="px-8 py-12">
                 <div class="flex items-center justify-between">
                     <div>
                         <h1 class="text-4xl font-bold text-white mb-2">News & Events Management</h1>
-                        <p class="text-blue-100 text-lg">Create and manage news articles and events</p>
+                        <p class="text-green-100 text-lg">Create and manage news articles and events</p>
                     </div>
                     <div class="hidden md:block">
                         <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center">
@@ -85,7 +85,7 @@
 
             <!-- Create Event Form -->
             <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4">
+                <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4">
                     <div class="flex items-center">
                         <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mr-4">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,7 +94,7 @@
                         </div>
                         <div>
                             <h2 class="text-xl font-bold text-white">Create Event</h2>
-                            <p class="text-blue-100 text-sm">Organize and promote community events</p>
+                            <p class="text-green-100 text-sm">Organize and promote community events</p>
                         </div>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Event Title</label>
                             <input type="text" name="title" placeholder="Enter event title..." value="{{ old('title') }}" 
-                                   class="w-full rounded-lg border border-gray-300 text-gray-900 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required />
+                                   class="w-full rounded-lg border border-gray-300 text-gray-900 px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" required />
                             @error('title')
                                 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -113,7 +113,7 @@
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Event Description</label>
                             <textarea name="description" placeholder="Brief event description..." rows="3" 
-                                      class="w-full rounded-lg border border-gray-300 text-gray-900 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">{{ old('description') }}</textarea>
+                                      class="w-full rounded-lg border border-gray-300 text-gray-900 px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors">{{ old('description') }}</textarea>
                             @error('description')
                                 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -123,7 +123,7 @@
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Event Date & Time</label>
                                 <input type="datetime-local" name="event_date" value="{{ old('event_date') }}" 
-                                       class="w-full rounded-lg border border-gray-300 text-gray-900 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                                       class="w-full rounded-lg border border-gray-300 text-gray-900 px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" />
                                 @error('event_date')
                                     <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                                 @enderror
@@ -132,7 +132,7 @@
                             <div>
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Location</label>
                                 <input type="text" name="location" placeholder="Event location..." value="{{ old('location') }}" 
-                                       class="w-full rounded-lg border border-gray-300 text-gray-900 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                                       class="w-full rounded-lg border border-gray-300 text-gray-900 px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" />
                                 @error('location')
                                     <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                                 @enderror
@@ -142,7 +142,7 @@
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Maximum Participants (Optional)</label>
                             <input type="number" name="max_registrations" placeholder="Leave empty for unlimited..." value="{{ old('max_registrations') }}" 
-                                   class="w-full rounded-lg border border-gray-300 text-gray-900 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" min="1" />
+                                   class="w-full rounded-lg border border-gray-300 text-gray-900 px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" min="1" />
                             <p class="text-xs text-gray-500 mt-1">Set maximum number of registrations. Leave empty for unlimited registrations.</p>
                             @error('max_registrations')
                                 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -152,7 +152,7 @@
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Event Details</label>
                             <textarea name="content" placeholder="Detailed event information..." rows="4" 
-                                      class="w-full rounded-lg border border-gray-300 text-gray-900 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" required>{{ old('content') }}</textarea>
+                                      class="w-full rounded-lg border border-gray-300 text-gray-900 px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors" required>{{ old('content') }}</textarea>
                             @error('content')
                                 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -160,7 +160,7 @@
                         
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Event Image</label>
-                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors">
                                 <input type="file" name="image" accept="image/*" class="hidden" id="event-image" />
                                 <label for="event-image" class="cursor-pointer">
                                     <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,7 +174,7 @@
                             @enderror
                         </div>
                         
-                        <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                        <button type="submit" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl">
                             <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                             </svg>

@@ -45,31 +45,43 @@
                     @endif
                     registered
                 </div>
+                @php
+                    $isEventComplete = $post->is_completed || ($post->event_date && \Carbon\Carbon::parse($post->event_date)->isPast());
+                    $isAdminOrAssistant = auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isAssistant());
+                @endphp
                 @auth
-                    @php $isRegistered = $post->isRegisteredBy(auth()->user()); @endphp
-                    @php $isFull = $post->isFull(); @endphp
-                    @if($isRegistered)
-                        <form method="POST" action="{{ route('events.unregister', $post) }}">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition">
-                                Cancel Registration
-                            </button>
-                        </form>
-                    @elseif($isFull)
-                        <button type="button" disabled class="px-4 py-2 rounded-lg bg-gray-400 cursor-not-allowed text-white text-sm font-medium">
-                            Event Full
-                        </button>
+                    @if($isAdminOrAssistant)
+                        <span class="text-sm text-gray-500 italic">Administrators and assistants cannot register for events.</span>
                     @else
-                        <form method="POST" action="{{ route('events.register', $post) }}" class="flex items-center gap-2">
-                            @csrf
-                            <span class="border border-gray-300 rounded-md text-sm px-2 py-1 bg-white text-black">
-                                {{ auth()->user()->is_alumni ? 'Alumni' : 'Student' }}
-                            </span>
-                            <button type="submit" class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition">
-                                Register
+                        @php $isRegistered = $post->isRegisteredBy(auth()->user()); @endphp
+                        @php $isFull = $post->isFull(); @endphp
+                        @if($isEventComplete)
+                            <button type="button" disabled class="px-4 py-2 rounded-lg bg-gray-400 cursor-not-allowed text-white text-sm font-medium">
+                                Event Completed
                             </button>
-                        </form>
+                        @elseif($isRegistered)
+                            <form method="POST" action="{{ route('events.unregister', $post) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition">
+                                    Cancel Registration
+                                </button>
+                            </form>
+                        @elseif($isFull)
+                            <button type="button" disabled class="px-4 py-2 rounded-lg bg-gray-400 cursor-not-allowed text-white text-sm font-medium">
+                                Event Full
+                            </button>
+                        @else
+                            <form method="POST" action="{{ route('events.register', $post) }}" class="flex items-center gap-2">
+                                @csrf
+                                <span class="border border-gray-300 rounded-md text-sm px-2 py-1 bg-white text-black">
+                                    {{ auth()->user()->is_alumni ? 'Alumni' : 'Student' }}
+                                </span>
+                                <button type="submit" class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition">
+                                    Register
+                                </button>
+                            </form>
+                        @endif
                     @endif
                 @else
                     <a href="{{ route('login') }}" class="text-green-700 hover:text-green-800 text-sm font-medium">Log in to register →</a>
