@@ -56,17 +56,17 @@ class AlumniController extends Controller
         ->where('event_date', '<', now()->startOfDay())
         ->update(['is_completed' => true]);
     
-    // Get active (not completed) events
+    // Get active (not completed) events with pagination
     $alumniPosts = AlumniPost::where('is_archived', false)
         ->where('is_completed', false)
         ->latest()
-        ->get();
+        ->paginate(10, ['*'], 'active_page');
     
-    // Get completed events
+    // Get completed events with pagination
     $completedEvents = AlumniPost::where('is_archived', false)
         ->where('is_completed', true)
         ->latest()
-        ->get();
+        ->paginate(10, ['*'], 'completed_page');
     
     return view('admin.eventsAdmin', compact('alumniPosts', 'completedEvents'));
 }

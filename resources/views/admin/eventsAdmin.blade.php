@@ -117,6 +117,13 @@
                     </tbody>
                 </table>
             </div>
+            
+            {{-- Pagination for Active Events --}}
+            @if($alumniPosts->hasPages())
+                <div class="mt-6">
+                    {{ $alumniPosts->links() }}
+                </div>
+            @endif
         @endif
 
         {{-- Completed Events --}}
@@ -222,9 +229,16 @@
                     </tbody>
                 </table>
             </div>
+            
+            {{-- Pagination for Completed Events --}}
+            @if($completedEvents->hasPages())
+                <div class="mt-6">
+                    {{ $completedEvents->links() }}
+                </div>
+            @endif
         @endif
 
-        @if(!$alumniPosts->count() && (!isset($completedEvents) || !$completedEvents->count()))
+        @if($alumniPosts->count() == 0 && $completedEvents->count() == 0)
             <div class="text-center py-16 bg-white rounded-2xl shadow">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
