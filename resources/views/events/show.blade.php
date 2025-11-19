@@ -1,4 +1,4 @@
-<x-layouts.app :title="$post->content ?? 'Event Details'">
+<x-layouts.app :title="$post->title ?? $post->content ?? 'Event Details'">
     <div class="max-w-4xl mx-auto mt-8 space-y-8">
         
         {{-- Success/Error Messages --}}
@@ -64,22 +64,71 @@
                 <p class="text-gray-700">{{ $post->content ?? 'No content available' }}</p>
             </div>
 
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center text-xs uppercase tracking-wide text-gray-500 space-x-2">
+                    <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
                     <span class="font-semibold text-gray-600">Posted:</span>
                     <span>{{ optional($post->created_at)->format('F j, Y \a\t g:i A') }}</span>
                 </div>
                 
-                {{-- Attendance Statistics --}}
+                {{-- Registration Count --}}
+                @php
+                    $registeredCount = $post->registrations()->where('status', 'registered')->count();
+                    $maxRegistrations = $post->max_registrations;
+                @endphp
                 <div class="flex items-center space-x-4 text-sm text-gray-600">
-                    <span class="flex items-center space-x-1">
+                    <span class="flex items-center space-x-1 font-medium">
                         <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                         </svg>
-                        <span>{{ $post->attendances()->attending()->count() }} attending</span>
+                        <span>{{ $registeredCount }} / {{ $maxRegistrations ?? '∞' }} registered</span>
                     </span>
                 </div>
             </div>
+
+            {{-- Registration/Cancel Registration Button --}}
+            @auth
+                @php
+                    $isRegistered = $post->isRegisteredBy(auth()->user());
+                    $isEventComplete = $post->is_completed || ($post->event_date && \Carbon\Carbon::parse($post->event_date)->isPast());
+                    $isAdminOrAssistant = auth()->user()->isAdmin() || auth()->user()->isAssistant();
+                @endphp
+                
+                @if(!$isEventComplete && !$isAdminOrAssistant)
+                    @if($isRegistered)
+                        <form action="{{ route('events.unregister', $post) }}" method="POST" class="mt-4">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" 
+                                    class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium shadow-sm transition-colors duration-200 flex items-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                <span>Cancel Registration</span>
+                            </button>
+                        </form>
+                    @else
+                        @if(!$post->isFull())
+                            <form action="{{ route('events.register', $post) }}" method="POST" class="mt-4">
+                                @csrf
+                                <button type="submit" 
+                                        class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-sm transition-colors duration-200 flex items-center space-x-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span>Register for Event</span>
+                                </button>
+                            </form>
+                        @else
+                            <div class="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <p class="text-yellow-800 font-medium">This event is full. No more registrations are accepted.</p>
+                            </div>
+                        @endif
+                    @endif
+                @endif
+            @endauth
         </div>
 
         {{-- Attendance Section -- Only show if event is not completed and user is not admin/assistant --}}

@@ -87,7 +87,7 @@
 
                                         {{-- Name --}}
                                         <td class="px-6 py-4 whitespace-nowrap text-black font-medium">
-                                            {{ $user->name }}
+                                            {{ $user->name }} {{ $user->last_name }}
                                         </td>
 
                                         {{-- Program --}}

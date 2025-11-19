@@ -12,7 +12,7 @@
         <div class="flex items-center gap-3 px-4 py-2 text-white">
         <div class="text-left leading-tight">
             <div class="font-semibold text-sm">
-                {{ auth()->user()->name }}
+                {{ auth()->user()->name }} {{ auth()->user()->last_name }}
             </div>
             <div class="text-ml text-gray-400 capitalize">
                 {{ auth()->user()->role }}
@@ -35,7 +35,7 @@
             <!-- Desktop User Menu -->
             <flux:dropdown class="hidden lg:block" position="bottom" align="start">
                 <flux:profile
-                    :name="auth()->user()->name"
+                    :name="auth()->user()->name . ' ' . auth()->user()->last_name"
                     :initials="auth()->user()->initials()"
                     icon:trailing="chevrons-up-down"
                 />
@@ -53,7 +53,7 @@
                                 </span>
 
                                 <div class="grid flex-1 text-start text-sm leading-tight">
-                                    <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
+                                    <span class="truncate font-semibold">{{ auth()->user()->name }} {{ auth()->user()->last_name }}</span>
                                     <span class="truncate text-xs">{{ auth()->user()->email }}</span>
                                 </div>
                             </div>
@@ -103,7 +103,7 @@
                                 </span>
 
                                 <div class="grid flex-1 text-start text-sm leading-tight">
-                                    <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
+                                    <span class="truncate font-semibold">{{ auth()->user()->name }} {{ auth()->user()->last_name }}</span>
                                     <span class="truncate text-xs">{{ auth()->user()->email }}</span>
                                 </div>
                             </div>

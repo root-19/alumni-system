@@ -8,27 +8,11 @@
     @auth
     <div class="flex items-center gap-4">
 
-        {{-- Profile --}}
-        <div class="flex items-center gap-2 cursor-pointer relative">
-            @if(auth()->user()?->profile_image_path)
-                <img src="{{ asset('storage/' . auth()->user()->profile_image_path) }}" 
-                     alt="Profile Image"
-                     class="w-10 h-10 rounded-full object-cover border-2 border-gray-300">
-            @else
-                <span class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-black font-bold">
-                    {{ auth()->user()?->initials() }}
-                </span>
-            @endif
-            <div class="flex flex-col leading-tight">
-                <span class="font-medium text-gray-800">
-                    {{ auth()->user()?->name }}
-                </span>
-                @if(auth()->user()?->year_graduated)
-                    <span class="text-sm text-gray-500">
-                        {{ auth()->user()->year_graduated }}
-                    </span>
-                @endif
-            </div>
+        {{-- User Name --}}
+        <div class="flex items-center px-4">
+            <span class="text-sm font-semibold text-gray-800">
+                {{ auth()->user()?->name }} {{ auth()->user()?->last_name }}
+            </span>
         </div>
 
         {{-- Notifications Dropdown --}}
