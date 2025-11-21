@@ -92,6 +92,7 @@ class AlumniController extends Controller
             'location' => $request->location,
             'max_registrations' => $request->max_registrations,
             'user_id' => auth()->id(),
+            'is_archived' => false, // Explicitly set to false when creating
             'is_completed' => false, // Explicitly set to false when creating
         ];
 
@@ -104,6 +105,11 @@ class AlumniController extends Controller
 
         AlumniPost::create($data);
 
+        // Redirect to admin events page if accessed from admin, otherwise redirect back
+        if (request()->is('admin/*') || str_contains(request()->header('referer', ''), '/admin/')) {
+            return redirect()->route('admin.events.index')->with('success', 'Event created successfully!');
+        }
+        
         return redirect()->back()->with('success', 'Event created successfully!');
     }
 
