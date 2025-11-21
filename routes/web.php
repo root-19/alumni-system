@@ -44,9 +44,6 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 */
 
-  Route::post('/alumni_post', [AlumniController::class, 'store'])->name('alumni_post.store');
-    Route::post('/admin/news', [NewsController::class, 'store'])->name('news.store');
-
     Route::get('/news', function () {
         $news = \App\Models\News::latest()->get();
         $alumniPosts = \App\Models\AlumniPost::where('is_archived', false)->latest()->get();
@@ -164,12 +161,6 @@ Route::post('/donations', [DonationController::class, 'store'])->name('donations
 Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
 Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
-Route::middleware(['auth'])->group(function () {
-    Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_posts.store');
- 
-
-
-});
 
 /*
 |--------------------------------------------------------------------------
@@ -232,9 +223,7 @@ Route::post('/comments/{comment}/replies', [CommentController::class, 'reply'])-
 Route::post('/comments/{comment}/like', [CommentController::class, 'like'])->name('comments.like');
 
     Route::get('/alumni_posts', [AlumniController::class, 'index'])->name('alumni_posts.index');
-
-// Store a new post
-Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_posts.store');
+    Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_posts.store');
 
     // Admin Dashboard
     Route::get('/admin/dashboard', function () {
@@ -458,7 +447,6 @@ Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_p
     Route::middleware(['auth'])->group(function () {
         Route::post('/posts/{post}/like', [AlumniController::class, 'likePost'])->name('posts.like');
         Route::post('/comments/{comment}/like', [AlumniController::class, 'like'])->name('comments.like');
-        Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_posts.store');
         
         // Review routes
         Route::post('/events/{post}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
