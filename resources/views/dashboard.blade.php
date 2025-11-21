@@ -33,7 +33,7 @@
                                             try {
                                                 $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($event->image_path);
                                             } catch (\Exception $e) {
-                                                // S3 error, fall through to local storage
+                                              
                                                 $imageUrl = asset('storage/' . $event->image_path);
                                             }
                                         } else {
