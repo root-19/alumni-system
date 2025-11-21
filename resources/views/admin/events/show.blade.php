@@ -17,13 +17,27 @@
             @if($post->image_path)
                 @php
                     $defaultDisk = config('filesystems.default');
-                    $imageExists = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path);
-                    $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path) : null;
+                    $imageUrl = null;
+                    $imageExists = false;
+                    
+                    if ($post->image_path) {
+                        // Try default disk first (S3 or public)
+                        if (\Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path)) {
+                            $imageExists = true;
+                            $imageUrl = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path);
+                        } 
+                        // Fallback to local storage
+                        elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path)) {
+                            $imageExists = true;
+                            $imageUrl = asset('storage/' . $post->image_path);
+                        }
+                    }
                 @endphp
                 @if($imageExists)
                     <img src="{{ $imageUrl }}" 
                          alt="Event Image" 
-                         class="w-full h-72 object-cover rounded-xl mb-5 shadow-sm">
+                         class="w-full h-72 object-cover rounded-xl mb-5 shadow-sm"
+                         onerror="this.onerror=null; this.src='{{ asset('storage/' . $post->image_path) }}';">
                 @endif
             @endif
 

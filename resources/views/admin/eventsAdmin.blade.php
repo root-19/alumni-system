@@ -35,12 +35,25 @@
                                         @if($post->image_path)
                                             @php
                                                 $defaultDisk = config('filesystems.default');
-                                                $imageExists = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path);
-                                                $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path) : null;
+                                                $imageUrl = null;
+                                                $imageExists = false;
+                                                
+                                                // Try default disk first (S3 or public)
+                                                if (\Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path)) {
+                                                    $imageExists = true;
+                                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path);
+                                                } 
+                                                // Fallback to local storage
+                                                elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path)) {
+                                                    $imageExists = true;
+                                                    $imageUrl = asset('storage/' . $post->image_path);
+                                                }
                                             @endphp
                                             @if($imageExists)
                                                 <img class="h-16 w-24 object-cover rounded-lg mr-4 border border-gray-200" 
-                                                    src="{{ $imageUrl }}" alt="Event">
+                                                    src="{{ $imageUrl }}" 
+                                                    alt="Event"
+                                                    onerror="this.onerror=null; this.src='{{ asset('storage/' . $post->image_path) }}';">
                                             @else
                                                 <div class="h-16 w-24 bg-gray-200 rounded-lg mr-4 flex items-center justify-center">
                                                     <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,12 +175,25 @@
                                         @if($post->image_path)
                                             @php
                                                 $defaultDisk = config('filesystems.default');
-                                                $imageExists = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path);
-                                                $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path) : null;
+                                                $imageUrl = null;
+                                                $imageExists = false;
+                                                
+                                                // Try default disk first (S3 or public)
+                                                if (\Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path)) {
+                                                    $imageExists = true;
+                                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path);
+                                                } 
+                                                // Fallback to local storage
+                                                elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path)) {
+                                                    $imageExists = true;
+                                                    $imageUrl = asset('storage/' . $post->image_path);
+                                                }
                                             @endphp
                                             @if($imageExists)
                                                 <img class="h-16 w-24 object-cover rounded-lg mr-4 border border-gray-200 grayscale" 
-                                                     src="{{ $imageUrl }}" alt="Event">
+                                                     src="{{ $imageUrl }}" 
+                                                     alt="Event"
+                                                     onerror="this.onerror=null; this.src='{{ asset('storage/' . $post->image_path) }}';">
                                             @else
                                                 <div class="h-16 w-24 bg-gray-200 rounded-lg mr-4 flex items-center justify-center">
                                                     <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

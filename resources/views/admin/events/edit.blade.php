@@ -103,13 +103,29 @@
                         @if($post->image_path)
                             @php
                                 $defaultDisk = config('filesystems.default');
-                                $imageExists = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path);
-                                $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path) : null;
+                                $imageUrl = null;
+                                $imageExists = false;
+                                
+                                if ($post->image_path) {
+                                    // Try default disk first (S3 or public)
+                                    if (\Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path)) {
+                                        $imageExists = true;
+                                        $imageUrl = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path);
+                                    } 
+                                    // Fallback to local storage
+                                    elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path)) {
+                                        $imageExists = true;
+                                        $imageUrl = asset('storage/' . $post->image_path);
+                                    }
+                                }
                             @endphp
                             @if($imageExists)
                                 <div class="mb-4">
                                     <p class="text-sm text-gray-600 mb-2">Current Image:</p>
-                                    <img src="{{ $imageUrl }}" alt="Current Event Image" class="w-full h-48 object-cover rounded-lg border border-gray-300">
+                                    <img src="{{ $imageUrl }}" 
+                                         alt="Current Event Image" 
+                                         class="w-full h-48 object-cover rounded-lg border border-gray-300"
+                                         onerror="this.onerror=null; this.src='{{ asset('storage/' . $post->image_path) }}';">
                                 </div>
                             @endif
                         @endif

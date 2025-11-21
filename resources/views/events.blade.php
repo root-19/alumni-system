@@ -12,15 +12,27 @@
                         @if($post->image_path)
                             @php
                                 $defaultDisk = config('filesystems.default');
-                                $imageExists = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path);
-                                $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path) : null;
+                                $imageUrl = null;
+                                $imageExists = false;
+                                
+                                // Try default disk first (S3 or public)
+                                if (\Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path)) {
+                                    $imageExists = true;
+                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path);
+                                } 
+                                // Fallback to local storage
+                                elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path)) {
+                                    $imageExists = true;
+                                    $imageUrl = asset('storage/' . $post->image_path);
+                                }
                             @endphp
                             @if($imageExists)
                                 <a href="{{ route('events.show', $post) }}" class="block overflow-hidden relative">
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
                                     <img src="{{ $imageUrl }}" 
                                          alt="Event Image" 
-                                         class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-500">
+                                         class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-500"
+                                         onerror="this.onerror=null; this.src='{{ asset('storage/' . $post->image_path) }}';">
                                 </a>
                             @else
                                 <div class="w-full h-56 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
@@ -109,13 +121,27 @@
 
                         @php
                             $defaultDisk = config('filesystems.default');
-                            $imageExists = $post->image_path && \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path);
-                            $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path) : null;
+                            $imageUrl = null;
+                            $imageExists = false;
+                            
+                            if ($post->image_path) {
+                                // Try default disk first (S3 or public)
+                                if (\Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path)) {
+                                    $imageExists = true;
+                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path);
+                                } 
+                                // Fallback to local storage
+                                elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path)) {
+                                    $imageExists = true;
+                                    $imageUrl = asset('storage/' . $post->image_path);
+                                }
+                            }
                         @endphp
                         @if($imageExists)
                             <a href="{{ route('events.show', $post) }}" class="block overflow-hidden relative group">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-                                <img src="{{ $imageUrl }}" 
+                                <img src="{{ $imageUrl }}"
+                                     onerror="this.onerror=null; this.src='{{ asset('storage/' . $post->image_path) }}';" 
              alt="Event Image" 
              class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-500 grayscale group-hover:grayscale-0">
     </a>

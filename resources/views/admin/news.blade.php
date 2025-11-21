@@ -194,11 +194,25 @@
                 @if($heroImage)
                     @php
                         $defaultDisk = config('filesystems.default');
-                        $imageExists = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($heroImage);
-                        $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($heroImage) : null;
+                        $imageUrl = null;
+                        $imageExists = false;
+                        
+                        // Try default disk first (S3 or public)
+                        if (\Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($heroImage)) {
+                            $imageExists = true;
+                            $imageUrl = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($heroImage);
+                        } 
+                        // Fallback to local storage
+                        elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($heroImage)) {
+                            $imageExists = true;
+                            $imageUrl = asset('storage/' . $heroImage);
+                        }
                     @endphp
                     @if($imageExists)
-                        <img src="{{ $imageUrl }}" alt="Hero" class="w-full h-72 object-cover">
+                        <img src="{{ $imageUrl }}" 
+                             alt="Hero" 
+                             class="w-full h-72 object-cover"
+                             onerror="this.onerror=null; this.src='{{ asset('storage/' . $heroImage) }}';">
                     @endif
                 @endif
                 <div class="absolute inset-0 bg-black/40"></div>
@@ -223,16 +237,28 @@
                             @if($item->image_path)
                                 @php
                                     $defaultDisk = config('filesystems.default');
-                                    if ($defaultDisk === 's3') {
-                                        $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($item->image_path);
-                                    } else {
-                                        // For local storage, use asset() which works with the storage symlink
+                                    $imageUrl = null;
+                                    $imageExists = false;
+                                    
+                                    // Try default disk first (S3 or public)
+                                    if (\Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($item->image_path)) {
+                                        $imageExists = true;
+                                        $imageUrl = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($item->image_path);
+                                    } 
+                                    // Fallback to local storage
+                                    elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($item->image_path)) {
+                                        $imageExists = true;
                                         $imageUrl = asset('storage/' . $item->image_path);
                                     }
                                 @endphp
-                                <div>
-                                    <img src="{{ $imageUrl }}" alt="{{ $item->title }}" class="w-full h-44 md:h-full object-cover" onerror="this.style.display='none'">
-                                </div>
+                                @if($imageExists)
+                                    <div>
+                                        <img src="{{ $imageUrl }}" 
+                                             alt="{{ $item->title }}" 
+                                             class="w-full h-44 md:h-full object-cover"
+                                             onerror="this.onerror=null; this.src='{{ asset('storage/' . $item->image_path) }}';">
+                                    </div>
+                                @endif
                             @endif
                             <div class="md:col-span-2 p-6 space-y-2">
                                 <h3 class="text-lg font-semibold text-gray-900">{{ $item->title }}</h3>
@@ -255,11 +281,25 @@
                         @if($post->image_path)
                             @php
                                 $defaultDisk = config('filesystems.default');
-                                $imageExists = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path);
-                                $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path) : null;
+                                $imageUrl = null;
+                                $imageExists = false;
+                                
+                                // Try default disk first (S3 or public)
+                                if (\Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path)) {
+                                    $imageExists = true;
+                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path);
+                                } 
+                                // Fallback to local storage
+                                elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path)) {
+                                    $imageExists = true;
+                                    $imageUrl = asset('storage/' . $post->image_path);
+                                }
                             @endphp
                             @if($imageExists)
-                                <img src="{{ $imageUrl }}" class="w-full h-48 object-cover rounded-xl" alt="">
+                                <img src="{{ $imageUrl }}" 
+                                     class="w-full h-48 object-cover rounded-xl" 
+                                     alt=""
+                                     onerror="this.onerror=null; this.src='{{ asset('storage/' . $post->image_path) }}';">
                             @endif
                         @endif
                         <p class="text-xs md:text-sm font-semibold text-gray-800 text-center uppercase tracking-wide mt-3">

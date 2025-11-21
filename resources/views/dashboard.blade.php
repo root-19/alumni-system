@@ -25,14 +25,28 @@
                             <div class="flex gap-3 mb-3 last:mb-0">
                                 @php
                                     $defaultDisk = config('filesystems.default');
-                                    $imageExists = $event->image_path && \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($event->image_path);
-                                    $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($event->image_path) : null;
+                                    $imageUrl = null;
+                                    $imageExists = false;
+                                    
+                                    if ($event->image_path) {
+                                        // Try default disk first (S3 or public)
+                                        if (\Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($event->image_path)) {
+                                            $imageExists = true;
+                                            $imageUrl = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($event->image_path);
+                                        } 
+                                        // Fallback to local storage
+                                        elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($event->image_path)) {
+                                            $imageExists = true;
+                                            $imageUrl = asset('storage/' . $event->image_path);
+                                        }
+                                    }
                                 @endphp
 
                                 @if($imageExists)
                                     <img src="{{ $imageUrl }}" 
                                          alt="Event Image" 
-                                         class="w-16 h-16 rounded-md object-cover">
+                                         class="w-16 h-16 rounded-md object-cover"
+                                         onerror="this.onerror=null; this.src='{{ asset('storage/' . $event->image_path) }}';">
                                 @else
                                     <div class="w-16 h-16 rounded-md bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
                                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,14 +130,28 @@
                                 <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                                     @php
                                         $defaultDisk = config('filesystems.default');
-                                        $imageExists = $event->image_path && \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($event->image_path);
-                                        $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($event->image_path) : null;
+                                        $imageUrl = null;
+                                        $imageExists = false;
+                                        
+                                        if ($event->image_path) {
+                                            // Try default disk first (S3 or public)
+                                            if (\Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($event->image_path)) {
+                                                $imageExists = true;
+                                                $imageUrl = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($event->image_path);
+                                            } 
+                                            // Fallback to local storage
+                                            elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($event->image_path)) {
+                                                $imageExists = true;
+                                                $imageUrl = asset('storage/' . $event->image_path);
+                                            }
+                                        }
                                     @endphp
 
                                     @if($imageExists)
                                         <img src="{{ $imageUrl }}" 
                                              alt="Event Image" 
-                                             class="w-12 h-12 rounded-md object-cover">
+                                             class="w-12 h-12 rounded-md object-cover"
+                                             onerror="this.onerror=null; this.src='{{ asset('storage/' . $event->image_path) }}';">
                                     @else
                                         <div class="w-12 h-12 rounded-md bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
                                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -209,14 +237,28 @@
             <div class="relative overflow-hidden rounded-2xl shadow-xl">
                 @php
                     $defaultDisk = config('filesystems.default');
-                    $imageExists = $featuredNews->image_path && \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($featuredNews->image_path);
-                    $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($featuredNews->image_path) : null;
+                    $imageUrl = null;
+                    $imageExists = false;
+                    
+                    if ($featuredNews->image_path) {
+                        // Try default disk first (S3 or public)
+                        if (\Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($featuredNews->image_path)) {
+                            $imageExists = true;
+                            $imageUrl = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($featuredNews->image_path);
+                        } 
+                        // Fallback to local storage
+                        elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($featuredNews->image_path)) {
+                            $imageExists = true;
+                            $imageUrl = asset('storage/' . $featuredNews->image_path);
+                        }
+                    }
                 @endphp
 
                 @if($imageExists)
                     <img src="{{ $imageUrl }}" 
                          alt="{{ $featuredNews->title }}" 
-                         class="w-full h-96 object-cover">
+                         class="w-full h-96 object-cover"
+                         onerror="this.onerror=null; this.src='{{ asset('storage/' . $featuredNews->image_path) }}';">
                 @else
                     <div class="w-full h-96 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
                         <div class="text-white text-center">
@@ -254,14 +296,28 @@
                         <div class="relative">
                             @php
                                 $defaultDisk = config('filesystems.default');
-                                $imageExists = $post->image_path && \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path);
-                                $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path) : null;
+                                $imageUrl = null;
+                                $imageExists = false;
+                                
+                                if ($post->image_path) {
+                                    // Try default disk first (S3 or public)
+                                    if (\Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path)) {
+                                        $imageExists = true;
+                                        $imageUrl = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path);
+                                    } 
+                                    // Fallback to local storage
+                                    elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path)) {
+                                        $imageExists = true;
+                                        $imageUrl = asset('storage/' . $post->image_path);
+                                    }
+                                }
                             @endphp
 
                             @if($imageExists)
                                 <img src="{{ $imageUrl }}" 
                                      alt="Alumni Post {{ $index + 1 }}" 
-                                     class="w-full h-48 object-cover">
+                                     class="w-full h-48 object-cover"
+                                     onerror="this.onerror=null; this.src='{{ asset('storage/' . $post->image_path) }}';">
                             @else
                                 <div class="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                                     <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
