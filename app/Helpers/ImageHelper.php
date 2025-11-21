@@ -7,65 +7,63 @@ use Illuminate\Support\Facades\Storage;
 class ImageHelper
 {
     /**
-     * Get image URL - works for both local storage and S3
+     * Check if S3 is configured
      */
-    public static function url($imagePath)
+    public static function isS3Configured(): bool
     {
-        if (empty($imagePath)) {
+        return !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
+    }
+
+    /**
+     * Get image URL with fallback
+     * Tries S3 first if configured, then falls back to local storage
+     */
+    public static function getImageUrl(?string $imagePath): ?string
+    {
+        if (!$imagePath) {
             return null;
         }
 
-        $defaultDisk = config('filesystems.default');
-        
-        // For S3 storage
-        if ($defaultDisk === 's3') {
-            return Storage::disk('s3')->url($imagePath);
+        // Try S3 first if configured
+        if (self::isS3Configured()) {
+            try {
+                if (Storage::disk('s3')->exists($imagePath)) {
+                    return Storage::disk('s3')->url($imagePath);
+                }
+            } catch (\Exception $e) {
+                // S3 error, fall through to local storage
+            }
         }
-        
-        // For local storage - use asset() which works with symlink
-        // This generates: https://domain.com/storage/path/to/image.png
-        return asset('storage/' . $imagePath);
+
+        // Fallback to local storage
+        if (Storage::disk('public')->exists($imagePath)) {
+            return asset('storage/' . $imagePath);
+        }
+
+        return null;
     }
-    
+
     /**
-     * Check if image exists
+     * Check if image exists (either in S3 or local storage)
      */
-    public static function exists($imagePath)
+    public static function imageExists(?string $imagePath): bool
     {
-        if (empty($imagePath)) {
+        if (!$imagePath) {
             return false;
         }
-        
-        $defaultDisk = config('filesystems.default');
-        return Storage::disk($defaultDisk)->exists($imagePath);
-    }
-    
-    /**
-     * Get image URL with fallback - tries multiple methods
-     */
-    public static function urlWithFallback($imagePath)
-    {
-        if (empty($imagePath)) {
-            return null;
+
+        // Try S3 first if configured
+        if (self::isS3Configured()) {
+            try {
+                if (Storage::disk('s3')->exists($imagePath)) {
+                    return true;
+                }
+            } catch (\Exception $e) {
+                // S3 error, fall through to local storage
+            }
         }
-        
-        $defaultDisk = config('filesystems.default');
-        
-        // For S3 storage
-        if ($defaultDisk === 's3') {
-            return Storage::disk('s3')->url($imagePath);
-        }
-        
-        // For local storage - try asset() first (uses symlink)
-        $url = asset('storage/' . $imagePath);
-        
-        // Verify file exists
-        if (Storage::disk('public')->exists($imagePath)) {
-            return $url;
-        }
-        
-        // Fallback: try direct storage URL
-        return Storage::disk('public')->url($imagePath);
+
+        // Fallback to local storage
+        return Storage::disk('public')->exists($imagePath);
     }
 }
-

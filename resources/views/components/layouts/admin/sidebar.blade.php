@@ -1,4 +1,4 @@
-<flux:sidebar sticky stashable class="bg-gradient-to-b from-blue-700 to-blue-500 text-white">
+<flux:sidebar sticky stashable class="bg-gradient-to-b from-blue-700 to-blue-500 text-white" mobile>
 
     <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 

@@ -32,16 +32,27 @@ class NewsController extends Controller
             $imagePath = null;
             if ($request->hasFile('image')) {
                 try {
-                    // Store in S3
-                    \Log::info('Storing image to S3');
+                    // Check if S3 is configured
+                    $s3Bucket = env('AWS_BUCKET');
+                    $s3Key = env('AWS_ACCESS_KEY_ID');
                     
-                    $imagePath = $request->file('image')->store('news_images', 's3');
-                    
-                    \Log::info('Image stored successfully:', [
-                        'path' => $imagePath,
-                        'disk' => 's3',
-                        'exists' => Storage::disk('s3')->exists($imagePath),
-                    ]);
+                    if ($s3Bucket && $s3Key) {
+                        // Store in S3
+                        \Log::info('Storing image to S3');
+                        $imagePath = $request->file('image')->store('news_images', 's3');
+                        \Log::info('Image stored successfully to S3:', [
+                            'path' => $imagePath,
+                            'disk' => 's3',
+                        ]);
+                    } else {
+                        // Fallback to local storage
+                        \Log::info('S3 not configured, storing image to local storage');
+                        $imagePath = $request->file('image')->store('news_images', 'public');
+                        \Log::info('Image stored successfully to local storage:', [
+                            'path' => $imagePath,
+                            'disk' => 'public',
+                        ]);
+                    }
                 } catch (\Exception $e) {
                     \Log::error('Error storing image: ' . $e->getMessage());
                     \Log::error('Stack trace: ' . $e->getTraceAsString());
