@@ -83,30 +83,30 @@ class AlumniController extends Controller
                 'content_length' => strlen($request->content ?? ''),
             ]);
 
-            $request->validate([
-                'content' => 'required|string',
-                'title' => 'nullable|string|max:255',
-                'description' => 'nullable|string|max:1000',
-                'event_date' => 'nullable|date',
-                'location' => 'nullable|string|max:255',
-                'max_registrations' => 'nullable|integer|min:1',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-            ]);
+        $request->validate([
+            'content' => 'required|string',
+            'title' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'event_date' => 'nullable|date',
+            'location' => 'nullable|string|max:255',
+            'max_registrations' => 'nullable|integer|min:1',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
 
-            $data = [
-                'content' => $request->content,
-                'title' => $request->title,
-                'description' => $request->description,
-                'event_date' => $request->event_date,
-                'location' => $request->location,
-                'max_registrations' => $request->max_registrations,
-                'user_id' => auth()->id(),
+        $data = [
+            'content' => $request->content,
+            'title' => $request->title,
+            'description' => $request->description,
+            'event_date' => $request->event_date,
+            'location' => $request->location,
+            'max_registrations' => $request->max_registrations,
+            'user_id' => auth()->id(),
                 'is_archived' => false, // Explicitly set to false when creating
-                'is_completed' => false, // Explicitly set to false when creating
-            ];
+            'is_completed' => false, // Explicitly set to false when creating
+        ];
 
-            // Handle image upload if provided
-            if ($request->hasFile('image')) {
+        // Handle image upload if provided
+        if ($request->hasFile('image')) {
                 try {
                     // Check if S3 is configured
                     $s3Bucket = env('AWS_BUCKET');
@@ -124,8 +124,8 @@ class AlumniController extends Controller
                     } else {
                         // Fallback to local storage
                         \Log::info('S3 not configured, storing event image to local storage');
-                        $imagePath = $request->file('image')->store('alumni-posts', 'public');
-                        $data['image_path'] = $imagePath;
+            $imagePath = $request->file('image')->store('alumni-posts', 'public');
+            $data['image_path'] = $imagePath;
                         \Log::info('Event image stored successfully to local storage:', [
                             'path' => $imagePath,
                             'disk' => 'public',
@@ -150,8 +150,8 @@ class AlumniController extends Controller
             if (request()->is('admin/*') || str_contains(request()->header('referer', ''), '/admin/')) {
                 return redirect()->route('admin.events.index')->with('success', 'Event created successfully!');
             }
-            
-            return redirect()->back()->with('success', 'Event created successfully!');
+
+        return redirect()->back()->with('success', 'Event created successfully!');
         } catch (\Illuminate\Validation\ValidationException $e) {
             \Log::error('Validation error:', $e->errors());
             return redirect()->back()->withErrors($e->errors())->withInput();
@@ -324,13 +324,13 @@ class AlumniController extends Controller
                 $data['image_path'] = $imagePath;
             } else {
                 // Delete old image from local storage if exists
-                if ($post->image_path && \Storage::disk('public')->exists($post->image_path)) {
-                    \Storage::disk('public')->delete($post->image_path);
-                }
-                
+            if ($post->image_path && \Storage::disk('public')->exists($post->image_path)) {
+                \Storage::disk('public')->delete($post->image_path);
+            }
+            
                 // Store in local storage
-                $imagePath = $request->file('image')->store('alumni-posts', 'public');
-                $data['image_path'] = $imagePath;
+            $imagePath = $request->file('image')->store('alumni-posts', 'public');
+            $data['image_path'] = $imagePath;
             }
         }
 

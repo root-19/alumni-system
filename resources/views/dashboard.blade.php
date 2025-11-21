@@ -25,31 +25,25 @@
                             <div class="flex gap-3 mb-3 last:mb-0">
                                 @php
                                     $imageUrl = null;
-                                    $imageExists = false;
                                     $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
                                     
                                     if ($event->image_path) {
                                         // Try S3 first if configured
                                         if ($s3Configured) {
                                             try {
-                                                if (\Illuminate\Support\Facades\Storage::disk('s3')->exists($event->image_path)) {
-                                                    $imageExists = true;
-                                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($event->image_path);
-                                                }
+                                                $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($event->image_path);
                                             } catch (\Exception $e) {
                                                 // S3 error, fall through to local storage
+                                                $imageUrl = asset('storage/' . $event->image_path);
                                             }
-                                        }
-                                        
-                                        // Fallback to local storage (storage/app/public/)
-                                        if (!$imageExists && \Illuminate\Support\Facades\Storage::disk('public')->exists($event->image_path)) {
-                                            $imageExists = true;
+                                        } else {
+                                            // Use local storage directly
                                             $imageUrl = asset('storage/' . $event->image_path);
                                         }
                                     }
                                 @endphp
 
-                                @if($imageExists)
+                                @if($imageUrl)
                                     <img src="{{ $imageUrl }}" 
                                          alt="Event Image" 
                                          class="w-16 h-16 rounded-md object-cover"
@@ -72,7 +66,7 @@
                                 </div>
                             </div>
                         @endforeach
-
+                        
                         {{-- View All Events Link --}}
                         <div class="mt-3 pt-3 border-t border-gray-100">
                             <a href="{{ route('events') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1">
@@ -137,31 +131,25 @@
                                 <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                                     @php
                                         $imageUrl = null;
-                                        $imageExists = false;
                                         $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
                                         
                                         if ($event->image_path) {
                                             // Try S3 first if configured
                                             if ($s3Configured) {
                                                 try {
-                                                    if (\Illuminate\Support\Facades\Storage::disk('s3')->exists($event->image_path)) {
-                                                        $imageExists = true;
-                                                        $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($event->image_path);
-                                                    }
+                                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($event->image_path);
                                                 } catch (\Exception $e) {
                                                     // S3 error, fall through to local storage
+                                                    $imageUrl = asset('storage/' . $event->image_path);
                                                 }
-                                            }
-                                            
-                                            // Fallback to local storage (storage/app/public/)
-                                            if (!$imageExists && \Illuminate\Support\Facades\Storage::disk('public')->exists($event->image_path)) {
-                                                $imageExists = true;
+                                            } else {
+                                                // Use local storage directly
                                                 $imageUrl = asset('storage/' . $event->image_path);
                                             }
                                         }
                                     @endphp
 
-                                    @if($imageExists)
+                                    @if($imageUrl)
                                         <img src="{{ $imageUrl }}" 
                                              alt="Event Image" 
                                              class="w-12 h-12 rounded-md object-cover"
@@ -251,31 +239,25 @@
             <div class="relative overflow-hidden rounded-2xl shadow-xl">
                 @php
                     $imageUrl = null;
-                    $imageExists = false;
                     $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
                     
                     if ($featuredNews->image_path) {
                         // Try S3 first if configured
                         if ($s3Configured) {
                             try {
-                                if (\Illuminate\Support\Facades\Storage::disk('s3')->exists($featuredNews->image_path)) {
-                                    $imageExists = true;
-                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($featuredNews->image_path);
-                                }
+                                $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($featuredNews->image_path);
                             } catch (\Exception $e) {
                                 // S3 error, fall through to local storage
+                                $imageUrl = asset('storage/' . $featuredNews->image_path);
                             }
-                        }
-                        
-                        // Fallback to local storage (storage/app/public/)
-                        if (!$imageExists && \Illuminate\Support\Facades\Storage::disk('public')->exists($featuredNews->image_path)) {
-                            $imageExists = true;
+                        } else {
+                            // Use local storage directly
                             $imageUrl = asset('storage/' . $featuredNews->image_path);
                         }
                     }
                 @endphp
 
-                @if($imageExists)
+                @if($imageUrl)
                     <img src="{{ $imageUrl }}" 
                          alt="{{ $featuredNews->title }}" 
                          class="w-full h-96 object-cover"
@@ -317,31 +299,25 @@
                         <div class="relative">
                             @php
                                 $imageUrl = null;
-                                $imageExists = false;
                                 $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
                                 
                                 if ($post->image_path) {
                                     // Try S3 first if configured
                                     if ($s3Configured) {
                                         try {
-                                            if (\Illuminate\Support\Facades\Storage::disk('s3')->exists($post->image_path)) {
-                                                $imageExists = true;
-                                                $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
-                                            }
+                                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
                                         } catch (\Exception $e) {
                                             // S3 error, fall through to local storage
+                                            $imageUrl = asset('storage/' . $post->image_path);
                                         }
-                                    }
-                                    
-                                    // Fallback to local storage (storage/app/public/)
-                                    if (!$imageExists && \Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path)) {
-                                        $imageExists = true;
+                                    } else {
+                                        // Use local storage directly
                                         $imageUrl = asset('storage/' . $post->image_path);
                                     }
                                 }
                             @endphp
 
-                            @if($imageExists)
+                            @if($imageUrl)
                                 <img src="{{ $imageUrl }}" 
                                      alt="Alumni Post {{ $index + 1 }}" 
                                      class="w-full h-48 object-cover"

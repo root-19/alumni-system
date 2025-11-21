@@ -12,29 +12,22 @@
                         @if($post->image_path)
                             @php
                                 $imageUrl = null;
-                                $imageExists = false;
-                                
                                 $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
                                 
                                 // Try S3 first if configured
                                 if ($s3Configured) {
                                     try {
-                                        if (\Illuminate\Support\Facades\Storage::disk('s3')->exists($post->image_path)) {
-                                            $imageExists = true;
-                                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
-                                        }
+                                        $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
                                     } catch (\Exception $e) {
                                         // S3 error, fall through to local storage
+                                        $imageUrl = asset('storage/' . $post->image_path);
                                     }
-                                }
-                                
-                                // Fallback to local storage (storage/app/public/)
-                                if (!$imageExists && \Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path)) {
-                                    $imageExists = true;
+                                } else {
+                                    // Use local storage directly
                                     $imageUrl = asset('storage/' . $post->image_path);
                                 }
                             @endphp
-                            @if($imageExists)
+                            @if($imageUrl)
                                 <a href="{{ route('events.show', $post) }}" class="block overflow-hidden relative">
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
                                     <img src="{{ $imageUrl }}" 
@@ -137,18 +130,13 @@
                                 // Try S3 first if configured
                                 if ($s3Configured) {
                                     try {
-                                        if (\Illuminate\Support\Facades\Storage::disk('s3')->exists($post->image_path)) {
-                                            $imageExists = true;
-                                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
-                                        }
+                                        $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
                                     } catch (\Exception $e) {
                                         // S3 error, fall through to local storage
+                                        $imageUrl = asset('storage/' . $post->image_path);
                                     }
-                                }
-                                
-                                // Fallback to local storage (storage/app/public/)
-                                if (!$imageExists && \Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path)) {
-                                    $imageExists = true;
+                                } else {
+                                    // Use local storage directly
                                     $imageUrl = asset('storage/' . $post->image_path);
                                 }
                             }
