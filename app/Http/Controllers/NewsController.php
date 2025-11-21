@@ -32,15 +32,15 @@ class NewsController extends Controller
             $imagePath = null;
             if ($request->hasFile('image')) {
                 try {
-                    // Always store in local storage (storage/app/public/)
-                    \Log::info('Storing image to local storage (public disk)');
+                    // Store in S3
+                    \Log::info('Storing image to S3');
                     
-                    $imagePath = $request->file('image')->store('news_images', 'public');
+                    $imagePath = $request->file('image')->store('news_images', 's3');
                     
                     \Log::info('Image stored successfully:', [
                         'path' => $imagePath,
-                        'disk' => 'public',
-                        'exists' => Storage::disk('public')->exists($imagePath),
+                        'disk' => 's3',
+                        'exists' => Storage::disk('s3')->exists($imagePath),
                     ]);
                 } catch (\Exception $e) {
                     \Log::error('Error storing image: ' . $e->getMessage());

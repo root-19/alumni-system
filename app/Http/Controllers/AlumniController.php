@@ -108,16 +108,16 @@ class AlumniController extends Controller
             // Handle image upload if provided
             if ($request->hasFile('image')) {
                 try {
-                    // Always store in local storage (storage/app/public/)
-                    \Log::info('Storing event image to local storage (public disk)');
+                    // Store in S3
+                    \Log::info('Storing event image to S3');
                     
-                    $imagePath = $request->file('image')->store('alumni-posts', 'public');
+                    $imagePath = $request->file('image')->store('alumni-posts', 's3');
                     $data['image_path'] = $imagePath;
                     
                     \Log::info('Event image stored successfully:', [
                         'path' => $imagePath,
-                        'disk' => 'public',
-                        'exists' => \Storage::disk('public')->exists($imagePath),
+                        'disk' => 's3',
+                        'exists' => \Storage::disk('s3')->exists($imagePath),
                     ]);
                 } catch (\Exception $e) {
                     \Log::error('Error storing event image: ' . $e->getMessage());
@@ -291,13 +291,13 @@ class AlumniController extends Controller
 
         // Handle image upload if provided
         if ($request->hasFile('image')) {
-            // Delete old image from local storage if exists
-            if ($post->image_path && \Storage::disk('public')->exists($post->image_path)) {
-                \Storage::disk('public')->delete($post->image_path);
+            // Delete old image from S3 if exists
+            if ($post->image_path && \Storage::disk('s3')->exists($post->image_path)) {
+                \Storage::disk('s3')->delete($post->image_path);
             }
             
-            // Always store in local storage (storage/app/public/)
-            $imagePath = $request->file('image')->store('alumni-posts', 'public');
+            // Store in S3
+            $imagePath = $request->file('image')->store('alumni-posts', 's3');
             $data['image_path'] = $imagePath;
         }
 

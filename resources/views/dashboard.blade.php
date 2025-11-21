@@ -28,18 +28,15 @@
                                     $imageExists = false;
                                     
                                     if ($event->image_path) {
-                                        // Try local storage first (storage/app/public/)
-                                        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($event->image_path)) {
+                                        // Try S3 first
+                                        if (\Illuminate\Support\Facades\Storage::disk('s3')->exists($event->image_path)) {
+                                            $imageExists = true;
+                                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($event->image_path);
+                                        } 
+                                        // Fallback to local storage (storage/app/public/)
+                                        elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($event->image_path)) {
                                             $imageExists = true;
                                             $imageUrl = asset('storage/' . $event->image_path);
-                                        } 
-                                        // Fallback to default disk (S3 or public)
-                                        else {
-                                            $defaultDisk = config('filesystems.default');
-                                            if (\Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($event->image_path)) {
-                                                $imageExists = true;
-                                                $imageUrl = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($event->image_path);
-                                            }
                                         }
                                     }
                                 @endphp
@@ -135,18 +132,15 @@
                                         $imageExists = false;
                                         
                                         if ($event->image_path) {
-                                            // Try local storage first (storage/app/public/)
-                                            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($event->image_path)) {
+                                            // Try S3 first
+                                            if (\Illuminate\Support\Facades\Storage::disk('s3')->exists($event->image_path)) {
+                                                $imageExists = true;
+                                                $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($event->image_path);
+                                            } 
+                                            // Fallback to local storage (storage/app/public/)
+                                            elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($event->image_path)) {
                                                 $imageExists = true;
                                                 $imageUrl = asset('storage/' . $event->image_path);
-                                            } 
-                                            // Fallback to default disk (S3 or public)
-                                            else {
-                                                $defaultDisk = config('filesystems.default');
-                                                if (\Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($event->image_path)) {
-                                                    $imageExists = true;
-                                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($event->image_path);
-                                                }
                                             }
                                         }
                                     @endphp
@@ -244,18 +238,15 @@
                     $imageExists = false;
                     
                     if ($featuredNews->image_path) {
-                        // Try local storage first (storage/app/public/)
-                        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($featuredNews->image_path)) {
+                        // Try S3 first
+                        if (\Illuminate\Support\Facades\Storage::disk('s3')->exists($featuredNews->image_path)) {
+                            $imageExists = true;
+                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($featuredNews->image_path);
+                        } 
+                        // Fallback to local storage (storage/app/public/)
+                        elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($featuredNews->image_path)) {
                             $imageExists = true;
                             $imageUrl = asset('storage/' . $featuredNews->image_path);
-                        } 
-                        // Fallback to default disk (S3 or public)
-                        else {
-                            $defaultDisk = config('filesystems.default');
-                            if (\Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($featuredNews->image_path)) {
-                                $imageExists = true;
-                                $imageUrl = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($featuredNews->image_path);
-                            }
                         }
                     }
                 @endphp
@@ -305,18 +296,15 @@
                                 $imageExists = false;
                                 
                                 if ($post->image_path) {
-                                    // Try local storage first (storage/app/public/)
-                                    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path)) {
+                                    // Try S3 first
+                                    if (\Illuminate\Support\Facades\Storage::disk('s3')->exists($post->image_path)) {
+                                        $imageExists = true;
+                                        $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
+                                    } 
+                                    // Fallback to local storage (storage/app/public/)
+                                    elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path)) {
                                         $imageExists = true;
                                         $imageUrl = asset('storage/' . $post->image_path);
-                                    } 
-                                    // Fallback to default disk (S3 or public)
-                                    else {
-                                        $defaultDisk = config('filesystems.default');
-                                        if (\Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path)) {
-                                            $imageExists = true;
-                                            $imageUrl = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path);
-                                        }
                                     }
                                 }
                             @endphp
