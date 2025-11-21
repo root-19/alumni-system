@@ -60,13 +60,18 @@ else
     fi
 fi
 
-# Clear caches
+# Clear caches (IMPORTANT: Clear view cache FIRST to fix syntax errors)
 echo "Clearing caches..."
 php artisan view:clear
 php artisan config:clear
 php artisan cache:clear
 php artisan route:clear
 php artisan optimize:clear
+
+# Force recompile views
+echo "Forcing view recompilation..."
+rm -rf storage/framework/views/*.php
+php artisan view:clear
 
 # Set permissions again after symlink creation
 echo "Setting final permissions..."

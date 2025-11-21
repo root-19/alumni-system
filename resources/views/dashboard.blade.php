@@ -17,66 +17,40 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
 
             {{-- Left Column: Upcoming Events --}}
-          <div class="md:col-span-1 space-y-4">
-    <h3 class="text-lg font-semibold text-gray-700">Upcoming Events</h3>
-    <div class="bg-white p-4 rounded-lg shadow">
-        @if($upcomingEvents->count() > 0)
-            @foreach($upcomingEvents as $event)
-                <div class="flex gap-3 mb-3 last:mb-0">
-                    @php
-                        $imageExists = $event->image_path && Storage::disk('public')->exists($event->image_path);
-                        $imageUrl = $imageExists ? Storage::disk('public')->url($event->image_path) : null;
-                    @endphp
+            <div class="md:col-span-1 space-y-4">
+                <h3 class="text-lg font-semibold text-gray-700">Upcoming Events</h3>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    @if($upcomingEvents->count() > 0)
+                        @foreach($upcomingEvents as $event)
+                            <div class="flex gap-3 mb-3 last:mb-0">
+                                @php
+                                    $imageExists = $event->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($event->image_path);
+                                    $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk('public')->url($event->image_path) : null;
+                                @endphp
 
-                    @if($imageExists)
-                        <img src="{{ $imageUrl }}" 
-                             alt="Event Image" 
-                             class="w-16 h-16 rounded-md object-cover">
-                    @else
-                        <div class="w-16 h-16 rounded-md bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                        </div>
-                    @endif
+                                @if($imageExists)
+                                    <img src="{{ $imageUrl }}" 
+                                         alt="Event Image" 
+                                         class="w-16 h-16 rounded-md object-cover">
+                                @else
+                                    <div class="w-16 h-16 rounded-md bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                @endif
 
-                    <div class="flex-1 min-w-0">
-                        <p class="font-semibold text-sm text-gray-800 line-clamp-2">
-                            {{ \Illuminate\Support\Str::limit($event->content, 60) }}
-                        </p>
-                        <span class="text-sm text-gray-500">
-                            {{ $event->created_at->format('M d, Y') }}
-                        </span>
-                    </div>
-                </div>
-            @endforeach
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-semibold text-sm text-gray-800 line-clamp-2">
+                                        {{ \Illuminate\Support\Str::limit($event->content, 60) }}
+                                    </p>
+                                    <span class="text-sm text-gray-500">
+                                        {{ $event->created_at->format('M d, Y') }}
+                                    </span>
+                                </div>
+                            </div>
+                        @endforeach
 
-            {{-- View All Events Link --}}
-            <div class="mt-3 pt-3 border-t border-gray-100">
-                <a href="{{ route('events') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1">
-                    View All Events
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </a>
-            </div>
-
-        @else
-            {{-- No upcoming events message --}}
-            <div class="text-center py-6">
-                <div class="w-12 h-12 mx-auto mb-3 bg-gray-100 rounded-full flex items-center justify-center">
-                    <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                </div>
-                <p class="text-sm text-gray-500 mb-2">No upcoming events</p>
-                <p class="text-xs text-gray-400">Check back later for new events</p>
-            </div>
-        @endif
-    </div>
-</div>
-
-                        
                         {{-- View All Events Link --}}
                         <div class="mt-3 pt-3 border-t border-gray-100">
                             <a href="{{ route('events') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1">
@@ -86,6 +60,7 @@
                                 </svg>
                             </a>
                         </div>
+
                     @else
                         {{-- No upcoming events message --}}
                         <div class="text-center py-6">
@@ -138,10 +113,12 @@
                         <div class="space-y-3">
                             @foreach($events as $event)
                                 <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                                    @if($event->image_path)
-                                        @php
-                                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($event->image_path);
-                                        @endphp
+                                    @php
+                                        $imageExists = $event->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($event->image_path);
+                                        $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk('public')->url($event->image_path) : null;
+                                    @endphp
+
+                                    @if($imageExists)
                                         <img src="{{ $imageUrl }}" 
                                              alt="Event Image" 
                                              class="w-12 h-12 rounded-md object-cover">
@@ -228,10 +205,12 @@
             {{-- Featured News (Hero) --}}
             @if(isset($featuredNews) && $featuredNews)
             <div class="relative overflow-hidden rounded-2xl shadow-xl">
-                @if($featuredNews->image_path)
-                    @php
-                        $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($featuredNews->image_path);
-                    @endphp
+                @php
+                    $imageExists = $featuredNews->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($featuredNews->image_path);
+                    $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk('public')->url($featuredNews->image_path) : null;
+                @endphp
+
+                @if($imageExists)
                     <img src="{{ $imageUrl }}" 
                          alt="{{ $featuredNews->title }}" 
                          class="w-full h-96 object-cover">
@@ -270,10 +249,12 @@
                 @forelse($latestAlumniPosts as $index => $post)
                     <article class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
                         <div class="relative">
-                            @if($post->image_path)
-                                @php
-                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($post->image_path);
-                                @endphp
+                            @php
+                                $imageExists = $post->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path);
+                                $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk('public')->url($post->image_path) : null;
+                            @endphp
+
+                            @if($imageExists)
                                 <img src="{{ $imageUrl }}" 
                                      alt="Alumni Post {{ $index + 1 }}" 
                                      class="w-full h-48 object-cover">
