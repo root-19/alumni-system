@@ -191,12 +191,10 @@
             <div class="relative">
                 @if($heroImage)
                     @php
-                        // Use public disk for local storage, or default for S3
                         $defaultDisk = config('filesystems.default');
                         if ($defaultDisk === 's3') {
                             $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($heroImage);
                         } else {
-                            // For local storage, use Storage::disk('public')->url() which handles the path correctly
                             $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($heroImage);
                         }
                     @endphp
@@ -223,12 +221,10 @@
                         <div class="grid md:grid-cols-3">
                             @if($item->image_path)
                                 @php
-                                    // Use public disk for local storage, or default for S3
                                     $defaultDisk = config('filesystems.default');
                                     if ($defaultDisk === 's3') {
                                         $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($item->image_path);
                                     } else {
-                                        // For local storage, use Storage::disk('public')->url() which handles the path correctly
                                         $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($item->image_path);
                                     }
                                 @endphp
@@ -256,12 +252,10 @@
                     <article class="bg-white rounded-2xl shadow p-4">
                         @if($post->image_path)
                             @php
-                                // Use public disk for local storage, or default for S3
                                 $defaultDisk = config('filesystems.default');
                                 if ($defaultDisk === 's3') {
                                     $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
                                 } else {
-                                    // For local storage, use Storage::disk('public')->url() which handles the path correctly
                                     $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($post->image_path);
                                 }
                             @endphp
