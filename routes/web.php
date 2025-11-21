@@ -630,6 +630,162 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::patch('/document-requests/{documentRequest}', [DocumentRequestController::class, 'updateStatus'])->name('admin.document-requests.update');
 });
 
+/*
+|--------------------------------------------------------------------------
+| Temporary Storage Symlink Route (Remove after use!)
+|--------------------------------------------------------------------------
+| This route creates the storage symlink programmatically.
+| Access: /create-storage-link?token=YOUR_SECRET_TOKEN
+| After creating the symlink, REMOVE THIS ROUTE for security.
+*/
+Route::get('/create-storage-link', function (Request $request) {
+    // Security: Require a token (change this to a secure random string)
+    $secretToken = env('STORAGE_LINK_TOKEN', 'change-this-token-before-deploying');
+    
+    if ($request->get('token') !== $secretToken) {
+        return response()->json([
+            'error' => 'Unauthorized. Missing or invalid token.',
+            'hint' => 'Add ?token=YOUR_SECRET_TOKEN to the URL'
+        ], 401);
+    }
+    
+    $publicStoragePath = public_path('storage');
+    $targetPath = storage_path('app/public');
+    $messages = [];
+    $errors = [];
+    
+    try {
+        // Step 1: Check if public/storage exists
+        if (file_exists($publicStoragePath)) {
+            if (is_link($publicStoragePath)) {
+                // It's a symlink - check if it's valid
+                $linkTarget = readlink($publicStoragePath);
+                if ($linkTarget === '../storage/app/public' || realpath($publicStoragePath) === realpath($targetPath)) {
+                    $messages[] = "✓ Symlink already exists and is correct: public/storage -> $linkTarget";
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Storage symlink already exists and is correct.',
+                        'details' => $messages,
+                        'link_target' => $linkTarget,
+                        'warning' => 'Please remove this route after verifying the symlink works!'
+                    ]);
+                } else {
+                    // Broken or incorrect symlink
+                    $messages[] = "⚠ Found existing symlink pointing to: $linkTarget";
+                    $messages[] = "Removing incorrect symlink...";
+                    unlink($publicStoragePath);
+                }
+            } elseif (is_dir($publicStoragePath)) {
+                // It's a directory, not a symlink
+                $messages[] = "⚠ public/storage exists as a directory (should be symlink)";
+                $messages[] = "Removing directory...";
+                if (!rmdir($publicStoragePath)) {
+                    // Try to remove recursively if not empty
+                    $files = new \RecursiveIteratorIterator(
+                        new \RecursiveDirectoryIterator($publicStoragePath, \RecursiveDirectoryIterator::SKIP_DOTS),
+                        \RecursiveIteratorIterator::CHILD_FIRST
+                    );
+                    foreach ($files as $file) {
+                        $file->isDir() ? rmdir($file->getRealPath()) : unlink($file->getRealPath());
+                    }
+                    rmdir($publicStoragePath);
+                }
+                $messages[] = "✓ Directory removed";
+            } else {
+                // It's a file
+                $messages[] = "⚠ public/storage exists as a file (should be symlink)";
+                $messages[] = "Removing file...";
+                unlink($publicStoragePath);
+                $messages[] = "✓ File removed";
+            }
+        }
+        
+        // Step 2: Ensure target directory exists
+        if (!is_dir($targetPath)) {
+            $messages[] = "Creating target directory: $targetPath";
+            mkdir($targetPath, 0755, true);
+            $messages[] = "✓ Target directory created";
+        } else {
+            $messages[] = "✓ Target directory exists: $targetPath";
+        }
+        
+        // Step 3: Create the symlink
+        $messages[] = "Creating symlink: public/storage -> storage/app/public";
+        
+        // Try using artisan command first
+        $artisanPath = base_path('artisan');
+        if (file_exists($artisanPath)) {
+            $output = [];
+            $returnVar = 0;
+            exec("php $artisanPath storage:link 2>&1", $output, $returnVar);
+            
+            if ($returnVar === 0 && is_link($publicStoragePath)) {
+                $messages[] = "✓ Symlink created successfully using artisan";
+                $messages[] = "Link: " . readlink($publicStoragePath);
+            } else {
+                // Fallback to manual symlink creation
+                $messages[] = "Artisan command failed, trying manual symlink creation...";
+                if (symlink($targetPath, $publicStoragePath)) {
+                    $messages[] = "✓ Symlink created successfully manually";
+                } else {
+                    $errors[] = "Failed to create symlink. Check file permissions.";
+                }
+            }
+        } else {
+            // Manual symlink creation
+            if (symlink($targetPath, $publicStoragePath)) {
+                $messages[] = "✓ Symlink created successfully";
+            } else {
+                $errors[] = "Failed to create symlink. Check file permissions.";
+            }
+        }
+        
+        // Step 4: Verify the symlink
+        if (is_link($publicStoragePath)) {
+            $linkTarget = readlink($publicStoragePath);
+            $messages[] = "✓ Verification: Symlink exists";
+            $messages[] = "  Link: public/storage -> $linkTarget";
+            
+            // Test if symlink resolves correctly
+            if (file_exists($publicStoragePath)) {
+                $messages[] = "✓ Symlink resolves correctly - images should now be accessible!";
+            } else {
+                $errors[] = "⚠ Symlink exists but does not resolve correctly. Check permissions.";
+            }
+        } else {
+            $errors[] = "❌ Symlink was not created successfully.";
+        }
+        
+        if (count($errors) > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Some errors occurred while creating the symlink.',
+                'details' => $messages,
+                'errors' => $errors,
+                'warning' => 'Please remove this route after use!'
+            ], 500);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Storage symlink created successfully!',
+            'details' => $messages,
+            'link_path' => $publicStoragePath,
+            'target_path' => $targetPath,
+            'warning' => '⚠ IMPORTANT: Remove this route from routes/web.php after verifying it works!'
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error creating symlink: ' . $e->getMessage(),
+            'details' => $messages,
+            'errors' => array_merge($errors, [$e->getMessage()]),
+            'trace' => config('app.debug') ? $e->getTraceAsString() : null
+        ], 500);
+    }
+})->name('create.storage.link');
+
 require __DIR__ . '/auth.php';
 
 
