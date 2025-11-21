@@ -108,17 +108,16 @@ class AlumniController extends Controller
             // Handle image upload if provided
             if ($request->hasFile('image')) {
                 try {
-                    $defaultDisk = config('filesystems.default');
-                    \Log::info('Storing event image to disk: ' . $defaultDisk);
+                    // Always store in local storage (storage/app/public/)
+                    \Log::info('Storing event image to local storage (public disk)');
                     
-                    // Use default disk (will be 's3' in Laravel Cloud, 'public' locally)
-                    $imagePath = $request->file('image')->store('alumni-posts', $defaultDisk);
+                    $imagePath = $request->file('image')->store('alumni-posts', 'public');
                     $data['image_path'] = $imagePath;
                     
                     \Log::info('Event image stored successfully:', [
                         'path' => $imagePath,
-                        'disk' => $defaultDisk,
-                        'exists' => \Storage::disk($defaultDisk)->exists($imagePath),
+                        'disk' => 'public',
+                        'exists' => \Storage::disk('public')->exists($imagePath),
                     ]);
                 } catch (\Exception $e) {
                     \Log::error('Error storing event image: ' . $e->getMessage());
@@ -292,14 +291,13 @@ class AlumniController extends Controller
 
         // Handle image upload if provided
         if ($request->hasFile('image')) {
-            // Delete old image if exists
-            $defaultDisk = config('filesystems.default');
-            if ($post->image_path && \Storage::disk($defaultDisk)->exists($post->image_path)) {
-                \Storage::disk($defaultDisk)->delete($post->image_path);
+            // Delete old image from local storage if exists
+            if ($post->image_path && \Storage::disk('public')->exists($post->image_path)) {
+                \Storage::disk('public')->delete($post->image_path);
             }
             
-            // Use default disk (will be 's3' in Laravel Cloud, 'public' locally)
-            $imagePath = $request->file('image')->store('alumni-posts', $defaultDisk);
+            // Always store in local storage (storage/app/public/)
+            $imagePath = $request->file('image')->store('alumni-posts', 'public');
             $data['image_path'] = $imagePath;
         }
 

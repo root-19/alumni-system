@@ -32,16 +32,15 @@ class NewsController extends Controller
             $imagePath = null;
             if ($request->hasFile('image')) {
                 try {
-                    $defaultDisk = config('filesystems.default');
-                    \Log::info('Storing image to disk: ' . $defaultDisk);
+                    // Always store in local storage (storage/app/public/)
+                    \Log::info('Storing image to local storage (public disk)');
                     
-                    // Use default disk (will be 's3' in Laravel Cloud, 'public' locally)
-                    $imagePath = $request->file('image')->store('news_images', $defaultDisk);
+                    $imagePath = $request->file('image')->store('news_images', 'public');
                     
                     \Log::info('Image stored successfully:', [
                         'path' => $imagePath,
-                        'disk' => $defaultDisk,
-                        'exists' => Storage::disk($defaultDisk)->exists($imagePath),
+                        'disk' => 'public',
+                        'exists' => Storage::disk('public')->exists($imagePath),
                     ]);
                 } catch (\Exception $e) {
                     \Log::error('Error storing image: ' . $e->getMessage());
