@@ -1,15 +1,21 @@
+# Ignore all files by default
 *
+# But don't ignore .gitignore itself
 !.gitignore
-!news_images/
-!alumni-posts/
-!profiles/
-!donations/
-!resumes/
-!trainings/
-!alumni_images/
+# Allow specific image folders
+!/news_images/
+!/alumni-posts/
+!/alumni_images/
+!/profiles/
+!/donations/
+!/resumes/
+!/trainings/
+# Allow common image file types
 !*.png
 !*.jpg
 !*.jpeg
 !*.gif
 !*.svg
+!*.webp
 !*.pdf
+
