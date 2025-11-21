@@ -37,24 +37,36 @@
                                                 $imageUrl = null;
                                                 $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
                                                 
+                                                // Debug: Log the image path
+                                                \Log::info('EventsAdmin - Displaying image:', [
+                                                    'image_path' => $post->image_path,
+                                                    's3_configured' => $s3Configured,
+                                                ]);
+                                                
                                                 // Try S3 first if configured
                                                 if ($s3Configured) {
                                                     try {
                                                         $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
+                                                        \Log::info('EventsAdmin - Using S3 URL:', ['url' => $imageUrl]);
                                                     } catch (\Exception $e) {
                                                         // S3 error, fall through to local storage
                                                         $imageUrl = asset('storage/' . $post->image_path);
+                                                        \Log::info('EventsAdmin - S3 failed, using local URL:', ['url' => $imageUrl]);
                                                     }
                                                 } else {
                                                     // Use local storage directly
                                                     $imageUrl = asset('storage/' . $post->image_path);
+                                                    \Log::info('EventsAdmin - Using local storage URL:', [
+                                                        'url' => $imageUrl,
+                                                        'file_exists' => \Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path),
+                                                    ]);
                                                 }
                                             @endphp
                                             @if($imageUrl)
                                                 <img class="h-16 w-24 object-cover rounded-lg mr-4 border border-gray-200" 
                                                     src="{{ $imageUrl }}" 
                                                     alt="Event"
-                                                    onerror="this.onerror=null; this.src='{{ asset('storage/' . $post->image_path) }}';">
+                                                    onerror="console.error('Image failed to load:', '{{ $imageUrl }}'); this.onerror=null; this.src='{{ asset('storage/' . $post->image_path) }}';">
                                             @else
                                                 <div class="h-16 w-24 bg-gray-200 rounded-lg mr-4 flex items-center justify-center">
                                                     <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,7 +190,7 @@
                                                 $imageUrl = null;
                                                 $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
                                                 
-                                                // Try S3 first if configured
+                                                // Always generate URL - don't check exists() as it may fail due to symlink/permissions
                                                 if ($s3Configured) {
                                                     try {
                                                         $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
@@ -187,7 +199,7 @@
                                                         $imageUrl = asset('storage/' . $post->image_path);
                                                     }
                                                 } else {
-                                                    // Use local storage directly
+                                                    // Use local storage directly - always generate URL
                                                     $imageUrl = asset('storage/' . $post->image_path);
                                                 }
                                             @endphp
@@ -195,7 +207,12 @@
                                                 <img class="h-16 w-24 object-cover rounded-lg mr-4 border border-gray-200 grayscale" 
                                                      src="{{ $imageUrl }}" 
                                                      alt="Event"
-                                                     onerror="this.onerror=null; this.src='{{ asset('storage/' . $post->image_path) }}';">
+                                                     onerror="console.error('Image failed to load:', '{{ $imageUrl }}'); this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                <div class="h-16 w-24 bg-gray-200 rounded-lg mr-4 flex items-center justify-center" style="display:none;">
+                                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                    </svg>
+                                                </div>
                                             @else
                                                 <div class="h-16 w-24 bg-gray-200 rounded-lg mr-4 flex items-center justify-center">
                                                     <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
