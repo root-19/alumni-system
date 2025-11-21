@@ -45,4 +45,20 @@ class NewsController extends Controller
         
         return view('news', compact('news', 'alumniPosts', 'featuredNews', 'featuredAlumni'));
     }
+
+    public function adminIndex()
+    {
+        try {
+            $news = News::latest()->get();
+            $alumniPosts = AlumniPost::where('is_archived', false)->latest()->get();
+
+            $featuredNews = $news->first();
+            $featuredAlumni = $alumniPosts->first();
+
+            return view('admin.news', compact('news', 'alumniPosts', 'featuredNews', 'featuredAlumni'));
+        } catch (\Exception $e) {
+            \Log::error('Error in admin news page: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'An error occurred while loading the news page.');
+        }
     }
+}
