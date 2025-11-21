@@ -466,7 +466,16 @@ Route::post('/comments/{comment}/like', [CommentController::class, 'like'])->nam
     // News & Alumni
     Route::post('/admin/alumni_post', [AlumniController::class, 'store'])->name('alumni_post.store');
     Route::post('/admin/news', [NewsController::class, 'store'])->name('news.store');
-    Route::get('/admin/news', [NewsController::class, 'adminIndex'])->name('admin.news');
+
+    Route::get('/admin/news', function () {
+        $news = \App\Models\News::latest()->get();
+        $alumniPosts = \App\Models\AlumniPost::where('is_archived', false)->latest()->get();
+
+        $featuredNews = $news->first();
+        $featuredAlumni = $alumniPosts->first();
+
+        return view('admin.news', compact('news', 'alumniPosts', 'featuredNews', 'featuredAlumni'));
+    })->name('admin.news');
 
     // Admin Static Pages
 //     Route::get('/admin/giving-back', fn() => view('admin.givingBack'))->name('givingBack');
