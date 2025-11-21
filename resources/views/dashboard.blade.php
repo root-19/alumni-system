@@ -34,8 +34,8 @@
                                     @endphp
                                     <img src="{{ $imageUrl }}" 
                                          alt="Event Image" 
-                                         class="w-16 h-16 rounded-md object-cover" 
-                                         onerror="this.style.display='none'">
+                                         class="w-16 h-16 rounded-md object-cover"
+                                         onerror="console.error('Image failed to load:', '{{ $imageUrl }}'); this.style.display='none';">
                                 @else
                                     <div class="w-16 h-16 rounded-md bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
                                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,8 +126,8 @@
                                         @endphp
                                         <img src="{{ $imageUrl }}" 
                                              alt="Event Image" 
-                                             class="w-12 h-12 rounded-md object-cover" 
-                                             onerror="this.style.display='none'">
+                                             class="w-12 h-12 rounded-md object-cover"
+                                             onerror="console.error('Image failed to load:', '{{ $imageUrl }}'); this.style.display='none';">
                                     @else
                                         <div class="w-12 h-12 rounded-md bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
                                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

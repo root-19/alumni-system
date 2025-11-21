@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {
@@ -45,9 +46,36 @@ class DashboardController extends Controller
             ]);
 
             $latestAlumniPosts = AlumniPost::where('is_archived', false)->latest()->take(5)->get();
+            
+            // Debug: Check if files exist and generate URLs
+            $latestAlumniPostsDebug = $latestAlumniPosts->map(function($post) {
+                $defaultDisk = config('filesystems.default');
+                $imageUrl = null;
+                $fileExists = false;
+                
+                if ($post->image_path) {
+                    if ($defaultDisk === 's3') {
+                        $imageUrl = Storage::disk('s3')->url($post->image_path);
+                        $fileExists = Storage::disk('s3')->exists($post->image_path);
+                    } else {
+                        $imageUrl = asset('storage/' . $post->image_path);
+                        $fileExists = Storage::disk('public')->exists($post->image_path);
+                    }
+                }
+                
+                return [
+                    'id' => $post->id,
+                    'image_path' => $post->image_path,
+                    'image_url' => $imageUrl,
+                    'file_exists' => $fileExists,
+                    'filesystem' => $defaultDisk,
+                ];
+            });
+            
             Log::info('Dashboard - Latest Alumni Posts:', [
                 'count' => $latestAlumniPosts->count(),
                 'image_paths' => $latestAlumniPosts->pluck('image_path')->toArray(),
+                'debug' => $latestAlumniPostsDebug->toArray(),
             ]);
             
             // Get upcoming events - events where event_date is today or in the future
@@ -59,9 +87,35 @@ class DashboardController extends Controller
                 ->take(3)
                 ->get();
             
+            // Debug: Check if files exist and generate URLs
+            $upcomingEventsDebug = $upcomingEvents->map(function($event) {
+                $defaultDisk = config('filesystems.default');
+                $imageUrl = null;
+                $fileExists = false;
+                
+                if ($event->image_path) {
+                    if ($defaultDisk === 's3') {
+                        $imageUrl = Storage::disk('s3')->url($event->image_path);
+                        $fileExists = Storage::disk('s3')->exists($event->image_path);
+                    } else {
+                        $imageUrl = asset('storage/' . $event->image_path);
+                        $fileExists = Storage::disk('public')->exists($event->image_path);
+                    }
+                }
+                
+                return [
+                    'id' => $event->id,
+                    'image_path' => $event->image_path,
+                    'image_url' => $imageUrl,
+                    'file_exists' => $fileExists,
+                    'filesystem' => $defaultDisk,
+                ];
+            });
+            
             Log::info('Dashboard - Upcoming Events:', [
                 'count' => $upcomingEvents->count(),
                 'image_paths' => $upcomingEvents->pluck('image_path')->toArray(),
+                'debug' => $upcomingEventsDebug->toArray(),
             ]);
             
             // Get completed events for the events section - only show events completed within the last 3 days

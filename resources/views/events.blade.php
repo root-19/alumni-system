@@ -22,8 +22,8 @@
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
                                 <img src="{{ $imageUrl }}" 
                                      alt="Event Image" 
-                                     class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-500" 
-                                     onerror="this.style.display='none'">
+                                     class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-500"
+                                     onerror="console.error('Image failed to load:', '{{ $imageUrl }}'); this.style.display='none';">
                             </a>
                         @else
                             <div class="w-full h-56 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
