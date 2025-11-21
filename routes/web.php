@@ -831,6 +831,34 @@ Route::get('/create-storage-link', function (Request $request) {
     }
 })->name('create.storage.link');
 
+// Fallback route to serve images directly if symlink doesn't work
+// This route serves files from storage/app/public when symlink fails
+Route::get('/storage/{path}', function ($path) {
+    $filePath = storage_path('app/public/' . $path);
+    
+    // Security: Prevent directory traversal
+    $realPath = realpath($filePath);
+    $storagePath = realpath(storage_path('app/public'));
+    
+    if (!$realPath || strpos($realPath, $storagePath) !== 0) {
+        abort(404);
+    }
+    
+    if (!file_exists($realPath)) {
+        abort(404);
+    }
+    
+    $mimeType = mime_content_type($realPath);
+    if (!$mimeType) {
+        $mimeType = 'application/octet-stream';
+    }
+    
+    return response()->file($realPath, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*')->name('storage.fallback');
+
 require __DIR__ . '/auth.php';
 
 
