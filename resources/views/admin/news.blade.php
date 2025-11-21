@@ -190,13 +190,7 @@
             @php($heroImage = $featuredNews?->image_path ?? $featuredAlumni?->image_path)
             <div class="relative">
                 @if($heroImage)
-                    @php
-                        $defaultDisk = config('filesystems.default');
-                        $imageUrl = $defaultDisk === 's3' 
-                            ? \Illuminate\Support\Facades\Storage::disk('s3')->url($heroImage)
-                            : asset('storage/' . $heroImage);
-                    @endphp
-                    <img src="{{ $imageUrl }}" alt="Hero" class="w-full h-72 object-cover" onerror="this.style.display='none'">
+                    <img src="{{ \Illuminate\Support\Facades\Storage::url($heroImage) }}" alt="Hero" class="w-full h-72 object-cover">
                 @endif
                 <div class="absolute inset-0 bg-black/40"></div>
                 <div class="absolute inset-0 flex items-end p-6">
@@ -218,14 +212,8 @@
                     <article class="bg-white rounded-2xl shadow overflow-hidden">
                         <div class="grid md:grid-cols-3">
                             @if($item->image_path)
-                                @php
-                                    $defaultDisk = config('filesystems.default');
-                                    $imageUrl = $defaultDisk === 's3' 
-                                        ? \Illuminate\Support\Facades\Storage::disk('s3')->url($item->image_path)
-                                        : asset('storage/' . $item->image_path);
-                                @endphp
                                 <div>
-                                    <img src="{{ $imageUrl }}" alt="{{ $item->title }}" class="w-full h-44 md:h-full object-cover" onerror="this.style.display='none'">
+                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($item->image_path) }}" alt="{{ $item->title }}" class="w-full h-44 md:h-full object-cover">
                                 </div>
                             @endif
                             <div class="md:col-span-2 p-6 space-y-2">
@@ -247,13 +235,7 @@
                 @foreach($alumniPosts as $post)
                     <article class="bg-white rounded-2xl shadow p-4">
                         @if($post->image_path)
-                            @php
-                                $defaultDisk = config('filesystems.default');
-                                $imageUrl = $defaultDisk === 's3' 
-                                    ? \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path)
-                                    : asset('storage/' . $post->image_path);
-                            @endphp
-                            <img src="{{ $imageUrl }}" class="w-full h-48 object-cover rounded-xl" alt="" onerror="this.style.display='none'">
+                            <img src="{{ \Illuminate\Support\Facades\Storage::url($post->image_path) }}" class="w-full h-48 object-cover rounded-xl" alt="">
                         @endif
                         <p class="text-xs md:text-sm font-semibold text-gray-800 text-center uppercase tracking-wide mt-3">
                             {{ strtoupper(\Illuminate\Support\Str::limit(strip_tags($post->content), 60)) }}
