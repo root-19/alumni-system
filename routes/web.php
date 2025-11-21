@@ -632,12 +632,36 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Temporary Storage Symlink Route (Remove after use!)
+| Storage Symlink Routes (Remove after use!)
 |--------------------------------------------------------------------------
-| This route creates the storage symlink programmatically.
-| Access: /create-storage-link (NO TOKEN NEEDED - Simplified for easy access)
-| After creating the symlink, REMOVE THIS ROUTE for security.
+| These routes help diagnose and fix storage symlink issues.
+| Access: /create-storage-link or /check-storage-link
+| After fixing, REMOVE THESE ROUTES for security.
 */
+
+// Check storage symlink status
+Route::get('/check-storage-link', function () {
+    $publicStoragePath = public_path('storage');
+    $targetPath = storage_path('app/public');
+    $testImagePath = 'news_images/9sror8oPVh4cK0tSoiItIWHMLe3t5S5bNl81eom2.png';
+    
+    $status = [
+        'symlink_exists' => file_exists($publicStoragePath),
+        'is_symlink' => is_link($publicStoragePath),
+        'is_directory' => is_dir($publicStoragePath),
+        'symlink_target' => is_link($publicStoragePath) ? readlink($publicStoragePath) : null,
+        'target_exists' => is_dir($targetPath),
+        'test_image_exists_in_storage' => file_exists($targetPath . '/' . $testImagePath),
+        'test_image_exists_via_symlink' => file_exists($publicStoragePath . '/' . $testImagePath),
+        'test_image_url' => asset('storage/' . $testImagePath),
+        'public_storage_path' => $publicStoragePath,
+        'target_path' => $targetPath,
+    ];
+    
+    return response()->json($status, 200, [], JSON_PRETTY_PRINT);
+});
+
+// Create storage symlink
 Route::get('/create-storage-link', function (Request $request) {
     // Simple route - no token required for now (remove after use!)
     // TODO: Add authentication or remove this route after symlink is created
