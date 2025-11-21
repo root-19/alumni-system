@@ -33,8 +33,16 @@
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
                                         @if($post->image_path)
+                                            @php
+                                                $defaultDisk = config('filesystems.default');
+                                                if ($defaultDisk === 's3') {
+                                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
+                                                } else {
+                                                    $imageUrl = asset('storage/' . $post->image_path);
+                                                }
+                                            @endphp
                                             <img class="h-16 w-24 object-cover rounded-lg mr-4 border border-gray-200" 
-                                                 src="{{ asset('storage/' . $post->image_path) }}" alt="Event">
+                                                 src="{{ $imageUrl }}" alt="Event" onerror="this.style.display='none'">
                                         @else
                                             <div class="h-16 w-24 bg-gray-200 rounded-lg mr-4 flex items-center justify-center">
                                                 <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,8 +155,16 @@
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
                                         @if($post->image_path)
+                                            @php
+                                                $defaultDisk = config('filesystems.default');
+                                                if ($defaultDisk === 's3') {
+                                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
+                                                } else {
+                                                    $imageUrl = asset('storage/' . $post->image_path);
+                                                }
+                                            @endphp
                                             <img class="h-16 w-24 object-cover rounded-lg mr-4 border border-gray-200 grayscale" 
-                                                 src="{{ asset('storage/' . $post->image_path) }}" alt="Event">
+                                                 src="{{ $imageUrl }}" alt="Event" onerror="this.style.display='none'">
                                         @else
                                             <div class="h-16 w-24 bg-gray-200 rounded-lg mr-4 flex items-center justify-center">
                                                 <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

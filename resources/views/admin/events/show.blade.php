@@ -15,9 +15,18 @@
         {{-- Event Card --}}
         <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
             @if($post->image_path)
-                <img src="{{ asset('storage/' . $post->image_path) }}" 
+                @php
+                    $defaultDisk = config('filesystems.default');
+                    if ($defaultDisk === 's3') {
+                        $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
+                    } else {
+                        $imageUrl = asset('storage/' . $post->image_path);
+                    }
+                @endphp
+                <img src="{{ $imageUrl }}" 
                      alt="Event Image" 
-                     class="w-full h-72 object-cover rounded-xl mb-5 shadow-sm">
+                     class="w-full h-72 object-cover rounded-xl mb-5 shadow-sm" 
+                     onerror="this.style.display='none'">
             @endif
 
             <h1 class="text-2xl font-bold text-gray-900 leading-snug mb-3">

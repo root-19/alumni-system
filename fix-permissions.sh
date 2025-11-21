@@ -46,10 +46,25 @@ chmod -R 775 storage/app/public
 echo "✓ Storage subdirectories created"
 echo ""
 
+# Remove existing symlink if it exists (broken or incorrect)
+echo "Removing existing storage symlink if exists..."
+rm -f public/storage
+echo "✓ Old symlink removed"
+echo ""
+
 # Recreate storage symlink
 echo "Recreating storage symlink..."
 php artisan storage:link
 echo "✓ Storage symlink recreated"
+echo ""
+
+# Verify symlink exists
+if [ -L "public/storage" ]; then
+    echo "✓ Storage symlink verified successfully"
+else
+    echo "⚠ WARNING: Storage symlink was not created properly!"
+    echo "  Please run 'php artisan storage:link' manually"
+fi
 echo ""
 
 # Clear all caches

@@ -19,9 +19,20 @@ echo "Setting storage permissions..."
 chmod -R 775 storage
 chmod -R 775 bootstrap/cache
 
+# Remove existing symlink if it exists (broken or incorrect)
+echo "Removing existing storage symlink if exists..."
+rm -f public/storage
+
 # Create storage symlink (important for images!)
 echo "Creating storage symlink..."
 php artisan storage:link || true
+
+# Verify symlink exists
+if [ -L "public/storage" ]; then
+    echo "✓ Storage symlink verified successfully"
+else
+    echo "⚠ WARNING: Storage symlink was not created properly!"
+fi
 
 # Clear caches
 echo "Clearing caches..."
