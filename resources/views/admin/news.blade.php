@@ -197,7 +197,8 @@
                         if ($defaultDisk === 's3') {
                             $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($heroImage);
                         } else {
-                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($heroImage);
+                            // For local storage, use asset() which works with the storage symlink
+                            $imageUrl = asset('storage/' . $heroImage);
                         }
                     @endphp
                     <img src="{{ $imageUrl }}" alt="Hero" class="w-full h-72 object-cover" onerror="this.style.display='none'">
@@ -227,7 +228,8 @@
                                     if ($defaultDisk === 's3') {
                                         $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($item->image_path);
                                     } else {
-                                        $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($item->image_path);
+                                        // For local storage, use asset() which works with the storage symlink
+                                        $imageUrl = asset('storage/' . $item->image_path);
                                     }
                                 @endphp
                                 <div>
@@ -258,7 +260,8 @@
                                 if ($defaultDisk === 's3') {
                                     $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
                                 } else {
-                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($post->image_path);
+                                    // For local storage, use asset() which works with the storage symlink
+                                    $imageUrl = asset('storage/' . $post->image_path);
                                 }
                             @endphp
                             <img src="{{ $imageUrl }}" class="w-full h-48 object-cover rounded-xl" alt="" onerror="this.style.display='none'">
