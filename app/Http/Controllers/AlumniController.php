@@ -109,33 +109,13 @@ class AlumniController extends Controller
         // Handle image upload if provided
         if ($request->hasFile('image')) {
                 try {
-                    // Use Cloudinary for image uploads
-                    $cloudinaryConfigured = ImageHelper::isCloudinaryConfigured();
-                    
-                    \Log::info('AlumniController (store) - Cloudinary check result:', [
-                        'configured' => $cloudinaryConfigured,
-                        'filesystem_default' => config('filesystems.default'),
+                    // Store in public storage
+                    $imagePath = $request->file('image')->store('alumni-posts', 'public');
+                    $data['image_path'] = $imagePath;
+                    \Log::info('Event image stored successfully to local storage:', [
+                        'path' => $imagePath,
+                        'disk' => 'public',
                     ]);
-                    
-                    if ($cloudinaryConfigured) {
-                        // Store in Cloudinary
-                        \Log::info('Storing event image to Cloudinary');
-                        $imagePath = $request->file('image')->store('alumni-posts', 'cloudinary');
-                        $data['image_path'] = $imagePath;
-                        \Log::info('Event image stored successfully to Cloudinary:', [
-                            'path' => $imagePath,
-                            'disk' => 'cloudinary',
-                        ]);
-                    } else {
-                        // Fallback to local storage
-                        \Log::info('Cloudinary not configured, storing event image to local storage');
-                        $imagePath = $request->file('image')->store('alumni-posts', 'public');
-                        $data['image_path'] = $imagePath;
-                        \Log::info('Event image stored successfully to local storage:', [
-                            'path' => $imagePath,
-                            'disk' => 'public',
-                        ]);
-                    }
                 } catch (\Exception $e) {
                     \Log::error('Error storing event image: ' . $e->getMessage());
                     \Log::error('Stack trace: ' . $e->getTraceAsString());
@@ -308,39 +288,14 @@ class AlumniController extends Controller
 
         // Handle image upload if provided
         if ($request->hasFile('image')) {
-            // Use Cloudinary for image uploads
-            $cloudinaryConfigured = ImageHelper::isCloudinaryConfigured();
-            
-            \Log::info('AlumniController (update) - Cloudinary check result:', [
-                'configured' => $cloudinaryConfigured,
-                'filesystem_default' => config('filesystems.default'),
-            ]);
-            
-            if ($cloudinaryConfigured) {
-                // Delete old image from Cloudinary if exists
-                if ($post->image_path) {
-                    try {
-                        if (\Storage::disk('cloudinary')->exists($post->image_path)) {
-                            \Storage::disk('cloudinary')->delete($post->image_path);
-                        }
-                    } catch (\Exception $e) {
-                        \Log::warning('Could not delete old image from Cloudinary: ' . $e->getMessage());
-                    }
-                }
-                
-                // Store in Cloudinary
-                $imagePath = $request->file('image')->store('alumni-posts', 'cloudinary');
-                $data['image_path'] = $imagePath;
-            } else {
-                // Delete old image from local storage if exists
-                if ($post->image_path && \Storage::disk('public')->exists($post->image_path)) {
-                    \Storage::disk('public')->delete($post->image_path);
-                }
-                
-                // Store in local storage
-                $imagePath = $request->file('image')->store('alumni-posts', 'public');
-                $data['image_path'] = $imagePath;
+            // Delete old image from local storage if exists
+            if ($post->image_path && \Storage::disk('public')->exists($post->image_path)) {
+                \Storage::disk('public')->delete($post->image_path);
             }
+            
+            // Store in public storage
+            $imagePath = $request->file('image')->store('alumni-posts', 'public');
+            $data['image_path'] = $imagePath;
         }
 
         $post->update($data);

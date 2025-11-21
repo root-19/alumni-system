@@ -187,17 +187,10 @@
 
         <!-- Hero with overlay: uses latest news/alumni image; text shows News and Updates and latest news title if present -->
         <section class="rounded-2xl shadow overflow-hidden">
-            @php
-                $heroImage = $featuredNews?->image_path ?? $featuredAlumni?->image_path;
-                $heroImageUrl = $heroImage ? \App\Helpers\ImageHelper::getImageUrl($heroImage) : null;
-            @endphp
+            @php($heroImage = $featuredNews?->image_path ?? $featuredAlumni?->image_path)
             <div class="relative">
-                @if($heroImageUrl)
-                        <img src="{{ $imageUrl }}" 
-                             alt="Hero" 
-                             class="w-full h-72 object-cover"
-                             onerror="this.onerror=null; this.src='{{ asset('storage/' . $heroImage) }}';">
-                    @endif
+                @if($heroImage)
+                    <img src="{{ asset('storage/'.$heroImage) }}" alt="Hero" class="w-full h-72 object-cover">
                 @endif
                 <div class="absolute inset-0 bg-black/40"></div>
                 <div class="absolute inset-0 flex items-end p-6">
@@ -219,15 +212,9 @@
                     <article class="bg-white rounded-2xl shadow overflow-hidden">
                         <div class="grid md:grid-cols-3">
                             @if($item->image_path)
-                                @php($imageUrl = \App\Helpers\ImageHelper::getImageUrl($item->image_path))
-                                @if($imageUrl)
                                 <div>
-                                        <img src="{{ $imageUrl }}" 
-                                             alt="{{ $item->title }}" 
-                                             class="w-full h-44 md:h-full object-cover"
-                                             onerror="this.onerror=null; this.src='{{ asset('storage/' . $item->image_path) }}';">
+                                    <img src="{{ asset('storage/'.$item->image_path) }}" alt="{{ $item->title }}" class="w-full h-44 md:h-full object-cover">
                                 </div>
-                                @endif
                             @endif
                             <div class="md:col-span-2 p-6 space-y-2">
                                 <h3 class="text-lg font-semibold text-gray-900">{{ $item->title }}</h3>
@@ -248,13 +235,7 @@
                 @foreach($alumniPosts as $post)
                     <article class="bg-white rounded-2xl shadow p-4">
                         @if($post->image_path)
-                            @php($imageUrl = \App\Helpers\ImageHelper::getImageUrl($post->image_path))
-                            @if($imageUrl)
-                                <img src="{{ $imageUrl }}" 
-                                     class="w-full h-48 object-cover rounded-xl" 
-                                     alt=""
-                                     onerror="this.onerror=null; this.src='{{ asset('storage/' . $post->image_path) }}';">
-                            @endif
+                            <img src="{{ asset('storage/'.$post->image_path) }}" class="w-full h-48 object-cover rounded-xl" alt="">
                         @endif
                         <p class="text-xs md:text-sm font-semibold text-gray-800 text-center uppercase tracking-wide mt-3">
                             {{ strtoupper(\Illuminate\Support\Str::limit(strip_tags($post->content), 60)) }}

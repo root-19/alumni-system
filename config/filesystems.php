@@ -1,23 +1,5 @@
 <?php
 
-// Parse CLOUDINARY_URL if individual env vars are not set
-$cloudinaryUrl = env('CLOUDINARY_URL');
-$cloudinaryApiKey = env('CLOUDINARY_API_KEY');
-$cloudinaryApiSecret = env('CLOUDINARY_API_SECRET');
-$cloudinaryCloudName = env('CLOUDINARY_CLOUD_NAME');
-
-if (!$cloudinaryApiKey && $cloudinaryUrl && preg_match('/cloudinary:\/\/([^:]+):/', $cloudinaryUrl, $matches)) {
-    $cloudinaryApiKey = $matches[1];
-}
-
-if (!$cloudinaryApiSecret && $cloudinaryUrl && preg_match('/cloudinary:\/\/[^:]+:([^@]+)@/', $cloudinaryUrl, $matches)) {
-    $cloudinaryApiSecret = $matches[1];
-}
-
-if (!$cloudinaryCloudName && $cloudinaryUrl && preg_match('/cloudinary:\/\/[^@]+@([^\/]+)/', $cloudinaryUrl, $matches)) {
-    $cloudinaryCloudName = $matches[1];
-}
-
 return [
 
     /*
@@ -31,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('FILESYSTEM_DISK', 'cloudinary'),
+    'default' => env('FILESYSTEM_DISK', 'public'),
 
     /*
     |--------------------------------------------------------------------------
@@ -78,15 +60,6 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
             'report' => false,
-        ],
-
-        // Cloudinary Storage
-        'cloudinary' => [
-            'driver' => 'cloudinary',
-            'api_key' => $cloudinaryApiKey,
-            'api_secret' => $cloudinaryApiSecret,
-            'cloud_name' => $cloudinaryCloudName,
-            'secure' => true,
         ],
 
     ],

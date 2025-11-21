@@ -33,31 +33,12 @@ class NewsController extends Controller
         $imagePath = null;
         if ($request->hasFile('image')) {
                 try {
-                    // Use Cloudinary for image uploads
-                    $cloudinaryConfigured = ImageHelper::isCloudinaryConfigured();
-                    
-                    \Log::info('NewsController - Cloudinary check result:', [
-                        'configured' => $cloudinaryConfigured,
-                        'filesystem_default' => config('filesystems.default'),
+                    // Store in public storage
+                    $imagePath = $request->file('image')->store('news_images', 'public');
+                    \Log::info('Image stored successfully to local storage:', [
+                        'path' => $imagePath,
+                        'disk' => 'public',
                     ]);
-                    
-                    if ($cloudinaryConfigured) {
-                        // Store in Cloudinary
-                        \Log::info('Storing image to Cloudinary');
-                        $imagePath = $request->file('image')->store('news_images', 'cloudinary');
-                        \Log::info('Image stored successfully to Cloudinary:', [
-                            'path' => $imagePath,
-                            'disk' => 'cloudinary',
-                        ]);
-                    } else {
-                        // Fallback to local storage
-                        \Log::info('Cloudinary not configured, storing image to local storage');
-                        $imagePath = $request->file('image')->store('news_images', 'public');
-                        \Log::info('Image stored successfully to local storage:', [
-                            'path' => $imagePath,
-                            'disk' => 'public',
-                        ]);
-                    }
                 } catch (\Exception $e) {
                     \Log::error('Error storing image: ' . $e->getMessage());
                     \Log::error('Stack trace: ' . $e->getTraceAsString());
