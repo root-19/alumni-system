@@ -193,9 +193,12 @@
                     @php
                         // Use public disk for local storage, or default for S3
                         $defaultDisk = config('filesystems.default');
-                        $imageUrl = $defaultDisk === 's3' 
-                            ? \Illuminate\Support\Facades\Storage::disk('s3')->url($heroImage)
-                            : asset('storage/' . $heroImage);
+                        if ($defaultDisk === 's3') {
+                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($heroImage);
+                        } else {
+                            // For local storage, use Storage::disk('public')->url() which handles the path correctly
+                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($heroImage);
+                        }
                     @endphp
                     <img src="{{ $imageUrl }}" alt="Hero" class="w-full h-72 object-cover" onerror="this.style.display='none'">
                 @endif
@@ -222,9 +225,12 @@
                                 @php
                                     // Use public disk for local storage, or default for S3
                                     $defaultDisk = config('filesystems.default');
-                                    $imageUrl = $defaultDisk === 's3' 
-                                        ? \Illuminate\Support\Facades\Storage::disk('s3')->url($item->image_path)
-                                        : asset('storage/' . $item->image_path);
+                                    if ($defaultDisk === 's3') {
+                                        $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($item->image_path);
+                                    } else {
+                                        // For local storage, use Storage::disk('public')->url() which handles the path correctly
+                                        $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($item->image_path);
+                                    }
                                 @endphp
                                 <div>
                                     <img src="{{ $imageUrl }}" alt="{{ $item->title }}" class="w-full h-44 md:h-full object-cover" onerror="this.style.display='none'">
@@ -252,9 +258,12 @@
                             @php
                                 // Use public disk for local storage, or default for S3
                                 $defaultDisk = config('filesystems.default');
-                                $imageUrl = $defaultDisk === 's3' 
-                                    ? \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path)
-                                    : asset('storage/' . $post->image_path);
+                                if ($defaultDisk === 's3') {
+                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
+                                } else {
+                                    // For local storage, use Storage::disk('public')->url() which handles the path correctly
+                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($post->image_path);
+                                }
                             @endphp
                             <img src="{{ $imageUrl }}" class="w-full h-48 object-cover rounded-xl" alt="" onerror="this.style.display='none'">
                         @endif
