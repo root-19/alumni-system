@@ -24,18 +24,9 @@
                         @foreach($upcomingEvents as $event)
                             <div class="flex gap-3 mb-3 last:mb-0">
                                 @if($event->image_path)
-                                    @php
-                                        $defaultDisk = config('filesystems.default');
-                                        if ($defaultDisk === 's3') {
-                                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($event->image_path);
-                                        } else {
-                                            $imageUrl = asset('storage/' . $event->image_path);
-                                        }
-                                    @endphp
-                                    <img src="{{ $imageUrl }}" 
+                                    <img src="{{ asset('storage/' . $event->image_path) }}" 
                                          alt="Event Image" 
-                                         class="w-16 h-16 rounded-md object-cover"
-                                         onerror="console.error('Image failed to load:', '{{ $imageUrl }}'); this.style.display='none';">
+                                         class="w-16 h-16 rounded-md object-cover">
                                 @else
                                     <div class="w-16 h-16 rounded-md bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
                                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,18 +107,9 @@
                             @foreach($events as $event)
                                 <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                                     @if($event->image_path)
-                                        @php
-                                            $defaultDisk = config('filesystems.default');
-                                            if ($defaultDisk === 's3') {
-                                                $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($event->image_path);
-                                            } else {
-                                                $imageUrl = asset('storage/' . $event->image_path);
-                                            }
-                                        @endphp
-                                        <img src="{{ $imageUrl }}" 
+                                        <img src="{{ asset('storage/' . $event->image_path) }}" 
                                              alt="Event Image" 
-                                             class="w-12 h-12 rounded-md object-cover"
-                                             onerror="console.error('Image failed to load:', '{{ $imageUrl }}'); this.style.display='none';">
+                                             class="w-12 h-12 rounded-md object-cover">
                                     @else
                                         <div class="w-12 h-12 rounded-md bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
                                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -212,18 +194,9 @@
             @if(isset($featuredNews) && $featuredNews)
             <div class="relative overflow-hidden rounded-2xl shadow-xl">
                 @if($featuredNews->image_path)
-                    @php
-                        $defaultDisk = config('filesystems.default');
-                        if ($defaultDisk === 's3') {
-                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($featuredNews->image_path);
-                        } else {
-                            $imageUrl = asset('storage/' . $featuredNews->image_path);
-                        }
-                    @endphp
-                    <img src="{{ $imageUrl }}" 
+                    <img src="{{ asset('storage/' . $featuredNews->image_path) }}" 
                          alt="{{ $featuredNews->title }}" 
-                         class="w-full h-96 object-cover" 
-                         onerror="this.style.display='none'">
+                         class="w-full h-96 object-cover">
                 @else
                     <div class="w-full h-96 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
                         <div class="text-white text-center">
@@ -260,18 +233,9 @@
                     <article class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
                         <div class="relative">
                             @if($post->image_path)
-                                @php
-                                    $defaultDisk = config('filesystems.default');
-                                    if ($defaultDisk === 's3') {
-                                        $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
-                                    } else {
-                                        $imageUrl = asset('storage/' . $post->image_path);
-                                    }
-                                @endphp
-                                <img src="{{ $imageUrl }}" 
+                                <img src="{{ asset('storage/' . $post->image_path) }}" 
                                      alt="Alumni Post {{ $index + 1 }}" 
-                                     class="w-full h-48 object-cover" 
-                                     onerror="this.style.display='none'">
+                                     class="w-full h-48 object-cover">
                             @else
                                 <div class="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                                     <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
