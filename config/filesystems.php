@@ -1,5 +1,23 @@
 <?php
 
+// Parse CLOUDINARY_URL if individual env vars are not set
+$cloudinaryUrl = env('CLOUDINARY_URL');
+$cloudinaryApiKey = env('CLOUDINARY_API_KEY');
+$cloudinaryApiSecret = env('CLOUDINARY_API_SECRET');
+$cloudinaryCloudName = env('CLOUDINARY_CLOUD_NAME');
+
+if (!$cloudinaryApiKey && $cloudinaryUrl && preg_match('/cloudinary:\/\/([^:]+):/', $cloudinaryUrl, $matches)) {
+    $cloudinaryApiKey = $matches[1];
+}
+
+if (!$cloudinaryApiSecret && $cloudinaryUrl && preg_match('/cloudinary:\/\/[^:]+:([^@]+)@/', $cloudinaryUrl, $matches)) {
+    $cloudinaryApiSecret = $matches[1];
+}
+
+if (!$cloudinaryCloudName && $cloudinaryUrl && preg_match('/cloudinary:\/\/[^@]+@([^\/]+)/', $cloudinaryUrl, $matches)) {
+    $cloudinaryCloudName = $matches[1];
+}
+
 return [
 
     /*
@@ -65,9 +83,9 @@ return [
         // Cloudinary Storage
         'cloudinary' => [
             'driver' => 'cloudinary',
-            'api_key' => env('CLOUDINARY_API_KEY'),
-            'api_secret' => env('CLOUDINARY_API_SECRET'),
-            'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+            'api_key' => $cloudinaryApiKey,
+            'api_secret' => $cloudinaryApiSecret,
+            'cloud_name' => $cloudinaryCloudName,
             'secure' => true,
         ],
 

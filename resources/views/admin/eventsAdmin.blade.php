@@ -35,26 +35,50 @@
                                         @if($post->image_path)
                                             @php
                                                 $imageUrl = null;
+                                                // Check if Cloudinary is configured (individual vars or CLOUDINARY_URL)
+                                                $cloudinaryConfigured = false;
+                                                if (!empty(env('CLOUDINARY_CLOUD_NAME')) && !empty(env('CLOUDINARY_API_KEY'))) {
+                                                    $cloudinaryConfigured = true;
+                                                } elseif (!empty(env('CLOUDINARY_URL'))) {
+                                                    // Check if CLOUDINARY_URL is valid
+                                                    $cloudinaryUrl = env('CLOUDINARY_URL');
+                                                    if (preg_match('/cloudinary:\/\/([^:]+):([^@]+)@([^\/]+)/', $cloudinaryUrl)) {
+                                                        $cloudinaryConfigured = true;
+                                                    }
+                                                }
                                                 $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
                                                 
                                                 // Debug: Log the image path
                                                 \Log::info('EventsAdmin - Displaying image:', [
                                                     'image_path' => $post->image_path,
+                                                    'cloudinary_configured' => $cloudinaryConfigured,
                                                     's3_configured' => $s3Configured,
                                                 ]);
                                                 
-                                                // Try S3 first if configured
-                                                if ($s3Configured) {
+                                                // Try Cloudinary first if configured
+                                                if ($cloudinaryConfigured) {
+                                                    try {
+                                                        $imageUrl = \Illuminate\Support\Facades\Storage::disk('cloudinary')->url($post->image_path);
+                                                        \Log::info('EventsAdmin - Using Cloudinary URL:', ['url' => $imageUrl]);
+                                                    } catch (\Exception $e) {
+                                                        // Cloudinary error, fall through
+                                                        \Log::info('EventsAdmin - Cloudinary failed:', ['error' => $e->getMessage()]);
+                                                    }
+                                                }
+                                                
+                                                // Try S3 if Cloudinary not configured or failed
+                                                if (!$imageUrl && $s3Configured) {
                                                     try {
                                                         $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
                                                         \Log::info('EventsAdmin - Using S3 URL:', ['url' => $imageUrl]);
                                                     } catch (\Exception $e) {
                                                         // S3 error, fall through to local storage
-                                                        $imageUrl = asset('storage/' . $post->image_path);
-                                                        \Log::info('EventsAdmin - S3 failed, using local URL:', ['url' => $imageUrl]);
+                                                        \Log::info('EventsAdmin - S3 failed:', ['error' => $e->getMessage()]);
                                                     }
-                                                } else {
-                                                    // Use local storage directly
+                                                }
+                                                
+                                                // Fallback to local storage
+                                                if (!$imageUrl) {
                                                     $imageUrl = asset('storage/' . $post->image_path);
                                                     \Log::info('EventsAdmin - Using local storage URL:', [
                                                         'url' => $imageUrl,
