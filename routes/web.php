@@ -702,35 +702,63 @@ Route::get('/create-storage-link', function (Request $request) {
             $messages[] = "✓ Target directory exists: $targetPath";
         }
         
-        // Step 3: Create the symlink
+        // Step 3: Create the symlink (use RELATIVE path for web server compatibility)
         $messages[] = "Creating symlink: public/storage -> storage/app/public";
         
-        // Try using artisan command first
+        // Calculate relative path from public/ to storage/app/public
+        $relativeTarget = '../storage/app/public';
+        
+        // Try using artisan command first (creates relative symlink)
         $artisanPath = base_path('artisan');
         if (file_exists($artisanPath)) {
+            // Change to public directory to create relative symlink
+            $originalDir = getcwd();
+            chdir(public_path());
+            
             $output = [];
             $returnVar = 0;
-            exec("php $artisanPath storage:link 2>&1", $output, $returnVar);
+            exec("php ../artisan storage:link 2>&1", $output, $returnVar);
+            
+            chdir($originalDir);
             
             if ($returnVar === 0 && is_link($publicStoragePath)) {
+                $linkTarget = readlink($publicStoragePath);
                 $messages[] = "✓ Symlink created successfully using artisan";
-                $messages[] = "Link: " . readlink($publicStoragePath);
+                $messages[] = "Link: " . $linkTarget;
+                
+                // Check if it's relative (should be ../storage/app/public)
+                if (strpos($linkTarget, '../') === 0 || strpos($linkTarget, '..\\') === 0) {
+                    $messages[] = "✓ Using relative path (correct for web servers)";
+                } else {
+                    $messages[] = "⚠ Warning: Using absolute path, recreating with relative path...";
+                    // Remove and recreate with relative path
+                    unlink($publicStoragePath);
+                    chdir(public_path());
+                    if (symlink($relativeTarget, 'storage')) {
+                        $messages[] = "✓ Recreated with relative path";
+                    }
+                    chdir($originalDir);
+                }
             } else {
-                // Fallback to manual symlink creation
-                $messages[] = "Artisan command failed, trying manual symlink creation...";
-                if (symlink($targetPath, $publicStoragePath)) {
-                    $messages[] = "✓ Symlink created successfully manually";
+                // Fallback to manual symlink creation with relative path
+                $messages[] = "Artisan command failed, trying manual symlink creation with relative path...";
+                chdir(public_path());
+                if (symlink($relativeTarget, 'storage')) {
+                    $messages[] = "✓ Symlink created successfully manually with relative path";
                 } else {
                     $errors[] = "Failed to create symlink. Check file permissions.";
                 }
+                chdir($originalDir);
             }
         } else {
-            // Manual symlink creation
-            if (symlink($targetPath, $publicStoragePath)) {
-                $messages[] = "✓ Symlink created successfully";
+            // Manual symlink creation with relative path
+            chdir(public_path());
+            if (symlink($relativeTarget, 'storage')) {
+                $messages[] = "✓ Symlink created successfully with relative path";
             } else {
                 $errors[] = "Failed to create symlink. Check file permissions.";
             }
+            chdir($originalDir);
         }
         
         // Step 4: Verify the symlink
