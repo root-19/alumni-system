@@ -47,7 +47,12 @@
                                     <img src="{{ $imageUrl }}" 
                                          alt="Event Image" 
                                          class="w-16 h-16 rounded-md object-cover"
-                                         onerror="this.onerror=null; this.src='{{ asset('storage/' . $event->image_path) }}';">
+                                         onerror="console.error('Image 404:', '{{ $imageUrl }}'); this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <div class="w-16 h-16 rounded-md bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center" style="display:none;">
+                                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
                                 @else
                                     <div class="w-16 h-16 rounded-md bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
                                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
