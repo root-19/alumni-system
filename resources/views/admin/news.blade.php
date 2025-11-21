@@ -192,11 +192,7 @@
                 @if($heroImage)
                     @php
                         $defaultDisk = config('filesystems.default');
-                        if ($defaultDisk === 's3') {
-                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($heroImage);
-                        } else {
-                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($heroImage);
-                        }
+                        $imageUrl = ($defaultDisk === 's3') ? \Illuminate\Support\Facades\Storage::disk('s3')->url($heroImage) : \Illuminate\Support\Facades\Storage::disk('public')->url($heroImage);
                     @endphp
                     <img src="{{ $imageUrl }}" alt="Hero" class="w-full h-72 object-cover" onerror="this.style.display='none'">
                 @endif
@@ -222,11 +218,7 @@
                             @if($item->image_path)
                                 @php
                                     $defaultDisk = config('filesystems.default');
-                                    if ($defaultDisk === 's3') {
-                                        $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($item->image_path);
-                                    } else {
-                                        $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($item->image_path);
-                                    }
+                                    $imageUrl = ($defaultDisk === 's3') ? \Illuminate\Support\Facades\Storage::disk('s3')->url($item->image_path) : \Illuminate\Support\Facades\Storage::disk('public')->url($item->image_path);
                                 @endphp
                                 <div>
                                     <img src="{{ $imageUrl }}" alt="{{ $item->title }}" class="w-full h-44 md:h-full object-cover" onerror="this.style.display='none'">
@@ -253,11 +245,7 @@
                         @if($post->image_path)
                             @php
                                 $defaultDisk = config('filesystems.default');
-                                if ($defaultDisk === 's3') {
-                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
-                                } else {
-                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($post->image_path);
-                                }
+                                $imageUrl = ($defaultDisk === 's3') ? \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path) : \Illuminate\Support\Facades\Storage::disk('public')->url($post->image_path);
                             @endphp
                             <img src="{{ $imageUrl }}" class="w-full h-48 object-cover rounded-xl" alt="" onerror="this.style.display='none'">
                         @endif
