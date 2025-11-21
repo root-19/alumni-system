@@ -189,40 +189,10 @@
         <section class="rounded-2xl shadow overflow-hidden">
             @php
                 $heroImage = $featuredNews?->image_path ?? $featuredAlumni?->image_path;
+                $heroImageUrl = $heroImage ? \App\Helpers\ImageHelper::getImageUrl($heroImage) : null;
             @endphp
             <div class="relative">
-                @if($heroImage)
-                    @php
-                        $imageUrl = null;
-                        $cloudinaryConfigured = !empty(env('CLOUDINARY_CLOUD_NAME')) && !empty(env('CLOUDINARY_API_KEY'));
-                        $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
-                        
-                        if ($heroImage) {
-                            // Try Cloudinary first if configured
-                            if ($cloudinaryConfigured) {
-                                try {
-                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('cloudinary')->url($heroImage);
-                                } catch (\Exception $e) {
-                                    // Cloudinary error, fall through
-                                }
-                            }
-                            
-                            // Try S3 if Cloudinary not configured or failed
-                            if (!$imageUrl && $s3Configured) {
-                                try {
-                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($heroImage);
-                                } catch (\Exception $e) {
-                                    // S3 error, fall through
-                                }
-                            }
-                            
-                            // Fallback to local storage
-                            if (!$imageUrl) {
-                                $imageUrl = asset('storage/' . $heroImage);
-                            }
-                        }
-                    @endphp
-                    @if($imageUrl)
+                @if($heroImageUrl)
                         <img src="{{ $imageUrl }}" 
                              alt="Hero" 
                              class="w-full h-72 object-cover"
@@ -249,36 +219,7 @@
                     <article class="bg-white rounded-2xl shadow overflow-hidden">
                         <div class="grid md:grid-cols-3">
                             @if($item->image_path)
-                                @php
-                                    $imageUrl = null;
-                                    $cloudinaryConfigured = !empty(env('CLOUDINARY_CLOUD_NAME')) && !empty(env('CLOUDINARY_API_KEY'));
-                                    $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
-                                    
-                                    if ($item->image_path) {
-                                        // Try Cloudinary first if configured
-                                        if ($cloudinaryConfigured) {
-                                            try {
-                                                $imageUrl = \Illuminate\Support\Facades\Storage::disk('cloudinary')->url($item->image_path);
-                                            } catch (\Exception $e) {
-                                                // Cloudinary error, fall through
-                                            }
-                                        }
-                                        
-                                        // Try S3 if Cloudinary not configured or failed
-                                        if (!$imageUrl && $s3Configured) {
-                                            try {
-                                                $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($item->image_path);
-                                            } catch (\Exception $e) {
-                                                // S3 error, fall through
-                                            }
-                                        }
-                                        
-                                        // Fallback to local storage
-                                        if (!$imageUrl) {
-                                            $imageUrl = asset('storage/' . $item->image_path);
-                                        }
-                                    }
-                                @endphp
+                                @php($imageUrl = \App\Helpers\ImageHelper::getImageUrl($item->image_path))
                                 @if($imageUrl)
                                 <div>
                                         <img src="{{ $imageUrl }}" 
@@ -307,36 +248,7 @@
                 @foreach($alumniPosts as $post)
                     <article class="bg-white rounded-2xl shadow p-4">
                         @if($post->image_path)
-                            @php
-                                $imageUrl = null;
-                                $cloudinaryConfigured = !empty(env('CLOUDINARY_CLOUD_NAME')) && !empty(env('CLOUDINARY_API_KEY'));
-                                $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
-                                
-                                if ($post->image_path) {
-                                    // Try Cloudinary first if configured
-                                    if ($cloudinaryConfigured) {
-                                        try {
-                                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('cloudinary')->url($post->image_path);
-                                        } catch (\Exception $e) {
-                                            // Cloudinary error, fall through
-                                        }
-                                    }
-                                    
-                                    // Try S3 if Cloudinary not configured or failed
-                                    if (!$imageUrl && $s3Configured) {
-                                        try {
-                                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
-                                        } catch (\Exception $e) {
-                                            // S3 error, fall through
-                                        }
-                                    }
-                                    
-                                    // Fallback to local storage
-                                    if (!$imageUrl) {
-                                        $imageUrl = asset('storage/' . $post->image_path);
-                                    }
-                                }
-                            @endphp
+                            @php($imageUrl = \App\Helpers\ImageHelper::getImageUrl($post->image_path))
                             @if($imageUrl)
                                 <img src="{{ $imageUrl }}" 
                                      class="w-full h-48 object-cover rounded-xl" 
