@@ -97,7 +97,8 @@ class AlumniController extends Controller
 
         // Handle image upload if provided
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('alumni-posts', 'public');
+            // Use default disk (will be 's3' in Laravel Cloud, 'public' locally)
+            $imagePath = $request->file('image')->store('alumni-posts', config('filesystems.default'));
             $data['image_path'] = $imagePath;
         }
 
@@ -248,11 +249,13 @@ class AlumniController extends Controller
         // Handle image upload if provided
         if ($request->hasFile('image')) {
             // Delete old image if exists
-            if ($post->image_path && \Storage::disk('public')->exists($post->image_path)) {
-                \Storage::disk('public')->delete($post->image_path);
+            $defaultDisk = config('filesystems.default');
+            if ($post->image_path && \Storage::disk($defaultDisk)->exists($post->image_path)) {
+                \Storage::disk($defaultDisk)->delete($post->image_path);
             }
             
-            $imagePath = $request->file('image')->store('alumni-posts', 'public');
+            // Use default disk (will be 's3' in Laravel Cloud, 'public' locally)
+            $imagePath = $request->file('image')->store('alumni-posts', $defaultDisk);
             $data['image_path'] = $imagePath;
         }
 

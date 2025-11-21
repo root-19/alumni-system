@@ -25,7 +25,8 @@ class NewsController extends Controller
             $imagePath = null;
             if ($request->hasFile('image')) {
                 try {
-                    $imagePath = $request->file('image')->store('news_images', 'public');
+                    // Use default disk (will be 's3' in Laravel Cloud, 'public' locally)
+                    $imagePath = $request->file('image')->store('news_images', config('filesystems.default'));
                 } catch (\Exception $e) {
                     \Log::error('Error storing image: ' . $e->getMessage());
                     return redirect()->back()->with('error', 'Failed to upload image: ' . $e->getMessage())->withInput();
