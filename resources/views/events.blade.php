@@ -10,11 +10,20 @@
                     <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 group">
                         {{-- Event Image --}}
                         @if($post->image_path)
+                            @php
+                                $defaultDisk = config('filesystems.default');
+                                if ($defaultDisk === 's3') {
+                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
+                                } else {
+                                    $imageUrl = asset('storage/' . $post->image_path);
+                                }
+                            @endphp
                             <a href="{{ route('events.show', $post) }}" class="block overflow-hidden relative">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-                                <img src="{{ asset('storage/' . $post->image_path) }}" 
+                                <img src="{{ $imageUrl }}" 
                                      alt="Event Image" 
-                                     class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-500">
+                                     class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-500" 
+                                     onerror="this.style.display='none'">
                             </a>
                         @else
                             <div class="w-full h-56 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">

@@ -16,6 +16,13 @@ class NewsController extends Controller
     public function store(Request $request)
     {
         try {
+            // DEBUG: Check request data
+            \Log::info('News Store Request:', [
+                'has_image' => $request->hasFile('image'),
+                'filesystem_default' => config('filesystems.default'),
+                'title' => $request->title,
+            ]);
+
             $request->validate([
                 'title' => 'required|string|max:255',
                 'content' => 'required|string',
@@ -25,22 +32,38 @@ class NewsController extends Controller
             $imagePath = null;
             if ($request->hasFile('image')) {
                 try {
+                    $defaultDisk = config('filesystems.default');
+                    \Log::info('Storing image to disk: ' . $defaultDisk);
+                    
                     // Use default disk (will be 's3' in Laravel Cloud, 'public' locally)
-                    $imagePath = $request->file('image')->store('news_images', config('filesystems.default'));
+                    $imagePath = $request->file('image')->store('news_images', $defaultDisk);
+                    
+                    \Log::info('Image stored successfully:', [
+                        'path' => $imagePath,
+                        'disk' => $defaultDisk,
+                        'exists' => Storage::disk($defaultDisk)->exists($imagePath),
+                    ]);
                 } catch (\Exception $e) {
                     \Log::error('Error storing image: ' . $e->getMessage());
+                    \Log::error('Stack trace: ' . $e->getTraceAsString());
                     return redirect()->back()->with('error', 'Failed to upload image: ' . $e->getMessage())->withInput();
                 }
             }
 
-            News::create([
+            $news = News::create([
                 'title' => $request->title,
                 'content' => $request->content,
                 'image_path' => $imagePath,
             ]);
 
+            \Log::info('News created successfully:', [
+                'id' => $news->id,
+                'image_path' => $news->image_path,
+            ]);
+
             return redirect()->back()->with('success', 'News posted successfully!');
         } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation error:', $e->errors());
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             \Log::error('Error storing news: ' . $e->getMessage());

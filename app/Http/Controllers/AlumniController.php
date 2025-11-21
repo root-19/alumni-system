@@ -74,43 +74,81 @@ class AlumniController extends Controller
     // Store a new alumni post
     public function store(Request $request)
     {
-        $request->validate([
-            'content' => 'required|string',
-            'title' => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'event_date' => 'nullable|date',
-            'location' => 'nullable|string|max:255',
-            'max_registrations' => 'nullable|integer|min:1',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
+        try {
+            // DEBUG: Check request data
+            \Log::info('Alumni Post Store Request:', [
+                'has_image' => $request->hasFile('image'),
+                'filesystem_default' => config('filesystems.default'),
+                'title' => $request->title,
+                'content_length' => strlen($request->content ?? ''),
+            ]);
 
-        $data = [
-            'content' => $request->content,
-            'title' => $request->title,
-            'description' => $request->description,
-            'event_date' => $request->event_date,
-            'location' => $request->location,
-            'max_registrations' => $request->max_registrations,
-            'user_id' => auth()->id(),
-            'is_archived' => false, // Explicitly set to false when creating
-            'is_completed' => false, // Explicitly set to false when creating
-        ];
+            $request->validate([
+                'content' => 'required|string',
+                'title' => 'nullable|string|max:255',
+                'description' => 'nullable|string|max:1000',
+                'event_date' => 'nullable|date',
+                'location' => 'nullable|string|max:255',
+                'max_registrations' => 'nullable|integer|min:1',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            ]);
 
-        // Handle image upload if provided
-        if ($request->hasFile('image')) {
-            // Use default disk (will be 's3' in Laravel Cloud, 'public' locally)
-            $imagePath = $request->file('image')->store('alumni-posts', config('filesystems.default'));
-            $data['image_path'] = $imagePath;
+            $data = [
+                'content' => $request->content,
+                'title' => $request->title,
+                'description' => $request->description,
+                'event_date' => $request->event_date,
+                'location' => $request->location,
+                'max_registrations' => $request->max_registrations,
+                'user_id' => auth()->id(),
+                'is_archived' => false, // Explicitly set to false when creating
+                'is_completed' => false, // Explicitly set to false when creating
+            ];
+
+            // Handle image upload if provided
+            if ($request->hasFile('image')) {
+                try {
+                    $defaultDisk = config('filesystems.default');
+                    \Log::info('Storing event image to disk: ' . $defaultDisk);
+                    
+                    // Use default disk (will be 's3' in Laravel Cloud, 'public' locally)
+                    $imagePath = $request->file('image')->store('alumni-posts', $defaultDisk);
+                    $data['image_path'] = $imagePath;
+                    
+                    \Log::info('Event image stored successfully:', [
+                        'path' => $imagePath,
+                        'disk' => $defaultDisk,
+                        'exists' => \Storage::disk($defaultDisk)->exists($imagePath),
+                    ]);
+                } catch (\Exception $e) {
+                    \Log::error('Error storing event image: ' . $e->getMessage());
+                    \Log::error('Stack trace: ' . $e->getTraceAsString());
+                    return redirect()->back()->with('error', 'Failed to upload image: ' . $e->getMessage())->withInput();
+                }
+            }
+
+            $alumniPost = AlumniPost::create($data);
+
+            \Log::info('Alumni Post created successfully:', [
+                'id' => $alumniPost->id,
+                'image_path' => $alumniPost->image_path,
+                'is_archived' => $alumniPost->is_archived,
+            ]);
+
+            // Redirect to admin events page if accessed from admin, otherwise redirect back
+            if (request()->is('admin/*') || str_contains(request()->header('referer', ''), '/admin/')) {
+                return redirect()->route('admin.events.index')->with('success', 'Event created successfully!');
+            }
+            
+            return redirect()->back()->with('success', 'Event created successfully!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation error:', $e->errors());
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            \Log::error('Error storing alumni post: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            return redirect()->back()->with('error', 'An error occurred while creating the event. Please try again.')->withInput();
         }
-
-        AlumniPost::create($data);
-
-        // Redirect to admin events page if accessed from admin, otherwise redirect back
-        if (request()->is('admin/*') || str_contains(request()->header('referer', ''), '/admin/')) {
-            return redirect()->route('admin.events.index')->with('success', 'Event created successfully!');
-        }
-        
-        return redirect()->back()->with('success', 'Event created successfully!');
     }
 
     // Show a single post with comments and likes
