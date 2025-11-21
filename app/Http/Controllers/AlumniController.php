@@ -112,6 +112,11 @@ class AlumniController extends Controller
                     // Use Cloudinary for image uploads
                     $cloudinaryConfigured = ImageHelper::isCloudinaryConfigured();
                     
+                    \Log::info('AlumniController (store) - Cloudinary check result:', [
+                        'configured' => $cloudinaryConfigured,
+                        'filesystem_default' => config('filesystems.default'),
+                    ]);
+                    
                     if ($cloudinaryConfigured) {
                         // Store in Cloudinary
                         \Log::info('Storing event image to Cloudinary');
@@ -305,6 +310,11 @@ class AlumniController extends Controller
         if ($request->hasFile('image')) {
             // Use Cloudinary for image uploads
             $cloudinaryConfigured = ImageHelper::isCloudinaryConfigured();
+            
+            \Log::info('AlumniController (update) - Cloudinary check result:', [
+                'configured' => $cloudinaryConfigured,
+                'filesystem_default' => config('filesystems.default'),
+            ]);
             
             if ($cloudinaryConfigured) {
                 // Delete old image from Cloudinary if exists

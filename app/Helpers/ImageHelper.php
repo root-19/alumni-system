@@ -11,22 +11,48 @@ class ImageHelper
      */
     public static function isCloudinaryConfigured(): bool
     {
-        // Check individual env vars first
-        $cloudName = env('CLOUDINARY_CLOUD_NAME');
-        $apiKey = env('CLOUDINARY_API_KEY');
-        $apiSecret = env('CLOUDINARY_API_SECRET');
+        // Check filesystem config first (uses cached config values)
+        $cloudinaryConfig = config('filesystems.disks.cloudinary');
+        $cloudName = null;
+        $apiKey = null;
+        $apiSecret = null;
         
-        // If individual vars not set, try parsing from CLOUDINARY_URL
+        if ($cloudinaryConfig) {
+            $cloudName = $cloudinaryConfig['cloud_name'] ?? null;
+            $apiKey = $cloudinaryConfig['api_key'] ?? null;
+            $apiSecret = $cloudinaryConfig['api_secret'] ?? null;
+        }
+        
+        // If config values are empty, check env vars directly
         if (empty($cloudName) || empty($apiKey) || empty($apiSecret)) {
-            $cloudinaryUrl = env('CLOUDINARY_URL');
-            if ($cloudinaryUrl && preg_match('/cloudinary:\/\/([^:]+):([^@]+)@([^\/]+)/', $cloudinaryUrl, $matches)) {
-                $apiKey = $apiKey ?: $matches[1];
-                $apiSecret = $apiSecret ?: $matches[2];
-                $cloudName = $cloudName ?: $matches[3];
+            $cloudName = $cloudName ?: env('CLOUDINARY_CLOUD_NAME');
+            $apiKey = $apiKey ?: env('CLOUDINARY_API_KEY');
+            $apiSecret = $apiSecret ?: env('CLOUDINARY_API_SECRET');
+            
+            // If individual vars not set, try parsing from CLOUDINARY_URL
+            if (empty($cloudName) || empty($apiKey) || empty($apiSecret)) {
+                $cloudinaryUrl = env('CLOUDINARY_URL');
+                if ($cloudinaryUrl && preg_match('/cloudinary:\/\/([^:]+):([^@]+)@([^\/]+)/', $cloudinaryUrl, $matches)) {
+                    $apiKey = $apiKey ?: $matches[1];
+                    $apiSecret = $apiSecret ?: $matches[2];
+                    $cloudName = $cloudName ?: $matches[3];
+                }
             }
         }
         
-        return !empty($cloudName) && !empty($apiKey) && !empty($apiSecret);
+        $isConfigured = !empty($cloudName) && !empty($apiKey) && !empty($apiSecret);
+        
+        // Debug logging
+        \Log::info('Cloudinary configuration check:', [
+            'cloud_name' => $cloudName ? substr($cloudName, 0, 3) . '...' : 'not set',
+            'api_key' => $apiKey ? substr($apiKey, 0, 3) . '...' : 'not set',
+            'api_secret' => $apiSecret ? '***set***' : 'not set',
+            'is_configured' => $isConfigured,
+            'config_disk_exists' => !empty($cloudinaryConfig),
+            'has_cloudinary_url' => !empty(env('CLOUDINARY_URL')),
+        ]);
+        
+        return $isConfigured;
     }
 
     /**

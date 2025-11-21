@@ -36,6 +36,11 @@ class NewsController extends Controller
                     // Use Cloudinary for image uploads
                     $cloudinaryConfigured = ImageHelper::isCloudinaryConfigured();
                     
+                    \Log::info('NewsController - Cloudinary check result:', [
+                        'configured' => $cloudinaryConfigured,
+                        'filesystem_default' => config('filesystems.default'),
+                    ]);
+                    
                     if ($cloudinaryConfigured) {
                         // Store in Cloudinary
                         \Log::info('Storing image to Cloudinary');
