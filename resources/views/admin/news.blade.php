@@ -190,7 +190,7 @@
             @php($heroImage = $featuredNews?->image_path ?? $featuredAlumni?->image_path)
             <div class="relative">
                 @if($heroImage)
-                    <img src="{{ asset('storage/'.$heroImage) }}" alt="Hero" class="w-full h-72 object-cover">
+                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($heroImage) }}" alt="Hero" class="w-full h-72 object-cover">
                 @endif
                 <div class="absolute inset-0 bg-black/40"></div>
                 <div class="absolute inset-0 flex items-end p-6">
@@ -213,7 +213,7 @@
                         <div class="grid md:grid-cols-3">
                             @if($item->image_path)
                                 <div>
-                                    <img src="{{ asset('storage/'.$item->image_path) }}" alt="{{ $item->title }}" class="w-full h-44 md:h-full object-cover">
+                                    <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($item->image_path) }}" alt="{{ $item->title }}" class="w-full h-44 md:h-full object-cover">
                                 </div>
                             @endif
                             <div class="md:col-span-2 p-6 space-y-2">
@@ -235,7 +235,7 @@
                 @foreach($alumniPosts as $post)
                     <article class="bg-white rounded-2xl shadow p-4">
                         @if($post->image_path)
-                            <img src="{{ asset('storage/'.$post->image_path) }}" class="w-full h-48 object-cover rounded-xl" alt="">
+                            <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($post->image_path) }}" class="w-full h-48 object-cover rounded-xl" alt="">
                         @endif
                         <p class="text-xs md:text-sm font-semibold text-gray-800 text-center uppercase tracking-wide mt-3">
                             {{ strtoupper(\Illuminate\Support\Str::limit(strip_tags($post->content), 60)) }}
