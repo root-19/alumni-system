@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AlumniPost;
 use App\Models\Comment;
+use App\Helpers\ImageHelper;
 use Illuminate\Http\Request;
 
 class AlumniController extends Controller
@@ -109,9 +110,7 @@ class AlumniController extends Controller
         if ($request->hasFile('image')) {
                 try {
                     // Use Cloudinary for image uploads
-                    $cloudinaryConfigured = !empty(env('CLOUDINARY_CLOUD_NAME')) && 
-                                            !empty(env('CLOUDINARY_API_KEY')) && 
-                                            !empty(env('CLOUDINARY_API_SECRET'));
+                    $cloudinaryConfigured = ImageHelper::isCloudinaryConfigured();
                     
                     if ($cloudinaryConfigured) {
                         // Store in Cloudinary
@@ -305,9 +304,7 @@ class AlumniController extends Controller
         // Handle image upload if provided
         if ($request->hasFile('image')) {
             // Use Cloudinary for image uploads
-            $cloudinaryConfigured = !empty(env('CLOUDINARY_CLOUD_NAME')) && 
-                                    !empty(env('CLOUDINARY_API_KEY')) && 
-                                    !empty(env('CLOUDINARY_API_SECRET'));
+            $cloudinaryConfigured = ImageHelper::isCloudinaryConfigured();
             
             if ($cloudinaryConfigured) {
                 // Delete old image from Cloudinary if exists

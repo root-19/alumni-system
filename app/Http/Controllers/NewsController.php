@@ -6,6 +6,7 @@ use App\Models\News;
 use App\Models\AlumniPost;
 use App\Models\Donation;
 use App\Models\User;
+use App\Helpers\ImageHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -33,9 +34,7 @@ class NewsController extends Controller
         if ($request->hasFile('image')) {
                 try {
                     // Use Cloudinary for image uploads
-                    $cloudinaryConfigured = !empty(env('CLOUDINARY_CLOUD_NAME')) && 
-                                            !empty(env('CLOUDINARY_API_KEY')) && 
-                                            !empty(env('CLOUDINARY_API_SECRET'));
+                    $cloudinaryConfigured = ImageHelper::isCloudinaryConfigured();
                     
                     if ($cloudinaryConfigured) {
                         // Store in Cloudinary
