@@ -1,2 +1,15 @@
 *
 !.gitignore
+!news_images/
+!alumni-posts/
+!profiles/
+!donations/
+!resumes/
+!trainings/
+!alumni_images/
+!*.png
+!*.jpg
+!*.jpeg
+!*.gif
+!*.svg
+!*.pdf

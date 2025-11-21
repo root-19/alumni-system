@@ -5,6 +5,9 @@
 /public/storage
 /storage/*.key
 /storage/pail
+# Allow storage/app/public to be tracked (for images)
+!/storage/app/public
+!/storage/app/public/**
 /vendor
 .env
 .env.backup
