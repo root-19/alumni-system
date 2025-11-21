@@ -5,6 +5,16 @@
 
 echo "Setting up Laravel deployment..."
 
+# Build assets (if Node.js is available)
+echo "Building assets..."
+if command -v npm &> /dev/null; then
+    npm install --production=false
+    npm run build
+    echo "✓ Assets built successfully"
+else
+    echo "⚠ npm not found - skipping build (make sure public/build exists)"
+fi
+
 # Create storage directories if they don't exist
 echo "Creating storage directories..."
 mkdir -p storage/app/public/news_images

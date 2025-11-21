@@ -1,28 +1,28 @@
 /.phpunit.cache
 /node_modules
-/public/build
+# /public/build
 /public/hot
 # /public/storage - Symlink will be created by php artisan storage:link on deployment
-/public/storage
-/storage/*.key
-/storage/pail
-# Allow storage/app/public to be tracked (for images)
-!/storage/app/public
-!/storage/app/public/**
-!/storage/app/public/news_images
-!/storage/app/public/news_images/**
-!/storage/app/public/alumni-posts
-!/storage/app/public/alumni-posts/**
-!/storage/app/public/alumni_images
-!/storage/app/public/alumni_images/**
-!/storage/app/public/profiles
-!/storage/app/public/profiles/**
-!/storage/app/public/donations
-!/storage/app/public/donations/**
-!/storage/app/public/resumes
-!/storage/app/public/resumes/**
-!/storage/app/public/trainings
-!/storage/app/public/trainings/**
+# /public/storage
+# /storage/*.key
+# /storage/pail
+# # Allow storage/app/public to be tracked (for images)
+# !/storage/app/public
+# !/storage/app/public/**
+# !/storage/app/public/news_images
+# !/storage/app/public/news_images/**
+# !/storage/app/public/alumni-posts
+# !/storage/app/public/alumni-posts/**
+# !/storage/app/public/alumni_images
+# !/storage/app/public/alumni_images/**
+# !/storage/app/public/profiles
+# !/storage/app/public/profiles/**
+# !/storage/app/public/donations
+# !/storage/app/public/donations/**
+# !/storage/app/public/resumes
+# !/storage/app/public/resumes/**
+# !/storage/app/public/trainings
+# !/storage/app/public/trainings/**
 /vendor
 .env
 .env.backup
