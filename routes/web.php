@@ -635,19 +635,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 | Temporary Storage Symlink Route (Remove after use!)
 |--------------------------------------------------------------------------
 | This route creates the storage symlink programmatically.
-| Access: /create-storage-link?token=YOUR_SECRET_TOKEN
+| Access: /create-storage-link (NO TOKEN NEEDED - Simplified for easy access)
 | After creating the symlink, REMOVE THIS ROUTE for security.
 */
 Route::get('/create-storage-link', function (Request $request) {
-    // Security: Require a token (change this to a secure random string)
-    $secretToken = env('STORAGE_LINK_TOKEN', 'change-this-token-before-deploying');
-    
-    if ($request->get('token') !== $secretToken) {
-        return response()->json([
-            'error' => 'Unauthorized. Missing or invalid token.',
-            'hint' => 'Add ?token=YOUR_SECRET_TOKEN to the URL'
-        ], 401);
-    }
+    // Simple route - no token required for now (remove after use!)
+    // TODO: Add authentication or remove this route after symlink is created
     
     $publicStoragePath = public_path('storage');
     $targetPath = storage_path('app/public');
