@@ -15,24 +15,37 @@ class NewsController extends Controller
 {
     public function store(Request $request)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
+        try {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'content' => 'required|string',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
 
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('news_images', 'public');
+            $imagePath = null;
+            if ($request->hasFile('image')) {
+                try {
+                    $imagePath = $request->file('image')->store('news_images', 'public');
+                } catch (\Exception $e) {
+                    \Log::error('Error storing image: ' . $e->getMessage());
+                    return redirect()->back()->with('error', 'Failed to upload image: ' . $e->getMessage())->withInput();
+                }
+            }
+
+            News::create([
+                'title' => $request->title,
+                'content' => $request->content,
+                'image_path' => $imagePath,
+            ]);
+
+            return redirect()->back()->with('success', 'News posted successfully!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            \Log::error('Error storing news: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            return redirect()->back()->with('error', 'An error occurred while posting news. Please try again.')->withInput();
         }
-
-        News::create([
-            'title' => $request->title,
-            'content' => $request->content,
-            'image_path' => $imagePath,
-        ]);
-
-        return redirect()->back()->with('success', 'News posted successfully!');
     }
 
     public function index()
