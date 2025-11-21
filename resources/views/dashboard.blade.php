@@ -24,7 +24,11 @@
                         @foreach($upcomingEvents as $event)
                             <div class="flex gap-3 mb-3 last:mb-0">
                                 @if($event->image_path)
-                                    <img src="{{ asset('storage/' . $event->image_path) }}" 
+                                    @php
+                                        // Use Storage::url() for more reliable access
+                                        $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($event->image_path);
+                                    @endphp
+                                    <img src="{{ $imageUrl }}" 
                                          alt="Event Image" 
                                          class="w-16 h-16 rounded-md object-cover">
                                 @else
@@ -107,7 +111,10 @@
                             @foreach($events as $event)
                                 <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                                     @if($event->image_path)
-                                        <img src="{{ asset('storage/' . $event->image_path) }}" 
+                                        @php
+                                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($event->image_path);
+                                        @endphp
+                                        <img src="{{ $imageUrl }}" 
                                              alt="Event Image" 
                                              class="w-12 h-12 rounded-md object-cover">
                                     @else
@@ -194,7 +201,10 @@
             @if(isset($featuredNews) && $featuredNews)
             <div class="relative overflow-hidden rounded-2xl shadow-xl">
                 @if($featuredNews->image_path)
-                    <img src="{{ asset('storage/' . $featuredNews->image_path) }}" 
+                    @php
+                        $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($featuredNews->image_path);
+                    @endphp
+                    <img src="{{ $imageUrl }}" 
                          alt="{{ $featuredNews->title }}" 
                          class="w-full h-96 object-cover">
                 @else
@@ -233,7 +243,10 @@
                     <article class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
                         <div class="relative">
                             @if($post->image_path)
-                                <img src="{{ asset('storage/' . $post->image_path) }}" 
+                                @php
+                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($post->image_path);
+                                @endphp
+                                <img src="{{ $imageUrl }}" 
                                      alt="Alumni Post {{ $index + 1 }}" 
                                      class="w-full h-48 object-cover">
                             @else
