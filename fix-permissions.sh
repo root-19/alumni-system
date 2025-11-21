@@ -49,21 +49,54 @@ echo ""
 # Remove existing symlink if it exists (broken or incorrect)
 echo "Removing existing storage symlink if exists..."
 rm -f public/storage
-echo "✓ Old symlink removed"
+rm -rf public/storage  # Also remove if it's a directory (wrong setup)
+echo "✓ Old symlink/directory removed"
+echo ""
+
+# Ensure storage directories exist
+echo "Creating storage directories..."
+mkdir -p storage/app/public/news_images
+mkdir -p storage/app/public/alumni-posts
+echo "✓ Storage directories created"
 echo ""
 
 # Recreate storage symlink
 echo "Recreating storage symlink..."
 php artisan storage:link
-echo "✓ Storage symlink recreated"
+echo "✓ Storage symlink command executed"
 echo ""
 
-# Verify symlink exists
+# Verify symlink exists and is correct
 if [ -L "public/storage" ]; then
-    echo "✓ Storage symlink verified successfully"
+    LINK_TARGET=$(readlink -f public/storage)
+    EXPECTED_TARGET=$(readlink -f storage/app/public)
+    
+    if [ "$LINK_TARGET" = "$EXPECTED_TARGET" ]; then
+        echo "✓ Storage symlink verified successfully"
+        echo "  Link: public/storage -> $LINK_TARGET"
+    else
+        echo "⚠ WARNING: Symlink exists but points to wrong location!"
+        echo "  Current: $LINK_TARGET"
+        echo "  Expected: $EXPECTED_TARGET"
+        echo "  Removing and recreating..."
+        rm -f public/storage
+        php artisan storage:link
+    fi
+elif [ -d "public/storage" ]; then
+    echo "⚠ WARNING: public/storage is a directory, not a symlink!"
+    echo "  Removing directory and creating symlink..."
+    rm -rf public/storage
+    php artisan storage:link
 else
-    echo "⚠ WARNING: Storage symlink was not created properly!"
-    echo "  Please run 'php artisan storage:link' manually"
+    echo "❌ ERROR: Storage symlink was not created!"
+    echo "  Attempting manual creation..."
+    ln -s ../storage/app/public public/storage
+    if [ -L "public/storage" ]; then
+        echo "✓ Manual symlink creation successful"
+    else
+        echo "❌ Manual symlink creation failed!"
+        echo "  Please run 'php artisan storage:link' manually"
+    fi
 fi
 echo ""
 
