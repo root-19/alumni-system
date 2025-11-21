@@ -695,7 +695,7 @@ Route::get('/create-storage-link', function (Request $request) {
             } elseif (is_dir($publicStoragePath)) {
                 // It's a directory, not a symlink
                 $messages[] = "⚠ public/storage exists as a directory (should be symlink)";
-                $messages[] = "Removing directory...";
+                $messages[] = "This is why images don't display! Removing directory...";
                 if (!rmdir($publicStoragePath)) {
                     // Try to remove recursively if not empty
                     $files = new \RecursiveIteratorIterator(
@@ -707,7 +707,9 @@ Route::get('/create-storage-link', function (Request $request) {
                     }
                     rmdir($publicStoragePath);
                 }
-                $messages[] = "✓ Directory removed";
+                if (!isset($errors) || !in_array("❌ Failed to remove directory. May need manual intervention or different permissions.", $errors ?? [])) {
+                    $messages[] = "✓ Directory removed successfully";
+                }
             } else {
                 // It's a file
                 $messages[] = "⚠ public/storage exists as a file (should be symlink)";
