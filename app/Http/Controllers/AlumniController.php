@@ -108,24 +108,25 @@ class AlumniController extends Controller
         // Handle image upload if provided
         if ($request->hasFile('image')) {
                 try {
-                    // Check if S3 is configured
-                    $s3Bucket = env('AWS_BUCKET');
-                    $s3Key = env('AWS_ACCESS_KEY_ID');
+                    // Use Cloudinary for image uploads
+                    $cloudinaryConfigured = !empty(env('CLOUDINARY_CLOUD_NAME')) && 
+                                            !empty(env('CLOUDINARY_API_KEY')) && 
+                                            !empty(env('CLOUDINARY_API_SECRET'));
                     
-                    if ($s3Bucket && $s3Key) {
-                        // Store in S3
-                        \Log::info('Storing event image to S3');
-                        $imagePath = $request->file('image')->store('alumni-posts', 's3');
+                    if ($cloudinaryConfigured) {
+                        // Store in Cloudinary
+                        \Log::info('Storing event image to Cloudinary');
+                        $imagePath = $request->file('image')->store('alumni-posts', 'cloudinary');
                         $data['image_path'] = $imagePath;
-                        \Log::info('Event image stored successfully to S3:', [
+                        \Log::info('Event image stored successfully to Cloudinary:', [
                             'path' => $imagePath,
-                            'disk' => 's3',
+                            'disk' => 'cloudinary',
                         ]);
                     } else {
                         // Fallback to local storage
-                        \Log::info('S3 not configured, storing event image to local storage');
-            $imagePath = $request->file('image')->store('alumni-posts', 'public');
-            $data['image_path'] = $imagePath;
+                        \Log::info('Cloudinary not configured, storing event image to local storage');
+                        $imagePath = $request->file('image')->store('alumni-posts', 'public');
+                        $data['image_path'] = $imagePath;
                         \Log::info('Event image stored successfully to local storage:', [
                             'path' => $imagePath,
                             'disk' => 'public',
@@ -303,34 +304,35 @@ class AlumniController extends Controller
 
         // Handle image upload if provided
         if ($request->hasFile('image')) {
-            // Check if S3 is configured
-            $s3Bucket = env('AWS_BUCKET');
-            $s3Key = env('AWS_ACCESS_KEY_ID');
+            // Use Cloudinary for image uploads
+            $cloudinaryConfigured = !empty(env('CLOUDINARY_CLOUD_NAME')) && 
+                                    !empty(env('CLOUDINARY_API_KEY')) && 
+                                    !empty(env('CLOUDINARY_API_SECRET'));
             
-            if ($s3Bucket && $s3Key) {
-                // Delete old image from S3 if exists
+            if ($cloudinaryConfigured) {
+                // Delete old image from Cloudinary if exists
                 if ($post->image_path) {
                     try {
-                        if (\Storage::disk('s3')->exists($post->image_path)) {
-                            \Storage::disk('s3')->delete($post->image_path);
+                        if (\Storage::disk('cloudinary')->exists($post->image_path)) {
+                            \Storage::disk('cloudinary')->delete($post->image_path);
                         }
                     } catch (\Exception $e) {
-                        \Log::warning('Could not delete old image from S3: ' . $e->getMessage());
+                        \Log::warning('Could not delete old image from Cloudinary: ' . $e->getMessage());
                     }
                 }
                 
-                // Store in S3
-                $imagePath = $request->file('image')->store('alumni-posts', 's3');
+                // Store in Cloudinary
+                $imagePath = $request->file('image')->store('alumni-posts', 'cloudinary');
                 $data['image_path'] = $imagePath;
             } else {
                 // Delete old image from local storage if exists
-            if ($post->image_path && \Storage::disk('public')->exists($post->image_path)) {
-                \Storage::disk('public')->delete($post->image_path);
-            }
-            
+                if ($post->image_path && \Storage::disk('public')->exists($post->image_path)) {
+                    \Storage::disk('public')->delete($post->image_path);
+                }
+                
                 // Store in local storage
-            $imagePath = $request->file('image')->store('alumni-posts', 'public');
-            $data['image_path'] = $imagePath;
+                $imagePath = $request->file('image')->store('alumni-posts', 'public');
+                $data['image_path'] = $imagePath;
             }
         }
 

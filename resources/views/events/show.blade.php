@@ -19,19 +19,32 @@
             @if($post->image_path)
                 @php
                     $imageUrl = null;
+                    $cloudinaryConfigured = !empty(env('CLOUDINARY_CLOUD_NAME')) && !empty(env('CLOUDINARY_API_KEY'));
                     $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
                     
-                    // Try S3 first if configured
-                    if ($s3Configured) {
-                        try {
-                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
-                        } catch (\Exception $e) {
-                            // S3 error, fall through to local storage
+                    if ($post->image_path) {
+                        // Try Cloudinary first if configured
+                        if ($cloudinaryConfigured) {
+                            try {
+                                $imageUrl = \Illuminate\Support\Facades\Storage::disk('cloudinary')->url($post->image_path);
+                            } catch (\Exception $e) {
+                                // Cloudinary error, fall through
+                            }
+                        }
+                        
+                        // Try S3 if Cloudinary not configured or failed
+                        if (!$imageUrl && $s3Configured) {
+                            try {
+                                $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
+                            } catch (\Exception $e) {
+                                // S3 error, fall through
+                            }
+                        }
+                        
+                        // Fallback to local storage
+                        if (!$imageUrl) {
                             $imageUrl = asset('storage/' . $post->image_path);
                         }
-                    } else {
-                        // Use local storage directly
-                        $imageUrl = asset('storage/' . $post->image_path);
                     }
                 @endphp
                 @if($imageUrl)

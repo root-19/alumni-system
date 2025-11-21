@@ -7,6 +7,16 @@ use Illuminate\Support\Facades\Storage;
 class ImageHelper
 {
     /**
+     * Check if Cloudinary is configured
+     */
+    public static function isCloudinaryConfigured(): bool
+    {
+        return !empty(env('CLOUDINARY_CLOUD_NAME')) && 
+               !empty(env('CLOUDINARY_API_KEY')) && 
+               !empty(env('CLOUDINARY_API_SECRET'));
+    }
+
+    /**
      * Check if S3 is configured
      */
     public static function isS3Configured(): bool
@@ -16,7 +26,7 @@ class ImageHelper
 
     /**
      * Get image URL with fallback
-     * Tries S3 first if configured, then falls back to local storage
+     * Tries Cloudinary first, then S3, then local storage
      */
     public static function getImageUrl(?string $imagePath): ?string
     {
@@ -24,7 +34,16 @@ class ImageHelper
             return null;
         }
 
-        // Try S3 first if configured
+        // Try Cloudinary first if configured
+        if (self::isCloudinaryConfigured()) {
+            try {
+                return Storage::disk('cloudinary')->url($imagePath);
+            } catch (\Exception $e) {
+                // Cloudinary error, fall through to other options
+            }
+        }
+
+        // Try S3 if configured
         if (self::isS3Configured()) {
             try {
                 if (Storage::disk('s3')->exists($imagePath)) {
@@ -36,15 +55,11 @@ class ImageHelper
         }
 
         // Fallback to local storage
-        if (Storage::disk('public')->exists($imagePath)) {
-            return asset('storage/' . $imagePath);
-        }
-
-        return null;
+        return asset('storage/' . $imagePath);
     }
 
     /**
-     * Check if image exists (either in S3 or local storage)
+     * Check if image exists (Cloudinary, S3, or local storage)
      */
     public static function imageExists(?string $imagePath): bool
     {
@@ -52,7 +67,18 @@ class ImageHelper
             return false;
         }
 
-        // Try S3 first if configured
+        // Try Cloudinary first if configured
+        if (self::isCloudinaryConfigured()) {
+            try {
+                if (Storage::disk('cloudinary')->exists($imagePath)) {
+                    return true;
+                }
+            } catch (\Exception $e) {
+                // Cloudinary error, fall through
+            }
+        }
+
+        // Try S3 if configured
         if (self::isS3Configured()) {
             try {
                 if (Storage::disk('s3')->exists($imagePath)) {

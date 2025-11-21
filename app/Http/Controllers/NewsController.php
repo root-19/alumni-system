@@ -32,22 +32,23 @@ class NewsController extends Controller
         $imagePath = null;
         if ($request->hasFile('image')) {
                 try {
-                    // Check if S3 is configured
-                    $s3Bucket = env('AWS_BUCKET');
-                    $s3Key = env('AWS_ACCESS_KEY_ID');
+                    // Use Cloudinary for image uploads
+                    $cloudinaryConfigured = !empty(env('CLOUDINARY_CLOUD_NAME')) && 
+                                            !empty(env('CLOUDINARY_API_KEY')) && 
+                                            !empty(env('CLOUDINARY_API_SECRET'));
                     
-                    if ($s3Bucket && $s3Key) {
-                        // Store in S3
-                        \Log::info('Storing image to S3');
-                        $imagePath = $request->file('image')->store('news_images', 's3');
-                        \Log::info('Image stored successfully to S3:', [
+                    if ($cloudinaryConfigured) {
+                        // Store in Cloudinary
+                        \Log::info('Storing image to Cloudinary');
+                        $imagePath = $request->file('image')->store('news_images', 'cloudinary');
+                        \Log::info('Image stored successfully to Cloudinary:', [
                             'path' => $imagePath,
-                            'disk' => 's3',
+                            'disk' => 'cloudinary',
                         ]);
                     } else {
                         // Fallback to local storage
-                        \Log::info('S3 not configured, storing image to local storage');
-            $imagePath = $request->file('image')->store('news_images', 'public');
+                        \Log::info('Cloudinary not configured, storing image to local storage');
+                        $imagePath = $request->file('image')->store('news_images', 'public');
                         \Log::info('Image stored successfully to local storage:', [
                             'path' => $imagePath,
                             'disk' => 'public',

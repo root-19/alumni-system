@@ -194,19 +194,30 @@
                 @if($heroImage)
                     @php
                         $imageUrl = null;
+                        $cloudinaryConfigured = !empty(env('CLOUDINARY_CLOUD_NAME')) && !empty(env('CLOUDINARY_API_KEY'));
                         $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
                         
                         if ($heroImage) {
-                            // Try S3 first if configured
-                            if ($s3Configured) {
+                            // Try Cloudinary first if configured
+                            if ($cloudinaryConfigured) {
+                                try {
+                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('cloudinary')->url($heroImage);
+                                } catch (\Exception $e) {
+                                    // Cloudinary error, fall through
+                                }
+                            }
+                            
+                            // Try S3 if Cloudinary not configured or failed
+                            if (!$imageUrl && $s3Configured) {
                                 try {
                                     $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($heroImage);
                                 } catch (\Exception $e) {
-                                    // S3 error, fall through to local storage
-                                    $imageUrl = asset('storage/' . $heroImage);
+                                    // S3 error, fall through
                                 }
-                            } else {
-                                // Use local storage directly
+                            }
+                            
+                            // Fallback to local storage
+                            if (!$imageUrl) {
                                 $imageUrl = asset('storage/' . $heroImage);
                             }
                         }
@@ -240,19 +251,30 @@
                             @if($item->image_path)
                                 @php
                                     $imageUrl = null;
+                                    $cloudinaryConfigured = !empty(env('CLOUDINARY_CLOUD_NAME')) && !empty(env('CLOUDINARY_API_KEY'));
                                     $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
                                     
                                     if ($item->image_path) {
-                                        // Try S3 first if configured
-                                        if ($s3Configured) {
+                                        // Try Cloudinary first if configured
+                                        if ($cloudinaryConfigured) {
+                                            try {
+                                                $imageUrl = \Illuminate\Support\Facades\Storage::disk('cloudinary')->url($item->image_path);
+                                            } catch (\Exception $e) {
+                                                // Cloudinary error, fall through
+                                            }
+                                        }
+                                        
+                                        // Try S3 if Cloudinary not configured or failed
+                                        if (!$imageUrl && $s3Configured) {
                                             try {
                                                 $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($item->image_path);
                                             } catch (\Exception $e) {
-                                                // S3 error, fall through to local storage
-                                                $imageUrl = asset('storage/' . $item->image_path);
+                                                // S3 error, fall through
                                             }
-                                        } else {
-                                            // Use local storage directly
+                                        }
+                                        
+                                        // Fallback to local storage
+                                        if (!$imageUrl) {
                                             $imageUrl = asset('storage/' . $item->image_path);
                                         }
                                     }
@@ -287,19 +309,30 @@
                         @if($post->image_path)
                             @php
                                 $imageUrl = null;
+                                $cloudinaryConfigured = !empty(env('CLOUDINARY_CLOUD_NAME')) && !empty(env('CLOUDINARY_API_KEY'));
                                 $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
                                 
                                 if ($post->image_path) {
-                                    // Try S3 first if configured
-                                    if ($s3Configured) {
+                                    // Try Cloudinary first if configured
+                                    if ($cloudinaryConfigured) {
+                                        try {
+                                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('cloudinary')->url($post->image_path);
+                                        } catch (\Exception $e) {
+                                            // Cloudinary error, fall through
+                                        }
+                                    }
+                                    
+                                    // Try S3 if Cloudinary not configured or failed
+                                    if (!$imageUrl && $s3Configured) {
                                         try {
                                             $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
                                         } catch (\Exception $e) {
-                                            // S3 error, fall through to local storage
-                                            $imageUrl = asset('storage/' . $post->image_path);
+                                            // S3 error, fall through
                                         }
-                                    } else {
-                                        // Use local storage directly
+                                    }
+                                    
+                                    // Fallback to local storage
+                                    if (!$imageUrl) {
                                         $imageUrl = asset('storage/' . $post->image_path);
                                     }
                                 }
