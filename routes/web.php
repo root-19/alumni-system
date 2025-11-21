@@ -90,7 +90,7 @@ Route::get('/trainings', [\App\Http\Controllers\TrainingController::class, 'inde
 
     // Test route to verify progress saving (remove in production)
     Route::get('/test-progress/{training}', function(\App\Models\Training $training) {
-        $user = auth()->user();
+        $user = auth()->user->id();
         $total = $training->files->where('type', 'module')->count();
         $read = $user->reads()->whereIn('training_file_id', $training->files->pluck('id'))->count();
         $calculatedProgress = $total > 0 ? round(($read / $total) * 100) : 0;
