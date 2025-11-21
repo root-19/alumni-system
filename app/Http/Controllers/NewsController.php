@@ -34,11 +34,11 @@ class NewsController extends Controller
         if ($request->hasFile('image')) {
                 try {
                     // Store in public storage
-                    $imagePath = $request->file('image')->store('news_images', 'public');
-                    \Log::info('Image stored successfully to local storage:', [
-                        'path' => $imagePath,
-                        'disk' => 'public',
-                    ]);
+                        $imagePath = $request->file('image')->store('news_images', 'public');
+                        \Log::info('Image stored successfully to local storage:', [
+                            'path' => $imagePath,
+                            'disk' => 'public',
+                        ]);
                 } catch (\Exception $e) {
                     \Log::error('Error storing image: ' . $e->getMessage());
                     \Log::error('Stack trace: ' . $e->getTraceAsString());

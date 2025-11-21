@@ -110,12 +110,12 @@ class AlumniController extends Controller
         if ($request->hasFile('image')) {
                 try {
                     // Store in public storage
-                    $imagePath = $request->file('image')->store('alumni-posts', 'public');
-                    $data['image_path'] = $imagePath;
-                    \Log::info('Event image stored successfully to local storage:', [
-                        'path' => $imagePath,
-                        'disk' => 'public',
-                    ]);
+                        $imagePath = $request->file('image')->store('alumni-posts', 'public');
+                        $data['image_path'] = $imagePath;
+                        \Log::info('Event image stored successfully to local storage:', [
+                            'path' => $imagePath,
+                            'disk' => 'public',
+                        ]);
                 } catch (\Exception $e) {
                     \Log::error('Error storing event image: ' . $e->getMessage());
                     \Log::error('Stack trace: ' . $e->getTraceAsString());
@@ -288,14 +288,14 @@ class AlumniController extends Controller
 
         // Handle image upload if provided
         if ($request->hasFile('image')) {
-            // Delete old image from local storage if exists
-            if ($post->image_path && \Storage::disk('public')->exists($post->image_path)) {
-                \Storage::disk('public')->delete($post->image_path);
-            }
-            
+                // Delete old image from local storage if exists
+                if ($post->image_path && \Storage::disk('public')->exists($post->image_path)) {
+                    \Storage::disk('public')->delete($post->image_path);
+                }
+                
             // Store in public storage
-            $imagePath = $request->file('image')->store('alumni-posts', 'public');
-            $data['image_path'] = $imagePath;
+                $imagePath = $request->file('image')->store('alumni-posts', 'public');
+                $data['image_path'] = $imagePath;
         }
 
         $post->update($data);
