@@ -194,14 +194,12 @@
                 @if($heroImage)
                     @php
                         $defaultDisk = config('filesystems.default');
-                        if ($defaultDisk === 's3') {
-                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($heroImage);
-                        } else {
-                            // For local storage, use asset() which works with the storage symlink
-                            $imageUrl = asset('storage/' . $heroImage);
-                        }
+                        $imageExists = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($heroImage);
+                        $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($heroImage) : null;
                     @endphp
-                    <img src="{{ $imageUrl }}" alt="Hero" class="w-full h-72 object-cover" onerror="this.style.display='none'">
+                    @if($imageExists)
+                        <img src="{{ $imageUrl }}" alt="Hero" class="w-full h-72 object-cover">
+                    @endif
                 @endif
                 <div class="absolute inset-0 bg-black/40"></div>
                 <div class="absolute inset-0 flex items-end p-6">
@@ -257,14 +255,12 @@
                         @if($post->image_path)
                             @php
                                 $defaultDisk = config('filesystems.default');
-                                if ($defaultDisk === 's3') {
-                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
-                                } else {
-                                    // For local storage, use asset() which works with the storage symlink
-                                    $imageUrl = asset('storage/' . $post->image_path);
-                                }
+                                $imageExists = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path);
+                                $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path) : null;
                             @endphp
-                            <img src="{{ $imageUrl }}" class="w-full h-48 object-cover rounded-xl" alt="" onerror="this.style.display='none'">
+                            @if($imageExists)
+                                <img src="{{ $imageUrl }}" class="w-full h-48 object-cover rounded-xl" alt="">
+                            @endif
                         @endif
                         <p class="text-xs md:text-sm font-semibold text-gray-800 text-center uppercase tracking-wide mt-3">
                             {{ strtoupper(\Illuminate\Support\Str::limit(strip_tags($post->content), 60)) }}

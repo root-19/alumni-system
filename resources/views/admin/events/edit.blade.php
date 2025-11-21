@@ -103,16 +103,15 @@
                         @if($post->image_path)
                             @php
                                 $defaultDisk = config('filesystems.default');
-                                if ($defaultDisk === 's3') {
-                                    $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
-                                } else {
-                                    $imageUrl = asset('storage/' . $post->image_path);
-                                }
+                                $imageExists = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path);
+                                $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path) : null;
                             @endphp
-                            <div class="mb-4">
-                                <p class="text-sm text-gray-600 mb-2">Current Image:</p>
-                                <img src="{{ $imageUrl }}" alt="Current Event Image" class="w-full h-48 object-cover rounded-lg border border-gray-300" onerror="this.style.display='none'">
-                            </div>
+                            @if($imageExists)
+                                <div class="mb-4">
+                                    <p class="text-sm text-gray-600 mb-2">Current Image:</p>
+                                    <img src="{{ $imageUrl }}" alt="Current Event Image" class="w-full h-48 object-cover rounded-lg border border-gray-300">
+                                </div>
+                            @endif
                         @endif
                         <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-green-400 transition-colors">
                             <input type="file" name="image" accept="image/*" class="hidden" id="event-image" />

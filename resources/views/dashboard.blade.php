@@ -24,8 +24,9 @@
                         @foreach($upcomingEvents as $event)
                             <div class="flex gap-3 mb-3 last:mb-0">
                                 @php
-                                    $imageExists = $event->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($event->image_path);
-                                    $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk('public')->url($event->image_path) : null;
+                                    $defaultDisk = config('filesystems.default');
+                                    $imageExists = $event->image_path && \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($event->image_path);
+                                    $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($event->image_path) : null;
                                 @endphp
 
                                 @if($imageExists)
@@ -114,8 +115,9 @@
                             @foreach($events as $event)
                                 <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                                     @php
-                                        $imageExists = $event->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($event->image_path);
-                                        $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk('public')->url($event->image_path) : null;
+                                        $defaultDisk = config('filesystems.default');
+                                        $imageExists = $event->image_path && \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($event->image_path);
+                                        $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($event->image_path) : null;
                                     @endphp
 
                                     @if($imageExists)
@@ -206,8 +208,9 @@
             @if(isset($featuredNews) && $featuredNews)
             <div class="relative overflow-hidden rounded-2xl shadow-xl">
                 @php
-                    $imageExists = $featuredNews->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($featuredNews->image_path);
-                    $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk('public')->url($featuredNews->image_path) : null;
+                    $defaultDisk = config('filesystems.default');
+                    $imageExists = $featuredNews->image_path && \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($featuredNews->image_path);
+                    $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($featuredNews->image_path) : null;
                 @endphp
 
                 @if($imageExists)
@@ -250,8 +253,9 @@
                     <article class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
                         <div class="relative">
                             @php
-                                $imageExists = $post->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path);
-                                $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk('public')->url($post->image_path) : null;
+                                $defaultDisk = config('filesystems.default');
+                                $imageExists = $post->image_path && \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path);
+                                $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path) : null;
                             @endphp
 
                             @if($imageExists)

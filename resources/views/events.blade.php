@@ -11,14 +11,24 @@
                         {{-- Event Image --}}
                         @if($post->image_path)
                             @php
-                                $imageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($post->image_path);
+                                $defaultDisk = config('filesystems.default');
+                                $imageExists = \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path);
+                                $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path) : null;
                             @endphp
-                            <a href="{{ route('events.show', $post) }}" class="block overflow-hidden relative">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-                                <img src="{{ $imageUrl }}" 
-                                     alt="Event Image" 
-                                     class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-500">
-                            </a>
+                            @if($imageExists)
+                                <a href="{{ route('events.show', $post) }}" class="block overflow-hidden relative">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+                                    <img src="{{ $imageUrl }}" 
+                                         alt="Event Image" 
+                                         class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-500">
+                                </a>
+                            @else
+                                <div class="w-full h-56 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                                    <svg class="w-16 h-16 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                            @endif
                         @else
                             <div class="w-full h-56 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
                                 <svg class="w-16 h-16 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,10 +107,15 @@
                         {{-- Event Image --}}
         
 
-                        @if($post->image_path && Storage::exists($post->image_path))
-    <a href="{{ route('events.show', $post) }}" class="block overflow-hidden relative group">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-        <img src="{{ Storage::url($post->image_path) }}" 
+                        @php
+                            $defaultDisk = config('filesystems.default');
+                            $imageExists = $post->image_path && \Illuminate\Support\Facades\Storage::disk($defaultDisk)->exists($post->image_path);
+                            $imageUrl = $imageExists ? \Illuminate\Support\Facades\Storage::disk($defaultDisk)->url($post->image_path) : null;
+                        @endphp
+                        @if($imageExists)
+                            <a href="{{ route('events.show', $post) }}" class="block overflow-hidden relative group">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+                                <img src="{{ $imageUrl }}" 
              alt="Event Image" 
              class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-500 grayscale group-hover:grayscale-0">
     </a>
