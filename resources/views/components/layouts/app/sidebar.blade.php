@@ -7,7 +7,7 @@
 
 <body class="min-h-screen bg-white">
 
-<flux:sidebar sticky stashable class="bg-gradient-to-b from-green-700 to-green-500 text-white">
+<flux:sidebar sticky stashable mobile class="hidden lg:flex bg-gradient-to-b from-green-700 to-green-500 text-white" style="z-index: 9999;">
 
     <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 

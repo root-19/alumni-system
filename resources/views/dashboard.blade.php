@@ -14,7 +14,7 @@
         </div>
 
         {{-- ✅ Main Grid --}}
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
 
             {{-- Left Column: Upcoming Events --}}
             <div class="md:col-span-1 space-y-4">
@@ -25,30 +25,19 @@
                             <div class="flex gap-3 mb-3 last:mb-0">
                                 @php
                                     $imageUrl = null;
-                                    $cloudinaryConfigured = !empty(env('CLOUDINARY_CLOUD_NAME')) && !empty(env('CLOUDINARY_API_KEY'));
                                     $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
                                     
                                     if ($event->image_path) {
-                                        // Try Cloudinary first if configured
-                                        if ($cloudinaryConfigured) {
-                                            try {
-                                                $imageUrl = \Illuminate\Support\Facades\Storage::disk('cloudinary')->url($event->image_path);
-                                            } catch (\Exception $e) {
-                                                // Cloudinary error, fall through
-                                            }
-                                        }
-                                        
-                                        // Try S3 if Cloudinary not configured or failed
-                                        if (!$imageUrl && $s3Configured) {
+                                        // Try S3 first if configured
+                                        if ($s3Configured) {
                                             try {
                                                 $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($event->image_path);
                                             } catch (\Exception $e) {
-                                                // S3 error, fall through
+                                               
+                                                $imageUrl = asset('storage/' . $event->image_path);
                                             }
-                                        }
-                                        
-                                        // Fallback to local storage
-                                        if (!$imageUrl) {
+                                        } else {
+                                            // Use local storage directly
                                             $imageUrl = asset('storage/' . $event->image_path);
                                         }
                                     }
@@ -58,12 +47,7 @@
                                     <img src="{{ $imageUrl }}" 
                                          alt="Event Image" 
                                          class="w-16 h-16 rounded-md object-cover"
-                                         onerror="console.error('Image 404:', '{{ $imageUrl }}'); this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                    <div class="w-16 h-16 rounded-md bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center" style="display:none;">
-                                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                        </svg>
-                                    </div>
+                                         onerror="this.onerror=null; this.src='{{ asset('storage/' . $event->image_path) }}';">
                                 @else
                                     <div class="w-16 h-16 rounded-md bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
                                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -255,30 +239,19 @@
             <div class="relative overflow-hidden rounded-2xl shadow-xl">
                 @php
                     $imageUrl = null;
-                    $cloudinaryConfigured = !empty(env('CLOUDINARY_CLOUD_NAME')) && !empty(env('CLOUDINARY_API_KEY'));
                     $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
                     
                     if ($featuredNews->image_path) {
-                        // Try Cloudinary first if configured
-                        if ($cloudinaryConfigured) {
-                            try {
-                                $imageUrl = \Illuminate\Support\Facades\Storage::disk('cloudinary')->url($featuredNews->image_path);
-                            } catch (\Exception $e) {
-                                // Cloudinary error, fall through
-                            }
-                        }
-                        
-                        // Try S3 if Cloudinary not configured or failed
-                        if (!$imageUrl && $s3Configured) {
+                        // Try S3 first if configured
+                        if ($s3Configured) {
                             try {
                                 $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($featuredNews->image_path);
                             } catch (\Exception $e) {
-                                // S3 error, fall through
+                                // S3 error, fall through to local storage
+                                $imageUrl = asset('storage/' . $featuredNews->image_path);
                             }
-                        }
-                        
-                        // Fallback to local storage
-                        if (!$imageUrl) {
+                        } else {
+                            // Use local storage directly
                             $imageUrl = asset('storage/' . $featuredNews->image_path);
                         }
                     }
@@ -326,30 +299,19 @@
                         <div class="relative">
                             @php
                                 $imageUrl = null;
-                                $cloudinaryConfigured = !empty(env('CLOUDINARY_CLOUD_NAME')) && !empty(env('CLOUDINARY_API_KEY'));
                                 $s3Configured = !empty(env('AWS_BUCKET')) && !empty(env('AWS_ACCESS_KEY_ID'));
                                 
                                 if ($post->image_path) {
-                                    // Try Cloudinary first if configured
-                                    if ($cloudinaryConfigured) {
-                                        try {
-                                            $imageUrl = \Illuminate\Support\Facades\Storage::disk('cloudinary')->url($post->image_path);
-                                        } catch (\Exception $e) {
-                                            // Cloudinary error, fall through
-                                        }
-                                    }
-                                    
-                                    // Try S3 if Cloudinary not configured or failed
-                                    if (!$imageUrl && $s3Configured) {
+                                    // Try S3 first if configured
+                                    if ($s3Configured) {
                                         try {
                                             $imageUrl = \Illuminate\Support\Facades\Storage::disk('s3')->url($post->image_path);
                                         } catch (\Exception $e) {
-                                            // S3 error, fall through
+                                            // S3 error, fall through to local storage
+                                            $imageUrl = asset('storage/' . $post->image_path);
                                         }
-                                    }
-                                    
-                                    // Fallback to local storage
-                                    if (!$imageUrl) {
+                                    } else {
+                                        // Use local storage directly
                                         $imageUrl = asset('storage/' . $post->image_path);
                                     }
                                 }

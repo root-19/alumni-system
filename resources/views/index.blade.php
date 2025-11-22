@@ -16,6 +16,7 @@
 
 <main class="flex flex-col items-center justify-center text-center px-4 space-y-8">
     <!-- Logo Image -->
+    {{-- <img src="{{ asset('image/logo.png') }}"  --}}
     <img src="{{ asset('image/logo.png') }}" 
          alt="Logo"   
          class="mx-auto w-full max-w-[320px] h-auto object-contain">

@@ -645,17 +645,23 @@ Route::get('/check-storage-link', function () {
     $targetPath = storage_path('app/public');
     $testImagePath = 'news_images/9sror8oPVh4cK0tSoiItIWHMLe3t5S5bNl81eom2.png';
     
+    $linkTarget = is_link($publicStoragePath) ? readlink($publicStoragePath) : null;
+    $isRelative = $linkTarget && (strpos($linkTarget, '../') === 0 || strpos($linkTarget, '..\\') === 0);
+    
     $status = [
         'symlink_exists' => file_exists($publicStoragePath),
         'is_symlink' => is_link($publicStoragePath),
         'is_directory' => is_dir($publicStoragePath),
-        'symlink_target' => is_link($publicStoragePath) ? readlink($publicStoragePath) : null,
+        'symlink_target' => $linkTarget,
+        'is_relative_path' => $isRelative,
+        'is_absolute_path' => $linkTarget && !$isRelative,
         'target_exists' => is_dir($targetPath),
         'test_image_exists_in_storage' => file_exists($targetPath . '/' . $testImagePath),
         'test_image_exists_via_symlink' => file_exists($publicStoragePath . '/' . $testImagePath),
         'test_image_url' => asset('storage/' . $testImagePath),
         'public_storage_path' => $publicStoragePath,
         'target_path' => $targetPath,
+        'issue' => $linkTarget && !$isRelative ? 'Symlink uses absolute path - this causes 404 errors! Use /create-storage-link to fix.' : null,
     ];
     
     return response()->json($status, 200, [], JSON_PRETTY_PRINT);
@@ -675,9 +681,11 @@ Route::get('/create-storage-link', function (Request $request) {
         // Step 1: Check if public/storage exists
         if (file_exists($publicStoragePath)) {
             if (is_link($publicStoragePath)) {
-                // It's a symlink - check if it's valid
+                // It's a symlink - check if it's valid and uses relative path
                 $linkTarget = readlink($publicStoragePath);
-                if ($linkTarget === '../storage/app/public' || realpath($publicStoragePath) === realpath($targetPath)) {
+                $isRelative = (strpos($linkTarget, '../') === 0 || strpos($linkTarget, '..\\') === 0);
+                
+                if ($isRelative && ($linkTarget === '../storage/app/public' || realpath($publicStoragePath) === realpath($targetPath))) {
                     $messages[] = "✓ Symlink already exists and is correct: public/storage -> $linkTarget";
                     return response()->json([
                         'success' => true,
@@ -687,9 +695,9 @@ Route::get('/create-storage-link', function (Request $request) {
                         'warning' => 'Please remove this route after verifying the symlink works!'
                     ]);
                 } else {
-                    // Broken or incorrect symlink
-                    $messages[] = "⚠ Found existing symlink pointing to: $linkTarget";
-                    $messages[] = "Removing incorrect symlink...";
+                    // Absolute path or incorrect symlink - MUST REMOVE AND RECREATE
+                    $messages[] = "⚠ Found existing symlink with ABSOLUTE path: $linkTarget";
+                    $messages[] = "This causes 404 errors! Removing and recreating with relative path...";
                     unlink($publicStoragePath);
                 }
             } elseif (is_dir($publicStoragePath)) {
