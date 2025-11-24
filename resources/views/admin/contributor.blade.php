@@ -111,7 +111,7 @@
                         </div>
                     </div>
                 </div>
-
+{{-- 
                 <div class="bg-white overflow-hidden shadow rounded-lg">
                     <div class="p-5">
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
@@ -125,7 +125,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Search and Filter -->
             <form method="GET" action="{{ url()->current() }}" class="bg-white shadow rounded-lg mb-6">

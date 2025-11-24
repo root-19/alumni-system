@@ -93,13 +93,13 @@
                             </div>
 
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Time Limit (minutes, optional)</label>
+                                {{-- <label class="block text-sm font-semibold text-gray-700 mb-1">Time Limit (minutes, optional)</label>
                                 <input type="number" name="quiz_time_limit" id="quiz_time_limit" 
                                        value="{{ old('quiz_time_limit') }}" min="1"
                                        class="w-full text-black px-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                                 @error('quiz_time_limit')
                                     <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                                @enderror
+                                @enderror --}}
                             </div>
                         </div>
 

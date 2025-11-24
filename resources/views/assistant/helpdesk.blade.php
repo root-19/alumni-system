@@ -201,7 +201,7 @@
             </div>
 
             <!-- Support Tickets (Placeholder) -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            {{-- <div class="bg-white rounded-xl shadow-sm border border-gray-100">
                 <div class="p-6 border-b border-gray-100">
                     <div class="flex justify-between items-center">
                         <div>
@@ -232,7 +232,7 @@
                             </button>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>

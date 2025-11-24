@@ -58,7 +58,7 @@
                         ],
                         'assistant' => [
                             ['route' => 'dashboard', 'label' => __('Assistant Dashboard'), 'icon' => 'home', 'active' => 'dashboard'],
-                            ['route' => 'givingBack', 'label' => __('Giving'), 'icon' => 'heart', 'active' => 'givingBack'],
+                     
                             ['route' => 'accounts', 'label' => __('Accounts'), 'icon' => 'users', 'active' => 'accounts'],
                             ['route' => 'news', 'label' => __('News & Updates'), 'icon' => 'newspaper', 'active' => 'news'],
                             ['route' => 'events', 'label' => __('Events'), 'icon' => 'calendar-days', 'active' => 'events'],

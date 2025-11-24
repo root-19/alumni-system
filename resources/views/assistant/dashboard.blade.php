@@ -170,12 +170,12 @@
                                 <span class="text-xs sm:text-sm font-medium text-purple-800 text-center">Account Management</span>
                             </a>
                             
-                            <a href="{{ route('assistant.helpdesk') }}" class="flex flex-col items-center p-3 sm:p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors duration-200">
+                            {{-- <a href="{{ route('assistant.helpdesk') }}" class="flex flex-col items-center p-3 sm:p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors duration-200">
                                 <svg class="w-6 h-6 sm:w-8 sm:h-8 text-orange-600 mb-1 sm:mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 <span class="text-xs sm:text-sm font-medium text-orange-800 text-center">Helpdesk & Support</span>
-                            </a>
+                            </a> --}}
                         </div>
                     </div>
                 </div>
