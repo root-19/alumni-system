@@ -8,7 +8,7 @@
     <div class="font-semibold text-sm">
         {{ auth()->user()->name }} {{ auth()->user()->last_name }}
     </div>
-    <div class="text-ml text-gray-400 capitalize">
+    <div class="text-ml text-white capitalize">
         {{ auth()->user()->role }}
     </div>
       </div>
@@ -16,29 +16,29 @@
     @endauth
 
 <flux:navlist variant="outline">
-<flux:navlist.group :heading="__('Admin Platform')" class="grid gap-5 ">
+<flux:navlist.group :heading="__('Admin Platform')" class="grid gap-5 text-white">
 
     {{-- Dashboard for ADMIN --}}
     @if(auth()->user()->role === 'admin')
-          <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
+          <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate class="text-white">
             {{ __('Dashboard') }}
         </flux:navlist.item>
-        <flux:navlist.item :href="route('givingBack')" :current="request()->routeIs('givingBack')" wire:navigate>
+        <flux:navlist.item :href="route('givingBack')" :current="request()->routeIs('givingBack')" wire:navigate class="text-white">
             {{ __('Giving') }}
         </flux:navlist.item>
-        <flux:navlist.item :href="route('accounts')" :current="request()->routeIs('accounts')" wire:navigate>
+        <flux:navlist.item :href="route('accounts')" :current="request()->routeIs('accounts')" wire:navigate class="text-white">
             {{ __('Acounts') }}
         </flux:navlist.item>
-        <flux:navlist.item :href="route('admin.news')" :current="request()->routeIs('admin.news')" wire:navigate>
+        <flux:navlist.item :href="route('admin.news')" :current="request()->routeIs('admin.news')" wire:navigate class="text-white">
             {{ __('News and updates') }}
         </flux:navlist.item>
-          <flux:navlist.item :href="route('events')" :current="request()->routeIs('events')" wire:navigate>
+          <flux:navlist.item :href="route('events')" :current="request()->routeIs('events')" wire:navigate class="text-white">
             {{ __('Events') }}
         </flux:navlist.item>
-          <flux:navlist.item :href="route('resume')" :current="request()->routeIs('resume')" wire:navigate>
+          <flux:navlist.item :href="route('resume')" :current="request()->routeIs('resume')" wire:navigate class="text-white">
             {{ __('Training') }}
         </flux:navlist.item>
-          <flux:navlist.item :href="route('report')" :current="request()->routeIs('report')" wire:navigate>
+          <flux:navlist.item :href="route('report')" :current="request()->routeIs('report')" wire:navigate class="text-white">
             {{ __('Reports') }}
         </flux:navlist.item>
     @endif

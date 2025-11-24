@@ -21,7 +21,7 @@
             <div class="font-semibold text-sm">
                 {{ auth()->user()?->name }} {{ auth()->user()?->last_name }}
             </div>
-            <div class="text-ml text-gray-300 capitalize">
+            <div class="text-ml text-white capitalize">
                 @php
                     $role = auth()->user()?->role;
                     $isAlumni = auth()->user()?->is_alumni;
@@ -38,7 +38,7 @@
 
     {{-- Navigation --}}
     <flux:navlist variant="outline">
-        <flux:navlist.group :heading="__('Platform')" class="flex flex-col text-2xl gap-1">
+        <flux:navlist.group :heading="__('Platform')" class="flex flex-col text-2xl gap-1 text-white">
             @auth
                 @php
                     $role = auth()->user()?->role;
@@ -115,7 +115,7 @@
                                         :href="route($subItem['route'])"
                                         :current="request()->routeIs($subItem['active'])"
                                         wire:navigate
-                                        class="rounded-md px-3 py-2 text-sm text-black font-bold tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
+                                        class="rounded-md px-3 py-2 text-sm text-white font-bold tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
                                         {{ $subItem['label'] }}
                                     </flux:navlist.item>
                                 @endforeach
@@ -128,7 +128,7 @@
                             :href="route($item['route'])"
                             :current="request()->routeIs($item['active'])"
                             wire:navigate
-                            class="rounded-md px-3 py-2 text-sm font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
+                            class="rounded-md px-3 py-2 text-sm text-white font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
                             {{ $item['label'] }}
                         </flux:navlist.item>
                     @endif
