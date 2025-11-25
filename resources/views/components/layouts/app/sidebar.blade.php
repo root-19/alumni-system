@@ -3,11 +3,29 @@
 <head>
     @include('partials.head')
     @vite('resources/css/app.css')
+    <style>
+        /* Force white text color in sidebar for all browsers */
+        flux-sidebar,
+        flux-sidebar *,
+        flux-navlist,
+        flux-navlist *,
+        flux-navlist-group,
+        flux-navlist-group *,
+        flux-navlist-item,
+        flux-navlist-item * {
+            color: white !important;
+        }
+        flux-sidebar button,
+        flux-sidebar span,
+        flux-sidebar div {
+            color: white !important;
+        }
+    </style>
 </head>
 
 <body class="min-h-screen bg-white">
 
-<flux:sidebar sticky stashable mobile class="hidden lg:flex bg-gradient-to-b from-green-700 to-green-500 text-white" style="z-index: 9999;">
+<flux:sidebar sticky stashable mobile class="hidden lg:flex bg-gradient-to-b from-green-700 to-green-500 text-white" style="z-index: 9999; color: white !important;">
 
     <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
@@ -16,12 +34,12 @@
 
     {{-- User Info --}}
     @auth
-    <div class="flex items-center gap-5 px-4 py-2 text-white">
-        <div class="text-left leading-tight">
-            <div class="font-semibold text-sm">
+    <div class="flex items-center gap-5 px-4 py-2 text-white" style="color: white !important;">
+        <div class="text-left leading-tight" style="color: white !important;">
+            <div class="font-semibold text-sm" style="color: white !important;">
                 {{ auth()->user()?->name }} {{ auth()->user()?->last_name }}
             </div>
-            <div class="text-ml text-white capitalize">
+            <div class="text-ml text-white capitalize" style="color: white !important;">
                 @php
                     $role = auth()->user()?->role;
                     $isAlumni = auth()->user()?->is_alumni;
@@ -38,7 +56,7 @@
 
     {{-- Navigation --}}
     <flux:navlist variant="outline">
-        <flux:navlist.group :heading="__('Platform')" class="flex flex-col text-2xl gap-1 text-white">
+        <flux:navlist.group :heading="__('Platform')" class="flex flex-col text-2xl gap-1 text-white" style="color: white !important;">
             @auth
                 @php
                     $role = auth()->user()?->role;
@@ -66,18 +84,20 @@
                         'admin' => [
                             ['route' => 'dashboard', 'label' => __('Dashboard'), 'icon' => 'home', 'active' => 'dashboard'],
 
-                            ['route' => 'accounts', 'label' => __('Accounts'), 'icon' => 'users', 'active' => 'accounts'],
-                            ['group' => 'Announcements', 'items' => [
-                                ['route' => 'admin.news', 'label' => __('Events & Updates'), 'icon' => 'newspaper', 'active' => 'admin.news'],
-                                ['route' => 'admin.events.index', 'label' => __('Events'), 'icon' => 'calendar-days', 'active' => 'admin.events.*'],
+                            ['group' => 'Announcement Management', 'items' => [
+                                ['route' => 'admin.news', 'label' => __('create news and event'), 'icon' => 'newspaper', 'active' => 'admin.news'],
+                                ['route' => 'admin.events.index', 'label' => __('Events Management'), 'icon' => 'calendar-days', 'active' => 'admin.events.*'],
                                 ['route' => 'admin.registrations.index', 'label' => __('Registrations'), 'icon' => 'clipboard-document-list', 'active' => 'admin.registrations.*'],
                                 ['route' => 'admin.attendance.index', 'label' => __('Attendance'), 'icon' => 'check-circle', 'active' => 'admin.attendance.*'],
                                 ['route' => 'admin.event-logs.index', 'label' => __('Event Logs'), 'icon' => 'archive-box', 'active' => 'admin.event-logs.*'],
                             ]],
+                            ['group' => 'User Management', 'items' => [
+                                ['route' => 'admin.register.form', 'label' => __('Create New Accounts'), 'icon' => 'user-plus', 'active' => 'admin.register.*'],
+                                ['route' => 'accounts', 'label' => __('Account Management'), 'icon' => 'users', 'active' => 'accounts'],
+                            ]],
                             ['route' => 'resume', 'label' => __('Resume'), 'icon' => 'document-text', 'active' => 'resume'],
                             ['route' => 'report', 'label' => __('Reports'), 'icon' => 'chat-bubble', 'active' => 'messages'],
                             ['route' => 'admin.contributor', 'label' => __('Contributor'), 'icon' => 'users', 'active' => 'admin.contributor'],
-                            ['route' => 'admin.register.form', 'label' => __('Create Account'), 'icon' => 'user-plus', 'active' => 'admin.register.form'],
                             ['route' => 'admin.trainings.create', 'label' => __('Training Ground'), 'icon' => 'academic-cap', 'active' => 'admin.trainings.create'],
                             ['route' => 'admin.trainings.index', 'label' => __('Training Data'), 'icon' => 'rectangle-group', 'active' => 'admin.trainings.index'],
                             ['route' => 'admin.document-requests.index', 'label' => __('Document Requests'), 'icon' => 'inbox', 'active' => 'admin.document-requests.*'],
@@ -94,17 +114,17 @@
                     @if(isset($item['group']))
                         {{-- Render collapsible group --}}
                         <div x-data="{ open: false }" class="space-y-1">
-                            <button @click="open = !open" class="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition rounded-md text-white">
-                                <span class="flex items-center gap-2">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <button @click="open = !open" class="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition rounded-md text-white" style="color: white !important;">
+                                <span class="flex items-center gap-2" style="color: white !important;">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white !important;">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
                                     </svg>
-                                    {{ $item['group'] }}
+                                    <span style="color: white !important;">{{ $item['group'] }}</span>
                                 </span>
-                                <svg x-show="!open" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg x-show="!open" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white !important;">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
-                                <svg x-show="open" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg x-show="open" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white !important;">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
                                 </svg>
                             </button>
@@ -115,8 +135,9 @@
                                         :href="route($subItem['route'])"
                                         :current="request()->routeIs($subItem['active'])"
                                         wire:navigate
-                                        class="rounded-md px-3 py-2 text-sm text-white font-bold tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
-                                        {{ $subItem['label'] }}
+                                        class="rounded-md px-3 py-2 text-sm text-white font-bold tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2"
+                                        style="color: white !important;">
+                                        <span style="color: white !important;">{{ $subItem['label'] }}</span>
                                     </flux:navlist.item>
                                 @endforeach
                             </div>
@@ -128,14 +149,15 @@
                             :href="route($item['route'])"
                             :current="request()->routeIs($item['active'])"
                             wire:navigate
-                            class="rounded-md px-3 py-2 text-sm text-white font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
-                            {{ $item['label'] }}
+                            class="rounded-md px-3 py-2 text-sm text-white font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2"
+                            style="color: white !important;">
+                            <span style="color: white !important;">{{ $item['label'] }}</span>
                         </flux:navlist.item>
                     @endif
                 @endforeach
 
                 @if(empty($menuItems))
-                    <div class="text-xs text-white/60 px-3 py-2">{{ __('No menu available') }}</div>
+                    <div class="text-xs text-white/60 px-3 py-2" style="color: white !important;">{{ __('No menu available') }}</div>
                 @endif
             @endauth
         </flux:navlist.group>

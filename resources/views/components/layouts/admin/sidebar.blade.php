@@ -16,31 +16,130 @@
     @endauth
 
 <flux:navlist variant="outline">
-<flux:navlist.group :heading="__('Admin Platform')" class="grid gap-5 text-white">
+<flux:navlist.group :heading="__('Admin Platform')" class="grid gap-2 text-white">
 
     {{-- Dashboard for ADMIN --}}
     @if(auth()->user()->role === 'admin')
-          <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate class="text-white">
+        {{-- 1. DASHBOARD --}}
+        <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate class="text-white">
             {{ __('Dashboard') }}
         </flux:navlist.item>
-        <flux:navlist.item :href="route('givingBack')" :current="request()->routeIs('givingBack')" wire:navigate class="text-white">
-            {{ __('Giving') }}
+
+        {{-- 2. ANNOUNCEMENT (Collapsible Group) --}}
+        <div x-data="{ open: false }" class="space-y-1">
+            <button @click="open = !open" class="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition rounded-md text-white">
+                <span class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
+                    </svg>
+                    {{ __('Announcement') }}
+                </span>
+                <svg x-show="!open" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+                <svg x-show="open" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                </svg>
+            </button>
+            <div x-show="open" x-collapse class="ml-4 space-y-1">
+                <flux:navlist.item
+                    icon="newspaper"
+                    :href="route('admin.news')"
+                    :current="request()->routeIs('admin.news')"
+                    wire:navigate
+                    class="rounded-md px-3 py-2 text-sm text-white font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
+                    {{ __('Create News & Events') }}
+                </flux:navlist.item>
+                <flux:navlist.item
+                    icon="academic-cap"
+                    :href="route('admin.trainings.create')"
+                    :current="request()->routeIs('admin.trainings.create')"
+                    wire:navigate
+                    class="rounded-md px-3 py-2 text-sm text-white font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
+                    {{ __('Create Trainings') }}
+                </flux:navlist.item>
+                <flux:navlist.item
+                    icon="newspaper"
+                    :href="route('admin.news')"
+                    :current="request()->routeIs('admin.news')"
+                    wire:navigate
+                    class="rounded-md px-3 py-2 text-sm text-white font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
+                    {{ __('News Management') }}
+                </flux:navlist.item>
+                <flux:navlist.item
+                    icon="calendar-days"
+                    :href="route('admin.events.index')"
+                    :current="request()->routeIs('admin.events.*')"
+                    wire:navigate
+                    class="rounded-md px-3 py-2 text-sm text-white font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
+                    {{ __('Event Management') }}
+                </flux:navlist.item>
+                <flux:navlist.item
+                    icon="rectangle-group"
+                    :href="route('admin.trainings.index')"
+                    :current="request()->routeIs('admin.trainings.index')"
+                    wire:navigate
+                    class="rounded-md px-3 py-2 text-sm text-white font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
+                    {{ __('Training Management') }}
+                </flux:navlist.item>
+            </div>
+        </div>
+
+        {{-- 3. GIVING BACK (PREVIOUSLY CONTRIBUTOR) --}}
+        <flux:navlist.item 
+            icon="heart" 
+            :href="route('givingBack')" 
+            :current="request()->routeIs('givingBack') || request()->routeIs('admin.contributor')" 
+            wire:navigate 
+            class="text-white">
+            {{ __('Giving Back') }}
         </flux:navlist.item>
-        <flux:navlist.item :href="route('accounts')" :current="request()->routeIs('accounts')" wire:navigate class="text-white">
-            {{ __('Acounts') }}
+
+        {{-- 4. DOCUMENT REQUESTS --}}
+        <flux:navlist.item 
+            icon="inbox" 
+            :href="route('admin.document-requests.index')" 
+            :current="request()->routeIs('admin.document-requests.*')" 
+            wire:navigate 
+            class="text-white">
+            {{ __('Document Requests') }}
         </flux:navlist.item>
-        <flux:navlist.item :href="route('admin.news')" :current="request()->routeIs('admin.news')" wire:navigate class="text-white">
-            {{ __('News and updates') }}
-        </flux:navlist.item>
-          <flux:navlist.item :href="route('events')" :current="request()->routeIs('events')" wire:navigate class="text-white">
-            {{ __('Events') }}
-        </flux:navlist.item>
-          <flux:navlist.item :href="route('resume')" :current="request()->routeIs('resume')" wire:navigate class="text-white">
-            {{ __('Training') }}
-        </flux:navlist.item>
-          <flux:navlist.item :href="route('report')" :current="request()->routeIs('report')" wire:navigate class="text-white">
-            {{ __('Reports') }}
-        </flux:navlist.item>
+
+        {{-- 5. USER MANAGEMENT (Collapsible Group) --}}
+        <div x-data="{ open: false }" class="space-y-1">
+            <button @click="open = !open" class="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition rounded-md text-white">
+                <span class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
+                    </svg>
+                    {{ __('User Management') }}
+                </span>
+                <svg x-show="!open" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+                <svg x-show="open" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                </svg>
+            </button>
+            <div x-show="open" x-collapse class="ml-4 space-y-1">
+                <flux:navlist.item
+                    icon="user-plus"
+                    :href="route('admin.register.form')"
+                    :current="request()->routeIs('admin.register.*')"
+                    wire:navigate
+                    class="rounded-md px-3 py-2 text-sm text-white font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
+                    {{ __('Create New Accounts') }}
+                </flux:navlist.item>
+                <flux:navlist.item
+                    icon="users"
+                    :href="route('accounts')"
+                    :current="request()->routeIs('accounts')"
+                    wire:navigate
+                    class="rounded-md px-3 py-2 text-sm text-white font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
+                    {{ __('Manage Accounts') }}
+                </flux:navlist.item>
+            </div>
+        </div>
     @endif
 
 </flux:navlist.group>

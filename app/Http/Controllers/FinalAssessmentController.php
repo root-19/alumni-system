@@ -149,7 +149,7 @@ class FinalAssessmentController extends Controller
 
     public function result($attemptId)
     {
-        $attempt = UserFinalAssessmentAttempt::with(['finalAssessment.questions'])
+        $attempt = UserFinalAssessmentAttempt::with(['finalAssessment.questions', 'finalAssessment.training'])
             ->findOrFail($attemptId);
 
         if ($attempt->user_id !== Auth::id()) {
