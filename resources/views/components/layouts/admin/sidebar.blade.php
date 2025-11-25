@@ -67,6 +67,14 @@
                     {{ __('News Management') }}
                 </flux:navlist.item>
                 <flux:navlist.item
+                    icon="eye"
+                    :href="route('admin.newsdisplay')"
+                    :current="request()->routeIs('admin.newsdisplay')"
+                    wire:navigate
+                    class="rounded-md px-3 py-2 text-sm text-white font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2">
+                    {{ __('News Display') }}
+                </flux:navlist.item>
+                <flux:navlist.item
                     icon="calendar-days"
                     :href="route('admin.events.index')"
                     :current="request()->routeIs('admin.events.*')"

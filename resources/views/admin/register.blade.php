@@ -55,7 +55,7 @@
 
                 <!-- Name -->
                 <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Name</label>
                     <div class="relative">
                         <input 
                             type="text" 

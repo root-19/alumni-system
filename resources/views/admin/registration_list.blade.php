@@ -14,7 +14,7 @@
 					<option value="">All Events</option>
 					@foreach($events as $event)
 						<option value="{{ $event->id }}" @selected(request('post_id') == $event->id)>
-							{{ str($event->content)->limit(60) }}
+							{{ $event->title ?? str($event->content)->limit(60) }}
 						</option>
 					@endforeach
 				</select>
@@ -31,7 +31,7 @@
 			<table class="min-w-full divide-y divide-gray-200">
 				<thead class="bg-gray-50">
 					<tr>
-						<th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
+						<th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event Title</th>
 						<th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registrant</th>
 						<th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
 						<th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
@@ -44,13 +44,23 @@
 					@forelse($registrations as $registration)
 						<tr>
 							<td class="px-4 py-2 text-sm text-gray-900">
-								<a href="{{ route('admin.events.show', $registration->post) }}" class="text-green-700 hover:text-green-800">
-									{{ str($registration->post?->content)->limit(60) ?? '—' }}
+								<a href="{{ route('admin.events.show', $registration->post) }}" class="text-green-700 hover:text-green-800 font-medium">
+									{{ $registration->post?->title ?? '—' }}
 								</a>
 							</td>
 							<td class="px-4 py-2 text-sm text-gray-900">{{ $registration->user?->name ?? 'Unknown' }}</td>
 							<td class="px-4 py-2 text-sm text-gray-700">{{ $registration->user?->email ?? '—' }}</td>
-							<td class="px-4 py-2 text-sm text-gray-700">{{ $registration->category ?? 'Alumni' }}</td>
+							<td class="px-4 py-2 text-sm">
+								@if($registration->user?->is_alumni)
+									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+										Alumni
+									</span>
+								@else
+									<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+										Student
+									</span>
+								@endif
+							</td>
 							<td class="px-4 py-2 text-sm text-gray-700">{{ ucfirst($registration->status) }}</td>
 							<td class="px-4 py-2 text-sm text-gray-500">{{ $registration->created_at?->format('M d, Y g:i A') }}</td>
 							<td class="px-4 py-2 text-right">

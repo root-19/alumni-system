@@ -3,43 +3,22 @@
 <head>
     @include('partials.head')
     @vite('resources/css/app.css')
-    <style>
-        /* Force white text color in sidebar for all browsers */
-        flux-sidebar,
-        flux-sidebar *,
-        flux-navlist,
-        flux-navlist *,
-        flux-navlist-group,
-        flux-navlist-group *,
-        flux-navlist-item,
-        flux-navlist-item * {
-            color: white !important;
-        }
-        flux-sidebar button,
-        flux-sidebar span,
-        flux-sidebar div {
-            color: white !important;
-        }
-    </style>
 </head>
 
 <body class="min-h-screen bg-white">
 
-<flux:sidebar sticky stashable mobile class="hidden lg:flex bg-gradient-to-b from-green-700 to-green-500 text-white" style="z-index: 9999; color: white !important;">
+<flux:sidebar sticky stashable mobile class="hidden lg:flex bg-gradient-to-b from-green-700 to-green-500 text-white" style="z-index: 9999;">
 
     <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
-
-    
-
     {{-- User Info --}}
     @auth
-    <div class="flex items-center gap-5 px-4 py-2 text-white" style="color: white !important;">
-        <div class="text-left leading-tight" style="color: white !important;">
-            <div class="font-semibold text-sm" style="color: white !important;">
+    <div class="flex items-center gap-5 px-4 py-2 text-white">
+        <div class="text-left leading-tight">
+            <div class="font-semibold text-sm text-white">
                 {{ auth()->user()?->name }} {{ auth()->user()?->last_name }}
             </div>
-            <div class="text-ml text-white capitalize" style="color: white !important;">
+            <div class="text-sm text-white capitalize">
                 @php
                     $role = auth()->user()?->role;
                     $isAlumni = auth()->user()?->is_alumni;
@@ -56,7 +35,7 @@
 
     {{-- Navigation --}}
     <flux:navlist variant="outline">
-        <flux:navlist.group :heading="__('Platform')" class="flex flex-col text-2xl gap-1 text-white" style="color: white !important;">
+        <flux:navlist.group :heading="__('Platform')" class="flex flex-col text-2xl gap-1 text-white">
             @auth
                 @php
                     $role = auth()->user()?->role;
@@ -66,17 +45,15 @@
                             ['route' => 'dashboard', 'label' => __('User Dashboard'), 'icon' => 'home', 'active' => 'dashboard'],
                             ['route' => 'events', 'label' => __('Events'), 'icon' => 'calendar-days', 'active' => 'events'],
                             ['route' => 'news', 'label' => __('Events & Updates'), 'icon' => 'newspaper', 'active' => 'news'],
-                            ['route' => 'message', 'label' => __('Message'), 'icon' => 'chat-bubble-left-right', 'active' => 'message'],
+                            <!-- ['route' => 'message', 'label' => __('Message'), 'icon' => 'chat-bubble-left-right', 'active' => 'message'], -->
                             ['route' => 'profile.edit', 'label' => __('Profile'), 'icon' => 'user-circle', 'active' => 'profile.edit'],
                             ['route' => 'donations', 'label' => __('Giving Back'), 'icon' => 'heart', 'active' => 'donations'],
                             ['route' => 'resume-view', 'label' => __('Resume'), 'icon' => 'document-text', 'active' => 'resume-view'],
                             ['route' => 'trainings.index', 'label' => __('Training'), 'icon' => 'academic-cap', 'active' => 'trainings.index'],
                             ['route' => 'documents.index', 'label' => __('Documents'), 'icon' => 'document-duplicate', 'active' => 'documents.index'],
-
                         ],
                         'assistant' => [
                             ['route' => 'dashboard', 'label' => __('Assistant Dashboard'), 'icon' => 'home', 'active' => 'dashboard'],
-                     
                             ['route' => 'accounts', 'label' => __('Accounts'), 'icon' => 'users', 'active' => 'accounts'],
                             ['route' => 'news', 'label' => __('News & Updates'), 'icon' => 'newspaper', 'active' => 'news'],
                             ['route' => 'events', 'label' => __('Events'), 'icon' => 'calendar-days', 'active' => 'events'],
@@ -84,48 +61,53 @@
                         'admin' => [
                             ['route' => 'dashboard', 'label' => __('Dashboard'), 'icon' => 'home', 'active' => 'dashboard'],
 
-                            ['group' => 'Announcement Management', 'items' => [
-                                ['route' => 'admin.news', 'label' => __('create news and event'), 'icon' => 'newspaper', 'active' => 'admin.news'],
-                                ['route' => 'admin.events.index', 'label' => __('Events Management'), 'icon' => 'calendar-days', 'active' => 'admin.events.*'],
+                            ['group' => 'Announcements', 'items' => [
+                                ['route' => 'admin.news', 'label' => __('Create News & Event'), 'icon' => 'newspaper', 'active' => 'admin.news'],
+                                ['route' => 'admin.events.index', 'label' => __('Event Management'), 'icon' => 'calendar-days', 'active' => 'admin.events.*'],
+                                ['route' => 'admin.newsdisplay', 'label' => __('News Management'), 'icon' => 'eye', 'active' => 'admin.newsdisplay'],
                                 ['route' => 'admin.registrations.index', 'label' => __('Registrations'), 'icon' => 'clipboard-document-list', 'active' => 'admin.registrations.*'],
                                 ['route' => 'admin.attendance.index', 'label' => __('Attendance'), 'icon' => 'check-circle', 'active' => 'admin.attendance.*'],
                                 ['route' => 'admin.event-logs.index', 'label' => __('Event Logs'), 'icon' => 'archive-box', 'active' => 'admin.event-logs.*'],
+                                ['route' => 'admin.trainings.create', 'label' => __('Create Training'), 'icon' => 'academic-cap', 'active' => 'admin.trainings.create'],
+                                ['route' => 'admin.trainings.index', 'label' => __('Training Management'), 'icon' => 'rectangle-group', 'active' => 'admin.trainings.index'],
                             ]],
-                            ['group' => 'User Management', 'items' => [
-                                ['route' => 'admin.register.form', 'label' => __('Create New Accounts'), 'icon' => 'user-plus', 'active' => 'admin.register.*'],
-                                ['route' => 'accounts', 'label' => __('Account Management'), 'icon' => 'users', 'active' => 'accounts'],
-                            ]],
-                            ['route' => 'resume', 'label' => __('Resume'), 'icon' => 'document-text', 'active' => 'resume'],
-                            ['route' => 'report', 'label' => __('Reports'), 'icon' => 'chat-bubble', 'active' => 'messages'],
-                            ['route' => 'admin.contributor', 'label' => __('Contributor'), 'icon' => 'users', 'active' => 'admin.contributor'],
-                            ['route' => 'admin.trainings.create', 'label' => __('Training Ground'), 'icon' => 'academic-cap', 'active' => 'admin.trainings.create'],
-                            ['route' => 'admin.trainings.index', 'label' => __('Training Data'), 'icon' => 'rectangle-group', 'active' => 'admin.trainings.index'],
-                            ['route' => 'admin.document-requests.index', 'label' => __('Document Requests'), 'icon' => 'inbox', 'active' => 'admin.document-requests.*'],
-                            
 
+                            ['route' => 'resume', 'label' => __('Resume'), 'icon' => 'document-text', 'active' => 'resume'],
+                            ['route' => 'admin.contributor', 'label' => __('Giving Back'), 'icon' => 'users', 'active' => 'admin.contributor'],
+                            ['route' => 'admin.document-requests.index', 'label' => __('Document Requests'), 'icon' => 'inbox', 'active' => 'admin.document-requests.*'],
+
+                            ['group' => 'User Management', 'items' => [
+                                ['route' => 'admin.register.form', 'label' => __('Create Account'), 'icon' => 'user-plus', 'active' => 'admin.register.form'],
+                                ['route' => 'accounts', 'label' => __('Accounts'), 'icon' => 'users', 'active' => 'accounts'],
+                            ]],
                         ],
                     ];
 
                     $menuItems = $menus[$role] ?? [];
                 @endphp
 
-                {{-- Auto-render menu items based on role --}}
                 @foreach($menuItems as $item)
                     @if(isset($item['group']))
-                        {{-- Render collapsible group --}}
-                        <div x-data="{ open: false }" class="space-y-1">
-                            <button @click="open = !open" class="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition rounded-md text-white" style="color: white !important;">
-                                <span class="flex items-center gap-2" style="color: white !important;">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white !important;">
+                        {{-- Collapsible group, auto-open if any sub-item active --}}
+                        @php
+                            $isOpen = false;
+                            foreach($item['items'] as $subItem){
+                                if(request()->routeIs($subItem['active'])){
+                                    $isOpen = true;
+                                    break;
+                                }
+                            }
+                        @endphp
+                        <div x-data="{ open: {{ $isOpen ? 'true' : 'false' }} }" class="space-y-1">
+                            <button @click="open = !open" class="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium tracking-wide text-white hover:bg-white/10 rounded-md transition">
+                                <span class="flex items-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
                                     </svg>
-                                    <span style="color: white !important;">{{ $item['group'] }}</span>
+                                    {{ $item['group'] }}
                                 </span>
-                                <svg x-show="!open" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white !important;">
+                                <svg :class="{'rotate-180': open}" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                                <svg x-show="open" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white !important;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
                                 </svg>
                             </button>
                             <div x-show="open" x-collapse class="ml-4 space-y-1">
@@ -135,29 +117,29 @@
                                         :href="route($subItem['route'])"
                                         :current="request()->routeIs($subItem['active'])"
                                         wire:navigate
-                                        class="rounded-md px-3 py-2 text-sm text-white font-bold tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2"
-                                        style="color: white !important;">
-                                        <span style="color: white !important;">{{ $subItem['label'] }}</span>
+                                        class="rounded-md px-3 py-2 text-sm text-white font-bold hover:bg-white/20 transition flex items-center gap-2
+                                            {{ request()->routeIs($subItem['active']) ? 'bg-white/20' : '' }}">
+                                        {{ $subItem['label'] }}
                                     </flux:navlist.item>
                                 @endforeach
                             </div>
                         </div>
                     @else
-                        {{-- Render regular menu item --}}
+                        {{-- Single menu item --}}
                         <flux:navlist.item
                             :icon="$item['icon']"
                             :href="route($item['route'])"
                             :current="request()->routeIs($item['active'])"
                             wire:navigate
-                            class="rounded-md px-3 py-2 text-sm text-white font-medium tracking-wide hover:bg-white/10 focus:bg-white/15 transition flex items-center gap-2"
-                            style="color: white !important;">
-                            <span style="color: white !important;">{{ $item['label'] }}</span>
+                            class="rounded-md px-3 py-2 text-sm text-white font-medium hover:bg-white/20 transition flex items-center gap-2
+                                {{ request()->routeIs($item['active']) ? 'bg-white/20' : '' }}">
+                            {{ $item['label'] }}
                         </flux:navlist.item>
                     @endif
                 @endforeach
 
                 @if(empty($menuItems))
-                    <div class="text-xs text-white/60 px-3 py-2" style="color: white !important;">{{ __('No menu available') }}</div>
+                    <div class="text-xs text-white/60 px-3 py-2">{{ __('No menu available') }}</div>
                 @endif
             @endauth
         </flux:navlist.group>
@@ -173,9 +155,9 @@
             icon:trailing="chevrons-up-down"
         />
 
-        <flux:menu class="w-[220px]">
+        <flux:menu class="w-[220px] text-white">
             <div class="p-0 text-sm font-normal">
-                <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+                <div class="flex items-center gap-2 px-1 py-1.5 text-start">
                     <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
                         @if(auth()->user()?->profile_image_path)
                             <img src="{{ asset('storage/' . auth()->user()->profile_image_path) }}" 
@@ -187,7 +169,7 @@
                             </span>
                         @endif
                     </span>
-                    <div class="grid flex-1 text-start text-sm leading-tight">
+                    <div class="grid flex-1 text-start text-sm leading-tight text-white">
                         <span class="truncate font-semibold">{{ auth()->user()?->name }} {{ auth()->user()?->last_name }}</span>
                         <span class="truncate text-xs">{{ auth()->user()?->email }}</span>
                     </div>

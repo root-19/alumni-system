@@ -477,6 +477,11 @@ Route::post('/comments/{comment}/like', [CommentController::class, 'like'])->nam
         return view('admin.news', compact('news', 'alumniPosts', 'featuredNews', 'featuredAlumni'));
     })->name('admin.news');
 
+    Route::get('/admin/news-display', function () {
+        $news = \App\Models\News::latest()->get();
+        return view('admin.newsdisplay', compact('news'));
+    })->name('admin.newsdisplay');
+
     // Admin Static Pages
 //     Route::get('/admin/giving-back', fn() => view('admin.givingBack'))->name('givingBack');
 //    Route::get('/admin/giving-back', function () {

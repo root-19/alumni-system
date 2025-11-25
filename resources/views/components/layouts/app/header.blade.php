@@ -17,6 +17,21 @@
                 </span>
             </div>
 
+            {{-- Message/Report Icon --}}
+            @if(auth()->user()->role === 'admin' || auth()->user()->role === 'assistant')
+                <a href="{{ route('report') }}" class="p-2 rounded-full hover:bg-gray-200 relative focus:outline-none transition-colors {{ request()->routeIs('report') ? 'bg-green-100' : '' }}" title="Messages & Reports">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 {{ request()->routeIs('report') ? 'text-green-600' : 'text-gray-600' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                </a>
+            @else
+                <a href="{{ route('message') }}" class="p-2 rounded-full hover:bg-gray-200 relative focus:outline-none transition-colors {{ request()->routeIs('message') ? 'bg-green-100' : '' }}" title="Messages">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 {{ request()->routeIs('message') ? 'text-green-600' : 'text-gray-600' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                </a>
+            @endif
+
             {{-- Notifications Dropdown --}}
             <div x-data="{
                 open: false,
