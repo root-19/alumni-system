@@ -21,6 +21,7 @@
                     <th class="border px-4 py-2">Modules</th>
                     <th class="border px-4 py-2">Quiz</th>
                     <th class="border px-4 py-2">Created</th>
+                    <th class="border px-4 py-2">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -60,10 +61,22 @@
                             @endif
                         </td>
                         <td class="border px-4 py-2">{{ $training->created_at->format('M d, Y') }}</td>
+                        <td class="border px-4 py-2">
+                            <form method="POST" action="{{ route('admin.trainings.destroy', $training->id) }}" class="delete-form inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="inline-flex items-center gap-1 bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded text-xs font-semibold transition-colors" title="Delete Training">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center py-4">No trainings found.</td>
+                        <td colspan="8" class="text-center py-4">No trainings found.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -92,6 +105,31 @@
     </div>
 
     <script>
+        // Delete Training Form with SweetAlert
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.delete-form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const formEl = this;
+                    
+                    Swal.fire({
+                        title: 'Delete Training?',
+                        text: 'This will also delete all associated quizzes, files, and modules. This action cannot be undone!',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            formEl.submit();
+                        }
+                    });
+                });
+            });
+        });
+
         function showQuizParticipants(quizId, quizTitle) {
             const modal = document.getElementById('quizModal');
             const modalTitle = document.getElementById('modalTitle');

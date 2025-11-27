@@ -40,9 +40,6 @@ class DonationController extends Controller
     {
         $donation->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Donation deleted successfully'
-        ]);
+        return redirect()->back()->with('success', 'Donation deleted successfully!');
     }
 }

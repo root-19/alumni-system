@@ -332,4 +332,24 @@ public function markAsRead($trainingId, $fileId)
 
         return view('training.take', compact('training', 'progress', 'total', 'read'));
     }
+
+    public function destroy($id)
+    {
+        $training = Training::findOrFail($id);
+        
+        // Delete associated files from storage
+        foreach ($training->files as $file) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($file->path);
+        }
+        
+        // Delete certificate if exists
+        if ($training->certificate_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($training->certificate_path);
+        }
+        
+        // Delete the training (cascades to related records)
+        $training->delete();
+        
+        return redirect()->back()->with('success', 'Training deleted successfully!');
+    }
 }

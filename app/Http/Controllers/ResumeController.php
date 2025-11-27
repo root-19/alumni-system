@@ -37,12 +37,17 @@ class ResumeController extends Controller
         return view('resume-view', compact('resume'));
     }
 
-    // Show resume viewer with all resumes
+    // Show resume viewer for the logged-in user
     public function showResumeViewer()
     {
-        $resumes = Resume::all();
-        $resume = $resumes->first(); // Default to first resume
-        return view('resume-view', compact('resume', 'resumes'));
+        $resume = null;
+        
+        if (Auth::check()) {
+            // Get only the logged-in user's resume
+            $resume = Resume::where('user_id', Auth::id())->first();
+        }
+        
+        return view('resume-view', compact('resume'));
     }
 
     // View PDF directly

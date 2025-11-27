@@ -174,6 +174,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('trainings/create', [TrainingController::class, 'create'])->name('trainings.create');
     Route::post('trainings', [TrainingController::class, 'store'])->name('trainings.store');
     Route::get('trainings/{id}', [TrainingController::class, 'show'])->name('trainings.show');
+    Route::delete('trainings/{id}', [TrainingController::class, 'destroy'])->name('trainings.destroy');
     
     // Quiz Management Routes
     Route::get('quizzes', [\App\Http\Controllers\Admin\QuizController::class, 'index'])->name('quizzes.index');
