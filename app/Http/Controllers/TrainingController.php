@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Training;
 use App\Models\TrainingFile;
 use App\Models\UserTrainingProgress;
 use App\Models\UserModuleProgress;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 class TrainingController extends Controller
 {
@@ -195,12 +197,31 @@ class TrainingController extends Controller
         
         if ($canDownload) {
             $path = storage_path('app/public/' . $training->certificate_path);
+
+            // If stored certificate exists, return it
+            if (is_file($path)) {
             $fileName = Str::slug($training->title) . '-certificate.' . pathinfo($training->certificate_path, PATHINFO_EXTENSION);
             return response()->download($path, $fileName);
-        }
-        
-        if ($hasFinalAssessment && !$finalAssessmentPassed) {
-            return back()->with('error', 'Certificate not available. Pass the final assessment first.');
+            }
+
+            // Otherwise, generate a fresh PDF on-the-fly
+            $user = Auth::user();
+            $data = [
+                'schoolName' => config('app.name', 'Alumni Training Portal'),
+                'trainingTitle' => $training->title,
+                'studentName' => trim($user->name . ' ' . ($user->last_name ?? '')),
+                'completionDate' => now()->format('F d, Y'),
+                'percentage' => max($calculatedProgress, $storedProgress),
+                'attempt' => (object)['id' => $user->id],
+                'logoPath' => public_path('image/logo.png'),
+                'hasLogo' => file_exists(public_path('image/logo.png')),
+            ];
+
+            $pdf = Pdf::loadView('certificates.training-completion', $data)
+                ->setPaper('a4', 'portrait');
+
+            $fileName = Str::slug($training->title) . '-certificate.pdf';
+            return $pdf->download($fileName);
         }
         
         return back()->with('error', 'Certificate not available. Complete all modules first.');

@@ -11,8 +11,19 @@
                         <span class="font-medium">Back to Training</span>
                     </a>
                 @endif
+                <div class="flex items-center justify-between gap-4 flex-wrap">
+                    <div>
                 <h1 class="text-3xl font-bold text-gray-900">Assessment Results</h1>
                 <p class="mt-2 text-gray-600">{{ $attempt->finalAssessment->title }}</p>
+                    </div>
+                    @if($attempt->passed)
+                        <a href="{{ route('final-assessments.certificate', $attempt->id) }}"
+                           class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-700 to-green-800 text-white text-sm font-semibold rounded-lg hover:from-emerald-800 hover:to-green-900 transition shadow-md">
+                            <span>📜</span>
+                            Download Certificate
+                        </a>
+                    @endif
+                </div>
             </div>
 
             <div class="bg-white shadow rounded-lg p-6 mb-6">

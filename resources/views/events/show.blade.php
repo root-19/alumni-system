@@ -1,4 +1,4 @@
-<x-layouts.app :title="$post->title ?? $post->content ?? 'Event Details'">
+<x-layouts.app title="Event Details">
     <div class="max-w-4xl mx-auto mt-8 space-y-8">
         
         {{-- Success/Error Messages --}}
@@ -16,6 +16,11 @@
 
         {{-- Event Card --}}
         <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
+            {{-- Event Title - Always show at top --}}
+            <h1 class="text-3xl font-bold text-gray-900 leading-snug mb-4">
+                {{ $post->title ?? 'Event Details' }}
+            </h1>
+
             @if($post->image_path)
                 @php
                     $imageUrl = null;
@@ -53,13 +58,6 @@
                          class="w-full h-72 object-cover rounded-xl mb-5 shadow-sm"
                          onerror="this.onerror=null; this.src='{{ asset('storage/' . $post->image_path) }}';">
                 @endif
-            @endif
-
-            {{-- Event Title --}}
-            @if($post->title)
-                <h1 class="text-3xl font-bold text-gray-900 leading-snug mb-2">
-                    {{ $post->title }}
-                </h1>
             @endif
             
             {{-- Event Description --}}

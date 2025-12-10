@@ -74,6 +74,7 @@ Route::get('/trainings', [\App\Http\Controllers\TrainingController::class, 'inde
     Route::get('/final-assessments/{id}/take', [\App\Http\Controllers\FinalAssessmentController::class, 'take'])->name('final-assessments.take');
     Route::post('/final-assessments/{id}/submit', [\App\Http\Controllers\FinalAssessmentController::class, 'submit'])->name('final-assessments.submit');
     Route::get('/final-assessments/result/{attemptId}', [\App\Http\Controllers\FinalAssessmentController::class, 'result'])->name('final-assessments.result');
+    Route::get('/final-assessments/certificate/{attemptId}', [\App\Http\Controllers\FinalAssessmentController::class, 'certificate'])->name('final-assessments.certificate');
     Route::post('/final-assessments/{id}/retake', [\App\Http\Controllers\FinalAssessmentController::class, 'retake'])->name('final-assessments.retake');
 
     Route::post('/trainings/{training}/read/{file}', [\App\Http\Controllers\TrainingController::class, 'markAsRead'])
@@ -170,11 +171,28 @@ Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
 
 
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('trainings', [TrainingController::class, 'index'])->name('trainings.index');
-    Route::get('trainings/create', [TrainingController::class, 'create'])->name('trainings.create');
-    Route::post('trainings', [TrainingController::class, 'store'])->name('trainings.store');
-    Route::get('trainings/{id}', [TrainingController::class, 'show'])->name('trainings.show');
-    Route::delete('trainings/{id}', [TrainingController::class, 'destroy'])->name('trainings.destroy');
+    Route::get('trainings', [\App\Http\Controllers\Admin\TrainingController::class, 'index'])->name('trainings.index');
+    Route::get('trainings/create', [\App\Http\Controllers\Admin\TrainingController::class, 'create'])->name('trainings.create');
+    Route::post('trainings', [\App\Http\Controllers\Admin\TrainingController::class, 'store'])->name('trainings.store');
+    Route::get('trainings/{id}', [\App\Http\Controllers\Admin\TrainingController::class, 'show'])->name('trainings.show');
+    Route::delete('trainings/{id}', function ($id) {
+        $training = \App\Models\Training::findOrFail($id);
+        
+        // Delete associated files from storage
+        foreach ($training->files as $file) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($file->path);
+        }
+        
+        // Delete certificate if exists
+        if ($training->certificate_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($training->certificate_path);
+        }
+        
+        // Delete the training
+        $training->delete();
+        
+        return redirect()->back()->with('success', 'Training deleted successfully!');
+    })->name('trainings.destroy');
     
     // Quiz Management Routes
     Route::get('quizzes', [\App\Http\Controllers\Admin\QuizController::class, 'index'])->name('quizzes.index');

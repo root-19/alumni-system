@@ -1,4 +1,4 @@
-<x-layouts.app :title="$post->content ?? 'Event Details'">
+<x-layouts.app title="Event Details">
     <div class="max-w-4xl mx-auto mt-8 space-y-8">
         @if (session('success'))
             <div class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-xl">
@@ -14,6 +14,11 @@
 
         {{-- Event Card --}}
         <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
+            {{-- Event Title - Show at top --}}
+            <h1 class="text-3xl font-bold text-gray-900 leading-snug mb-4">
+                {{ $post->title ?? 'Event Details' }}
+            </h1>
+
             @if($post->image_path)
                 @php
                     $imageUrl = null;
@@ -53,9 +58,10 @@
                 @endif
             @endif
 
-            <h1 class="text-2xl font-bold text-gray-900 leading-snug mb-3">
-                {{ $post->content ?? 'No content available' }}
-            </h1>
+            {{-- Event Content/Description --}}
+            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                <p class="text-gray-700">{{ $post->content ?? 'No content available' }}</p>
+            </div>
 
             <div class="flex items-center text-sm text-gray-500 space-x-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">

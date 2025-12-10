@@ -11,21 +11,21 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
-   --color-green-start: #32cd32; /* limegreen */
-    --color-green-end: #006400;   /* darkgreen */
+   --color-green-start: #0f3d2e; /* deep jade */
+    --color-green-end: #0b2d22;   /* forest */
     --color-white: #ffffff;
     --color-black: #000000;
 
-    --color-accent: var(--color-black);
-    --color-accent-content: var(--color-black);
+    --color-accent: var(--color-green-end);
+    --color-accent-content: var(--color-green-start);
     --color-accent-foreground: var(--color-white);
 }
 
 @layer theme {
     .dark {
-        --color-accent: var(--color-white);
+        --color-accent: var(--color-green-start);
         --color-accent-content: var(--color-white);
-        --color-accent-foreground: var(--color-black);
+        --color-accent-foreground: var(--color-white);
     }
 }
 
@@ -37,6 +37,20 @@
     ::backdrop,
     ::file-selector-button {
         border-color: var(--color-green-start, currentColor);
+    }
+
+    body {
+        background: #ffffff;
+        color: #0b1a13;
+    }
+
+    /* Ensure dark green backgrounds use light foreground */
+    .bg-emerald-800,
+    .bg-emerald-900,
+    .bg-emerald-950,
+    .bg-green-800,
+    .bg-green-900 {
+        color: #f8fffb;
     }
 }
 

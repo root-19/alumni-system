@@ -189,6 +189,13 @@
                                            class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition">
                                             <span>View Results</span>
                                         </a>
+                                        @if($isFinalPassed)
+                                            <a href="{{ route('final-assessments.certificate', $finalAttempt->id) }}"
+                                               class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-700 to-green-800 text-white text-sm font-semibold rounded-lg hover:from-emerald-800 hover:to-green-900 transition shadow-md">
+                                                <span>📜</span>
+                                                Download Certificate
+                                            </a>
+                                        @endif
                                         @if(!$isFinalPassed)
                                             <form action="{{ route('final-assessments.retake', $finalAssessment->id) }}" method="POST" class="inline">
                                                 @csrf

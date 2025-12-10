@@ -8,6 +8,8 @@ use App\Models\FinalAssessmentQuestion;
 use App\Models\UserFinalAssessmentAnswer;
 use App\Models\UserFinalAssessmentAttempt;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Str;
 
 class FinalAssessmentController extends Controller
 {
@@ -163,6 +165,45 @@ class FinalAssessmentController extends Controller
             ->keyBy('question_id');
 
         return view('final-assessment.result', compact('attempt', 'answers'));
+    }
+
+    public function certificate($attemptId)
+    {
+        $attempt = UserFinalAssessmentAttempt::with(['finalAssessment.training', 'user'])
+            ->findOrFail($attemptId);
+
+        if ($attempt->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if (!$attempt->passed) {
+            return redirect()
+                ->route('final-assessments.result', $attemptId)
+                ->with('error', 'Certificate is available after passing the assessment.');
+        }
+
+        $training = $attempt->finalAssessment->training;
+        $user = $attempt->user;
+        $logoPath = public_path('image/logo.png');
+        $hasLogo = file_exists($logoPath);
+
+        $data = [
+            'schoolName' => config('app.name', 'Alumni Training Portal'),
+            'trainingTitle' => $training?->title ?? $attempt->finalAssessment->title,
+            'studentName' => trim($user->name . ' ' . ($user->last_name ?? '')),
+            'completionDate' => $attempt->completed_at?->format('F d, Y'),
+            'percentage' => $attempt->percentage,
+            'attempt' => $attempt,
+            'logoPath' => $logoPath,
+            'hasLogo' => $hasLogo,
+        ];
+
+        $pdf = Pdf::loadView('certificates.training-completion', $data)
+            ->setPaper('a4', 'landscape');
+
+        $fileName = 'certificate-' . Str::slug($data['studentName'] . '-' . $data['trainingTitle']) . '.pdf';
+
+        return $pdf->download($fileName);
     }
 
     public function retake($id)

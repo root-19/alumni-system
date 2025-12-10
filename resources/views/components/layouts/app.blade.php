@@ -8,7 +8,7 @@
         @stack('scripts')
     </head>
 
-    <body class="min-h-screen {{ auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'assistant') ? 'bg-white' : 'bg-white' }} ">
+    <body class="min-h-screen bg-gradient-to-br from-emerald-950 via-emerald-900 to-green-900 text-emerald-50">
         <x-layouts.app.sidebar :title="$title ?? null"/>
 
         <flux:main>
