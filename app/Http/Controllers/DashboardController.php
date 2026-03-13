@@ -56,10 +56,18 @@ class DashboardController extends Controller
                 if ($post->image_path) {
                     if ($defaultDisk === 's3') {
                         $imageUrl = Storage::disk('s3')->url($post->image_path);
-                        $fileExists = Storage::disk('s3')->exists($post->image_path);
+                        try {
+                            $fileExists = Storage::disk('s3')->exists($post->image_path);
+                        } catch (\Exception $e) {
+                            $fileExists = false;
+                        }
                     } else {
                         $imageUrl = asset('storage/' . $post->image_path);
-                        $fileExists = Storage::disk('public')->exists($post->image_path);
+                        try {
+                            $fileExists = Storage::disk('public')->exists($post->image_path);
+                        } catch (\Exception $e) {
+                            $fileExists = false;
+                        }
                     }
                 }
                 
@@ -96,10 +104,18 @@ class DashboardController extends Controller
                 if ($event->image_path) {
                     if ($defaultDisk === 's3') {
                         $imageUrl = Storage::disk('s3')->url($event->image_path);
-                        $fileExists = Storage::disk('s3')->exists($event->image_path);
+                        try {
+                            $fileExists = Storage::disk('s3')->exists($event->image_path);
+                        } catch (\Exception $e) {
+                            $fileExists = false;
+                        }
                     } else {
                         $imageUrl = asset('storage/' . $event->image_path);
-                        $fileExists = Storage::disk('public')->exists($event->image_path);
+                        try {
+                            $fileExists = Storage::disk('public')->exists($event->image_path);
+                        } catch (\Exception $e) {
+                            $fileExists = false;
+                        }
                     }
                 }
                 

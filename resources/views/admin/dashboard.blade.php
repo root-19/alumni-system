@@ -1,8 +1,8 @@
 <x-layouts.app :title="__('Dashboard')">
-    <div class="flex flex-col gap-10 min-h-screen">
+    <div class="flex flex-col gap-4 min-h-screen">
 
         <!-- Stat Cards -->
-        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-6">
             <!-- Accounts -->
             <div class="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-6 border border-gray-200">
                 <div class="flex items-center gap-4">
@@ -152,110 +152,7 @@
                     </table>
                 </div>
             </div>
-                        </div>
-
-        <!-- Chart.js CDN -->
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script>
-            // Chart data
-            const chartData = {!! json_encode($chartData) !!};
-            const eventsData = {!! json_encode($eventsData) !!};
-            
-            // Initialize chart
-            const ctx = document.getElementById('analyticsChart').getContext('2d');
-            let chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: chartData.labels,
-                    datasets: [{
-                        label: 'Reviews',
-                        data: chartData.reviews,
-                        borderColor: 'rgb(59, 130, 246)',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: 'rgb(59, 130, 246)',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6,
-                        pointHoverRadius: 8
-                    }, {
-                        label: 'Attendance',
-                        data: chartData.attendance,
-                        borderColor: 'rgb(34, 197, 94)',
-                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: 'rgb(34, 197, 94)',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6,
-                        pointHoverRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 20
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            },
-                            ticks: {
-                                stepSize: 1
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    },
-                    elements: {
-                        point: {
-                            hoverBackgroundColor: function(context) {
-                                return context.dataset.borderColor;
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Event selection handler
-            document.getElementById('eventSelect').addEventListener('change', function() {
-                const selectedEventId = this.value;
-                
-                if (selectedEventId === 'all') {
-                    // Show all events data
-                    chart.data.datasets[0].data = chartData.reviews;
-                    chart.data.datasets[1].data = chartData.attendance;
-                } else {
-                    // Show specific event data
-                    const eventData = eventsData[selectedEventId];
-                    if (eventData) {
-                        chart.data.datasets[0].data = eventData.reviews;
-                        chart.data.datasets[1].data = eventData.attendance;
-                    }
-                }
-                
-                chart.update();
-            });
-        </script>
-
-                        </div>
+        </div>
 
         <!-- Training Analytics Section -->
         <div class="bg-white rounded-2xl shadow p-6 text-black">
@@ -396,10 +293,6 @@
                                     <div>Reviews</div>
                                 </div>
                                 <div class="text-center">
-                                    <div class="font-semibold">{{ $contributor->attendance_count ?? 0 }}</div>
-                                    <div>Events</div>
-                                </div>
-                                <div class="text-center">
                                     <div class="font-semibold">{{ $contributor->donation_count ?? 0 }}</div>
                                     <div>Donations</div>
                                 </div>
@@ -428,4 +321,105 @@
         </div>
 
     </div>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Chart data
+        const chartData = {!! json_encode($chartData) !!};
+        const eventsData = {!! json_encode($eventsData) !!};
+        
+        // Initialize chart
+        const ctx = document.getElementById('analyticsChart').getContext('2d');
+        let chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Reviews',
+                    data: chartData.reviews,
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgb(59, 130, 246)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }, {
+                    label: 'Attendance',
+                    data: chartData.attendance,
+                    borderColor: 'rgb(34, 197, 94)',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgb(34, 197, 94)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            stepSize: 1
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                elements: {
+                    point: {
+                        hoverBackgroundColor: function(context) {
+                            return context.dataset.borderColor;
+                        }
+                    }
+                }
+            }
+        });
+
+        // Event selection handler
+        document.getElementById('eventSelect').addEventListener('change', function() {
+            const selectedEventId = this.value;
+            
+            if (selectedEventId === 'all') {
+                // Show all events data
+                chart.data.datasets[0].data = chartData.reviews;
+                chart.data.datasets[1].data = chartData.attendance;
+            } else {
+                // Show specific event data
+                const eventData = eventsData[selectedEventId];
+                if (eventData) {
+                    chart.data.datasets[0].data = eventData.reviews;
+                    chart.data.datasets[1].data = eventData.attendance;
+                }
+            }
+            
+            chart.update();
+        });
+    </script>
 </x-layouts.app>

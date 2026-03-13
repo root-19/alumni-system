@@ -289,8 +289,17 @@ class AlumniController extends Controller
         // Handle image upload if provided
         if ($request->hasFile('image')) {
                 // Delete old image from local storage if exists
-                if ($post->image_path && \Storage::disk('public')->exists($post->image_path)) {
-                    \Storage::disk('public')->delete($post->image_path);
+                if ($post->image_path) {
+                    try {
+                        if (\Storage::disk('public')->exists($post->image_path)) {
+                            \Storage::disk('public')->delete($post->image_path);
+                        }
+                    } catch (\Exception $e) {
+                        // Log error but continue with upload
+                        \Log::warning('Failed to delete old image: ' . $e->getMessage(), [
+                            'image_path' => $post->image_path
+                        ]);
+                    }
                 }
                 
             // Store in public storage

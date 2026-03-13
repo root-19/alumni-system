@@ -58,6 +58,7 @@
         </div>
 
         <div class="bg-white rounded-lg shadow-sm border p-6">
+            
             <div class="flex items-center">
                 <div class="p-3 rounded-full bg-green-100">
                     <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

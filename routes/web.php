@@ -634,6 +634,77 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Documents: user-facing
     Route::get('/documents', [DocumentRequestController::class, 'index'])->name('documents.index');
     Route::post('/documents', [DocumentRequestController::class, 'store'])->name('documents.store');
+    
+    // Test SimpleCert integration (remove in production)
+    Route::get('/test-simplecert', function () {
+        $simpleCertService = new \App\Services\SimpleCertService();
+        $simpleCertV2 = new \App\Services\SimpleCertServiceV2();
+        $simpleCertFixed = new \App\Services\SimpleCertServiceFixed();
+        
+        // Test data
+        $testData = [
+            'studentName' => 'Test User',
+            'trainingTitle' => 'Test Training',
+            'completionDate' => now()->format('F d, Y'),
+            'schoolName' => 'Test School',
+            'certificateId' => 'TEST-' . time(),
+        ];
+        
+        $results = [];
+        
+        // 1. Test Fixed method 1: X-API-Key header
+        $result = $simpleCertFixed->generateCertificate($testData);
+        $results['fixed_x_api_key'] = $result;
+        
+        // 2. Test Fixed method 2: API key in query parameter
+        $result = $simpleCertFixed->generateCertificateAlt($testData);
+        $results['fixed_query_param'] = $result;
+        
+        // 3. Test original approach (email/password auth)
+        $email = config('services.simplecert.email');
+        $password = config('services.simplecert.password');
+        
+        if ($email && $password) {
+            $validation = $simpleCertService->validateApiKey();
+            $results['original_auth'] = $validation;
+            
+            if ($validation['success']) {
+                $result = $simpleCertService->generateCertificate($testData);
+                $results['original_generation'] = $result;
+            }
+        } else {
+            $results['original_auth'] = ['success' => false, 'error' => 'Credentials not configured'];
+        }
+        
+        // 4. Test direct API key approach
+        $directResult = $simpleCertV2->generateCertificateDirect($testData);
+        $results['direct_api_key'] = $directResult;
+        
+        // 5. Test alternative data structure
+        $alternativeResult = $simpleCertV2->generateCertificateAlternative($testData);
+        $results['alternative_data'] = $alternativeResult;
+        
+        // Check which method worked
+        $workingMethod = null;
+        foreach ($results as $method => $result) {
+            if ($result['success'] && isset($result['certificate_id'])) {
+                $workingMethod = $method;
+                break;
+            }
+        }
+        
+        return response()->json([
+            'test_results' => $results,
+            'working_method' => $workingMethod,
+            'test_data' => $testData,
+            'status' => $workingMethod ? "SimpleCert working with: {$workingMethod}" : 'All SimpleCert methods failed - using fallback PDF',
+            'debug_info' => [
+                'api_key_configured' => !empty(config('services.simplecert.api_key')),
+                'email_configured' => !empty($email),
+                'password_configured' => !empty($password),
+            ]
+        ]);
+    })->name('test.simplecert');
 });
 
 /*

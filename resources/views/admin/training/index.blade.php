@@ -11,7 +11,7 @@
             <a href="{{ route('admin.trainings.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded">+ New Training</a>
         </div>
 
-        <table class="w-full border-collapse border text-left">
+        <table class="w-full border-collapse border text-left bg-white">
             <thead class="bg-gray-100 text-black">
                 <tr>
                     <th class="border px-4 py-2">#</th>
@@ -24,9 +24,9 @@
                     <th class="border px-4 py-2">Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="bg-white">
                 @forelse($trainings as $training)
-                    <tr class="text-black">
+                    <tr class="text-black bg-white">
                         <td class="border px-4 py-2">{{ $training->id }}</td>
                         <td class="border px-4 py-2">
                             <a href="{{ route('admin.trainings.show', $training->id) }}" class="text-blue-600 hover:text-blue-800 hover:underline font-medium">
@@ -75,8 +75,8 @@
                         </td>
                     </tr>
                 @empty
-                    <tr>
-                        <td colspan="8" class="text-center py-4">No trainings found.</td>
+                    <tr class="bg-white">
+                        <td colspan="8" class="text-center py-4 bg-white">No trainings found.</td>
                     </tr>
                 @endforelse
             </tbody>

@@ -31,4 +31,11 @@ return [
         ],
     ],
 
+    'simplecert' => [
+        'api_key' => env('SIMPLECERT_API_KEY', 'q7aipClj6xiUXmE2OlylttEwvcI1wPJ9Hoi6GdRKhVVs93GYDOwJ8NcvUEfQ'),
+        'email' => env('SIMPLECERT_EMAIL'),
+        'password' => env('SIMPLECERT_PASSWORD'),
+        'base_url' => env('SIMPLECERT_BASE_URL', 'https://app.simplecert.net/api'),
+    ],
+
 ];

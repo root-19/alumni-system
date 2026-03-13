@@ -80,9 +80,14 @@
                                                 // Fallback to local storage
                                                 if (!$imageUrl) {
                                                     $imageUrl = asset('storage/' . $post->image_path);
+                                                    try {
+                                                        $fileExists = \Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path);
+                                                    } catch (\Exception $e) {
+                                                        $fileExists = false;
+                                                    }
                                                     \Log::info('EventsAdmin - Using local storage URL:', [
                                                         'url' => $imageUrl,
-                                                        'file_exists' => \Illuminate\Support\Facades\Storage::disk('public')->exists($post->image_path),
+                                                        'file_exists' => $fileExists,
                                                     ]);
                                                 }
                                             @endphp

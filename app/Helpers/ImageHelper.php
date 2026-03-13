@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ImageHelper
 {
@@ -43,7 +44,7 @@ class ImageHelper
         $isConfigured = !empty($cloudName) && !empty($apiKey) && !empty($apiSecret);
         
         // Debug logging
-        \Log::info('Cloudinary configuration check:', [
+        Log::info('Cloudinary configuration check:', [
             'cloud_name' => $cloudName ? substr($cloudName, 0, 3) . '...' : 'not set',
             'api_key' => $apiKey ? substr($apiKey, 0, 3) . '...' : 'not set',
             'api_secret' => $apiSecret ? '***set***' : 'not set',
@@ -98,6 +99,28 @@ class ImageHelper
     }
 
     /**
+     * Safe storage existence check with error handling
+     */
+    public static function safeStorageExists(string $path, string $disk = 'public'): bool
+    {
+        try {
+            // Ensure the directory exists before checking file existence
+            $directory = dirname($path);
+            if ($directory && $directory !== '.' && !Storage::disk($disk)->exists($directory)) {
+                Storage::disk($disk)->makeDirectory($directory);
+            }
+            
+            return Storage::disk($disk)->exists($path);
+        } catch (\Exception $e) {
+            Log::warning('Storage check failed for path: ' . $e->getMessage(), [
+                'path' => $path,
+                'disk' => $disk
+            ]);
+            return false;
+        }
+    }
+
+    /**
      * Check if image exists (Cloudinary, S3, or local storage)
      */
     public static function imageExists(?string $imagePath): bool
@@ -129,6 +152,6 @@ class ImageHelper
         }
 
         // Fallback to local storage
-        return Storage::disk('public')->exists($imagePath);
+        return self::safeStorageExists($imagePath, 'public');
     }
 }
