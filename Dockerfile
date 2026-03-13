@@ -44,6 +44,3 @@ EXPOSE 9000
 
 # Start PHP-FPM
 CMD ["php-fpm"]
-
-
-RUN docker-php-ext-install pdo pdo_mysql mysqli
