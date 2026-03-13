@@ -7,14 +7,11 @@ healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
 
-[[services]]
-name = "app"
-
 [services.variables]
 PHP_VERSION = "8.2"
 NODE_VERSION = "18"
 
-# Enable required PHP extensions
+# Enable required PHP extensions for MySQL
 PHP_EXTENSIONS = "pdo,pdo_mysql,mysqli,gd,zip,bcmath,ctype,fileinfo,json,mbstring,openssl,tokenizer,xml"
 
 # Laravel environment
@@ -22,10 +19,19 @@ APP_ENV = "production"
 APP_DEBUG = "false"
 APP_KEY = "base64:your-app-key-here"
 
-# Database (Railway will auto-populate these)
+# Database connection
 DB_CONNECTION = "mysql"
-DB_HOST = "${{RAILWAY_PRIVATE_SERVICE_MYSQL_HOST}}"
-DB_PORT = "${{RAILWAY_PRIVATE_SERVICE_MYSQL_PORT}}"
-DB_DATABASE = "${{RAILWAY_PRIVATE_SERVICE_MYSQL_DATABASE}}"
-DB_USERNAME = "${{RAILWAY_PRIVATE_SERVICE_MYSQL_USER}}"
-DB_PASSWORD = "${{RAILWAY_PRIVATE_SERVICE_MYSQL_PASSWORD}}"
+DB_TIMEOUT = "60"
+
+# Cache & Session
+CACHE_DRIVER = "file"
+SESSION_DRIVER = "file"
+QUEUE_CONNECTION = "sync"
+
+# Filesystem
+FILESYSTEM_DISK = "local"
+
+# SimpleCert API (replace with actual values)
+SIMPLECERT_EMAIL = "your-email@example.com"
+SIMPLECERT_PASSWORD = "your-password"
+SIMPLECERT_API_KEY = "your-api-key"

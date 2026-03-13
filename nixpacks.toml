@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["php82", "php82Packages.composer", "mysql", "mysql-client"]
+nixPkgs = ["php82", "php82Packages.composer", "mysql", "mysql-client", "php82Extensions.pdo_mysql"]
 
 [phases.install]
 cmds = [
@@ -9,8 +9,9 @@ cmds = [
 [phases.build]
 cmds = [
     "php artisan config:cache",
-    "php artisan route:cache",
-    "php artisan view:cache"
+    "php artisan route:cache", 
+    "php artisan view:cache",
+    "php artisan migrate --force"
 ]
 
 [start]
@@ -19,3 +20,9 @@ cmd = "php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"
 [variables]
 PHP_VERSION = "8.2"
 PHP_EXTENSIONS = "pdo,pdo_mysql,mysqli,gd,zip,bcmath,ctype,fileinfo,json,mbstring,openssl,tokenizer,xml"
+
+# Environment variables
+APP_ENV = "production"
+APP_DEBUG = "false"
+DB_CONNECTION = "mysql"
+DB_TIMEOUT = "60"
