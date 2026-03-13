@@ -1,0 +1,31 @@
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+healthcheckPath = "/api/health"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[[services]]
+name = "app"
+
+[services.variables]
+PHP_VERSION = "8.2"
+NODE_VERSION = "18"
+
+# Enable required PHP extensions
+PHP_EXTENSIONS = "pdo,pdo_mysql,mysqli,gd,zip,bcmath,ctype,fileinfo,json,mbstring,openssl,tokenizer,xml"
+
+# Laravel environment
+APP_ENV = "production"
+APP_DEBUG = "false"
+APP_KEY = "base64:your-app-key-here"
+
+# Database (Railway will auto-populate these)
+DB_CONNECTION = "mysql"
+DB_HOST = "${{RAILWAY_PRIVATE_SERVICE_MYSQL_HOST}}"
+DB_PORT = "${{RAILWAY_PRIVATE_SERVICE_MYSQL_PORT}}"
+DB_DATABASE = "${{RAILWAY_PRIVATE_SERVICE_MYSQL_DATABASE}}"
+DB_USERNAME = "${{RAILWAY_PRIVATE_SERVICE_MYSQL_USER}}"
+DB_PASSWORD = "${{RAILWAY_PRIVATE_SERVICE_MYSQL_PASSWORD}}"

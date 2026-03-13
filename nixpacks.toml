@@ -1,0 +1,21 @@
+[phases.setup]
+nixPkgs = ["php82", "php82Packages.composer", "mysql", "mysql-client"]
+
+[phases.install]
+cmds = [
+    "composer install --no-dev --optimize-autoloader"
+]
+
+[phases.build]
+cmds = [
+    "php artisan config:cache",
+    "php artisan route:cache",
+    "php artisan view:cache"
+]
+
+[start]
+cmd = "php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"
+
+[variables]
+PHP_VERSION = "8.2"
+PHP_EXTENSIONS = "pdo,pdo_mysql,mysqli,gd,zip,bcmath,ctype,fileinfo,json,mbstring,openssl,tokenizer,xml"
