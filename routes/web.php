@@ -35,7 +35,7 @@ use App\Http\Controllers\Admin\TrainingController;
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
-    return view('index');
+    return view('welcome');
 })->name('home');
 
 /*

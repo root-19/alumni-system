@@ -40,8 +40,8 @@ Route::get('/api/health', function () {
     }
 });
 
-// Simple root health check
-Route::get('/', function () {
+// Simple root health check - moved to /health
+Route::get('/health', function () {
     return response()->json([
         'status' => 'running',
         'message' => 'Alumni Training Portal API',
