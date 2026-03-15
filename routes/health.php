@@ -1,26 +1,50 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB;
 
 Route::get('/api/health', function () {
     try {
-        // Test database connection
-        DB::connection()->getPdo();
-        
-        return response()->json([
+        // Basic health check without database first
+        $response = [
             'status' => 'healthy',
-            'database' => 'connected',
             'timestamp' => now()->toISOString(),
             'php_version' => PHP_VERSION,
             'laravel_version' => app()->version(),
-        ]);
+            'extensions' => [
+                'pdo' => extension_loaded('pdo'),
+                'pdo_mysql' => extension_loaded('pdo_mysql'),
+                'mysqli' => extension_loaded('mysqli'),
+            ],
+        ];
+
+        // Try database connection if extensions are available
+        if (extension_loaded('pdo_mysql')) {
+            try {
+                \Illuminate\Support\Facades\DB::connection()->getPdo();
+                $response['database'] = 'connected';
+            } catch (\Exception $e) {
+                $response['database'] = 'disconnected';
+                $response['db_error'] = $e->getMessage();
+            }
+        } else {
+            $response['database'] = 'pdo_mysql_not_loaded';
+        }
+
+        return response()->json($response);
     } catch (\Exception $e) {
         return response()->json([
             'status' => 'unhealthy',
-            'database' => 'disconnected',
             'error' => $e->getMessage(),
             'timestamp' => now()->toISOString(),
         ], 500);
     }
+});
+
+// Simple root health check
+Route::get('/', function () {
+    return response()->json([
+        'status' => 'running',
+        'message' => 'Alumni Training Portal API',
+        'timestamp' => now()->toISOString(),
+    ]);
 });
