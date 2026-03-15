@@ -69,9 +69,9 @@
                                 }
                             }
                             
-                            @if($hasQuizC)
+                            if ($hasQuizC) {
                                 $complete = $allQuizzesPassedC;
-                            else {
+                            } else {
                                 $complete = $progressC >= 100;
                             }
                             
