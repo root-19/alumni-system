@@ -151,6 +151,80 @@ class TrainingController extends Controller
         ]);
     }
 
+    public function viewFile($fileId)
+{
+    $file = \App\Models\TrainingFile::findOrFail($fileId);
+    
+    // Check if user has access to this training
+    $user = Auth::user();
+    if (!$user->reads()->where('training_file_id', $fileId)->exists()) {
+        // Mark as read when viewing
+        $user->reads()->create(['training_file_id' => $fileId]);
+    }
+    
+    // Serve the file through Laravel to handle S3 authentication
+    $filePath = $file->path;
+    $fileName = $file->original_name;
+    
+    // Determine MIME type based on file extension
+    $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    $mimeType = $this->getMimeType($extension);
+    
+    if (Storage::disk('public')->exists($filePath)) {
+        $fileContent = Storage::disk('public')->get($filePath);
+        
+        return response($fileContent)
+            ->header('Content-Type', $mimeType)
+            ->header('Content-Disposition', 'inline; filename="' . $fileName . '"');
+    }
+    
+    // Try S3/R2 storage if public storage fails
+    if (Storage::disk('s3')->exists($filePath)) {
+        $fileContent = Storage::disk('s3')->get($filePath);
+        
+        return response($fileContent)
+            ->header('Content-Type', $mimeType)
+            ->header('Content-Disposition', 'inline; filename="' . $fileName . '"');
+    }
+    
+    abort(404, 'File not found');
+}
+
+private function getMimeType($extension)
+{
+    $mimeTypes = [
+        'pdf' => 'application/pdf',
+        'doc' => 'application/msword',
+        'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'xls' => 'application/vnd.ms-excel',
+        'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'ppt' => 'application/vnd.ms-powerpoint',
+        'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'txt' => 'text/plain',
+        'html' => 'text/html',
+        'htm' => 'text/html',
+        'css' => 'text/css',
+        'js' => 'application/javascript',
+        'json' => 'application/json',
+        'xml' => 'application/xml',
+        'zip' => 'application/zip',
+        'rar' => 'application/x-rar-compressed',
+        'tar' => 'application/x-tar',
+        'gz' => 'application/gzip',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'gif' => 'image/gif',
+        'bmp' => 'image/bmp',
+        'svg' => 'image/svg+xml',
+        'mp4' => 'video/mp4',
+        'mp3' => 'audio/mpeg',
+        'wav' => 'audio/wav',
+    ];
+    
+    return $mimeTypes[$extension] ?? 'application/octet-stream';
+}
+
     public function downloadCertificate(Training $training)
     {
         $user = Auth::user();

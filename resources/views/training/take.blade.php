@@ -55,7 +55,7 @@
                         <span class="text-xs {{ $isRead ? 'text-green-600' : 'text-gray-400' }}">
                             {{ $isRead ? '✓' : '…' }}
                         </span>
-                        <a href="{{ Storage::url($file->path) }}" 
+                        <a href="{{ route('training.file.view', $file->id) }}" 
                            target="_blank"
                            id="module-{{ $file->id }}"
                            class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-sm hover:shadow-md"

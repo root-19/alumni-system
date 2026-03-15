@@ -86,6 +86,9 @@ Route::get('/trainings', [\App\Http\Controllers\TrainingController::class, 'inde
     Route::post('/trainings/{training}/module-progress/{file}', [\App\Http\Controllers\TrainingController::class, 'updateModuleProgress'])
         ->name('training.module.progress');
         
+    Route::get('/trainings/files/{file}/view', [\App\Http\Controllers\TrainingController::class, 'viewFile'])
+        ->name('training.file.view');
+        
     Route::get('/trainings/{training}/certificate', [\App\Http\Controllers\TrainingController::class, 'downloadCertificate'])
         ->name('training.certificate');
 
