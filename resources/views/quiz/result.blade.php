@@ -34,6 +34,34 @@
                 </div>
             </div>
 
+            <!-- Certificate Download Section -->
+            @if($attempt->passed && $attempt->quiz->training && $attempt->quiz->training->certificate_path)
+                <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-green-800">🎉 Congratulations!</h3>
+                            <p class="text-green-700 mt-1">You've passed the quiz and can now download your training certificate.</p>
+                        </div>
+                        <a href="{{ route('training.certificate', $attempt->quiz->training->id) }}" 
+                           class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Download Certificate
+                        </a>
+                    </div>
+                </div>
+            @elseif($attempt->passed && $attempt->quiz->training && !$attempt->quiz->training->certificate_path)
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+                    <div class="flex items-center">
+                        <div>
+                            <h3 class="text-lg font-semibold text-yellow-800">🎉 Congratulations!</h3>
+                            <p class="text-yellow-700 mt-1">You've passed the quiz! Certificate will be available once the training certificate template is uploaded.</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <div class="bg-white shadow rounded-lg">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h3 class="text-lg font-medium text-gray-900">Question Review</h3>
