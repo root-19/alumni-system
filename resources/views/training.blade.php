@@ -69,15 +69,18 @@
                                 }
                             }
                             
-                            if ($hasQuizC) {
+                            @if($hasQuizC)
                                 $complete = $allQuizzesPassedC;
-                            } else {
+                            else {
                                 $complete = $progressC >= 100;
                             }
+                            
+                            // Check if training has certificate template OR if we can generate one
+                            $hasCertificate = !empty($trainingCert->certificate_path) || true; // Allow generation
                         @endphp
-                        <div class="border border-gray-100 rounded-2xl p-4 flex items-start gap-4 {{ $complete && $trainingCert->certificate_path ? 'bg-gradient-to-br from-green-50 to-white' : 'bg-gradient-to-br from-white to-gray-50' }} hover:shadow transition">
-                            <div class="w-9 h-9 flex items-center justify-center rounded-lg {{ $complete && $trainingCert->certificate_path ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400' }} shadow-sm">
-                                @if($complete && $trainingCert->certificate_path)
+                        <div class="border border-gray-100 rounded-2xl p-4 flex items-start gap-4 {{ $complete && $hasCertificate ? 'bg-gradient-to-br from-green-50 to-white' : 'bg-gradient-to-br from-white to-gray-50' }} hover:shadow transition">
+                            <div class="w-9 h-9 flex items-center justify-center rounded-lg {{ $complete && $hasCertificate ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400' }} shadow-sm">
+                                @if($complete && $hasCertificate)
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
@@ -89,7 +92,7 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-semibold text-gray-800 truncate">{{ $trainingCert->title }}</p>
-                                <p class="text-[11px] uppercase mt-0.5 {{ $complete && $trainingCert->certificate_path ? 'text-green-600' : 'text-gray-400' }}">{{ $complete && $trainingCert->certificate_path ? 'Ready' : 'Locked' }}</p>
+                                <p class="text-[11px] uppercase mt-0.5 {{ $complete && $hasCertificate ? 'text-green-600' : 'text-gray-400' }}">{{ $complete && $hasCertificate ? 'Ready' : 'Locked' }}</p>
                                 <div class="mt-2 flex items-center gap-2">
                                     <div class="w-28 h-1.5 bg-gray-200 rounded-full overflow-hidden">
                                         <div class="h-full bg-gradient-to-r from-green-400 to-emerald-500" style="width: {{ $progressC }}%"></div>
@@ -103,7 +106,7 @@
                                 @endif
                             </div>
                             <div class="flex flex-col items-end gap-2">
-                                @if($complete && $trainingCert->certificate_path)
+                                @if($complete && $hasCertificate)
                                     <a href="{{ route('training.certificate', $trainingCert) }}" 
                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-md hover:shadow-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

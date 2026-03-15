@@ -280,11 +280,11 @@
             }
         @endphp
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <div class="p-4 gap-4 {{ $certificateUnlocked && $training->certificate_path ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' : 'bg-gray-50 border-gray-200' }} rounded-xl border">
+            <div class="p-4 gap-4 {{ $certificateUnlocked ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' : 'bg-gray-50 border-gray-200' }} rounded-xl border">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-xl {{ $certificateUnlocked && $training->certificate_path ? 'bg-gradient-to-r from-green-100 to-emerald-100' : 'bg-gray-100' }} flex items-center justify-center shadow-sm">
-                            @if($certificateUnlocked && $training->certificate_path)
+                        <div class="w-12 h-12 rounded-xl {{ $certificateUnlocked ? 'bg-gradient-to-r from-green-100 to-emerald-100' : 'bg-gray-100' }} flex items-center justify-center shadow-sm">
+                            @if($certificateUnlocked)
                                 <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
@@ -296,10 +296,8 @@
                         </div>
                         <div>
                             <h4 class="text-sm font-semibold text-gray-800">Training Certificate</h4>
-                            @if($certificateUnlocked && $training->certificate_path)
+                            @if($certificateUnlocked)
                                 <p class="text-xs text-green-600 font-medium">Ready to download!</p>
-                            @elseif($certificateUnlocked && !$training->certificate_path)
-                                <p class="text-xs text-amber-600 font-medium">Certificate not available</p>
                             @elseif($hasQuiz && $anyQuizFailed)
                                 <p class="text-xs text-red-600 font-medium">Some quizzes failed. Retake to unlock.</p>
                             @elseif($hasQuiz && !$allQuizzesPassed)
@@ -310,7 +308,7 @@
                         </div>
                     </div>
                     
-                    @if($certificateUnlocked && $training->certificate_path)
+                    @if($certificateUnlocked)
                         <a href="{{ route('training.certificate', $training) }}"
                            class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-medium rounded-xl shadow-md hover:shadow-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

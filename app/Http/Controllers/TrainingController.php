@@ -269,9 +269,9 @@ private function getMimeType($extension)
         // If quizzes exist: allow download if ALL quizzes are PASSED (regardless of module completion)
         // If no quizzes: allow download if modules are 100% complete
         if ($hasQuiz) {
-            $canDownload = $allQuizzesPassed && $training->certificate_path;
+            $canDownload = $allQuizzesPassed; // Remove certificate_path requirement
         } else {
-            $canDownload = ($calculatedProgress >= 100 || $storedProgress >= 100) && $training->certificate_path;
+            $canDownload = ($calculatedProgress >= 100 || $storedProgress >= 100); // Remove certificate_path requirement
         }
         
         if ($canDownload) {
