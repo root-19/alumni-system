@@ -33,11 +33,12 @@ class NewsController extends Controller
         $imagePath = null;
         if ($request->hasFile('image')) {
                 try {
-                    // Store in public storage
-                        $imagePath = $request->file('image')->store('news_images', 'public');
-                        \Log::info('Image stored successfully to local storage:', [
+                    // Store in S3 for deployment, fallback to local for development
+                    $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+                    $imagePath = $request->file('image')->store('news_images', $disk);
+                        \Log::info('Image stored successfully:', [
                             'path' => $imagePath,
-                            'disk' => 'public',
+                            'disk' => $disk,
                         ]);
                 } catch (\Exception $e) {
                     \Log::error('Error storing image: ' . $e->getMessage());
@@ -94,4 +95,81 @@ class NewsController extends Controller
             return redirect()->back()->with('error', 'An error occurred while loading the news page.');
         }
     }
+
+    /**
+     * Update a news article
+     */
+    public function update(Request $request, News $news)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        $data = [
+            'title' => $request->title,
+            'content' => $request->content,
+        ];
+
+        // Handle image upload if new image is provided
+        if ($request->hasFile('image')) {
+            try {
+                // Delete old image if exists
+                if ($news->image_path) {
+                    $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+                    Storage::disk($disk)->delete($news->image_path);
+                }
+                
+                // Store new image
+                $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+                $imagePath = $request->file('image')->store('news_images', $disk);
+                $data['image_path'] = $imagePath;
+                
+                \Log::info('News image updated successfully:', [
+                    'news_id' => $news->id,
+                    'new_image_path' => $imagePath,
+                    'disk' => $disk,
+                ]);
+            } catch (\Exception $e) {
+                \Log::error('Error updating news image: ' . $e->getMessage());
+                return redirect()->back()->with('error', 'Failed to upload image: ' . $e->getMessage())->withInput();
+            }
+        }
+
+        $news->update($data);
+
+        \Log::info('News updated successfully:', [
+            'id' => $news->id,
+            'title' => $news->title,
+        ]);
+
+        return redirect()->route('admin.news')->with('success', 'News article updated successfully!');
     }
+
+    /**
+     * Delete a news article (soft delete)
+     */
+    public function destroy(News $news)
+    {
+        try {
+            // Delete image if exists
+            if ($news->image_path) {
+                $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+                Storage::disk($disk)->delete($news->image_path);
+            }
+            
+            $news->delete();
+
+            \Log::info('News deleted successfully:', [
+                'id' => $news->id,
+                'title' => $news->title,
+            ]);
+
+            return redirect()->route('admin.news')->with('success', 'News article deleted successfully!');
+        } catch (\Exception $e) {
+            \Log::error('Error deleting news: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'An error occurred while deleting the news article.');
+        }
+    }
+}

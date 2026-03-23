@@ -6,6 +6,7 @@ use App\Models\AlumniPost;
 use App\Models\Comment;
 use App\Helpers\ImageHelper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AlumniController extends Controller
 {
@@ -109,12 +110,13 @@ class AlumniController extends Controller
         // Handle image upload if provided
         if ($request->hasFile('image')) {
                 try {
-                    // Store in public storage
-                        $imagePath = $request->file('image')->store('alumni-posts', 'public');
-                        $data['image_path'] = $imagePath;
-                        \Log::info('Event image stored successfully to local storage:', [
+                    // Store in S3 for deployment, fallback to local for development
+                    $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+                    $imagePath = $request->file('image')->store('alumni-posts', $disk);
+                    $data['image_path'] = $imagePath;
+                        \Log::info('Event image stored successfully:', [
                             'path' => $imagePath,
-                            'disk' => 'public',
+                            'disk' => $disk,
                         ]);
                 } catch (\Exception $e) {
                     \Log::error('Error storing event image: ' . $e->getMessage());
@@ -288,23 +290,21 @@ class AlumniController extends Controller
 
         // Handle image upload if provided
         if ($request->hasFile('image')) {
-                // Delete old image from local storage if exists
+            try {
+                // Delete old image if exists
                 if ($post->image_path) {
-                    try {
-                        if (\Storage::disk('public')->exists($post->image_path)) {
-                            \Storage::disk('public')->delete($post->image_path);
-                        }
-                    } catch (\Exception $e) {
-                        // Log error but continue with upload
-                        \Log::warning('Failed to delete old image: ' . $e->getMessage(), [
-                            'image_path' => $post->image_path
-                        ]);
-                    }
+                    $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+                    Storage::disk($disk)->delete($post->image_path);
                 }
                 
-            // Store in public storage
-                $imagePath = $request->file('image')->store('alumni-posts', 'public');
+                // Store new image
+                $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+                $imagePath = $request->file('image')->store('alumni-posts', $disk);
                 $data['image_path'] = $imagePath;
+            } catch (\Exception $e) {
+                // Log error but continue with upload
+                \Log::warning('Failed to delete old image or upload new image: ' . $e->getMessage());
+            }
         }
 
         $post->update($data);

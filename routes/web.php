@@ -488,6 +488,8 @@ Route::post('/comments/{comment}/like', [CommentController::class, 'like'])->nam
     // News & Alumni
     Route::post('/admin/alumni_post', [AlumniController::class, 'store'])->name('alumni_post.store');
     Route::post('/admin/news', [NewsController::class, 'store'])->name('news.store');
+    Route::put('/admin/news/{news}', [NewsController::class, 'update'])->name('news.update');
+    Route::delete('/admin/news/{news}', [NewsController::class, 'destroy'])->name('news.destroy');
 
     Route::get('/admin/news', function () {
         $news = \App\Models\News::latest()->get();
