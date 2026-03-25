@@ -110,14 +110,8 @@ class AlumniController extends Controller
         // Handle image upload if provided
         if ($request->hasFile('image')) {
                 try {
-                    // Store in S3 for deployment, fallback to local for development
-                    $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
-                    $imagePath = $request->file('image')->store('alumni-posts', $disk);
+                    $imagePath = $request->file('image')->store('alumni-posts', 'public');
                     $data['image_path'] = $imagePath;
-                        \Log::info('Event image stored successfully:', [
-                            'path' => $imagePath,
-                            'disk' => $disk,
-                        ]);
                 } catch (\Exception $e) {
                     \Log::error('Error storing event image: ' . $e->getMessage());
                     \Log::error('Stack trace: ' . $e->getTraceAsString());
@@ -293,13 +287,11 @@ class AlumniController extends Controller
             try {
                 // Delete old image if exists
                 if ($post->image_path) {
-                    $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
-                    Storage::disk($disk)->delete($post->image_path);
+                    Storage::disk('public')->delete($post->image_path);
                 }
                 
                 // Store new image
-                $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
-                $imagePath = $request->file('image')->store('alumni-posts', $disk);
+                $imagePath = $request->file('image')->store('alumni-posts', 'public');
                 $data['image_path'] = $imagePath;
             } catch (\Exception $e) {
                 // Log error but continue with upload

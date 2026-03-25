@@ -3,15 +3,51 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header -->
             <div class="mb-10">
-                <div class="flex items-center gap-4 mb-2">
-                    <div class="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg shadow-emerald-200">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                        </svg>
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg shadow-emerald-200">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Donations Management</h1>
+                            <p class="text-slate-500 mt-1">View and manage all donation contributions from alumni</p>
+                        </div>
                     </div>
-                    <div>
-                        <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">Donations Management</h1>
-                        <p class="text-slate-500 mt-1">View and manage all donation contributions from alumni</p>
+                    
+                    @php
+    // Find the most recent year with donations
+    $latestDonationYear = \App\Models\Donation::selectRaw('YEAR(created_at) as year')
+        ->orderBy('year', 'desc')
+        ->value('year') ?: date('Y');
+@endphp
+
+<!-- Reset Yearly Button -->
+                    <div class="flex items-center gap-3">
+                        @if(session()->has("donation_backup_" . $latestDonationYear))
+                            <form method="POST" action="{{ route('admin.donations.restore.yearly') }}" id="restoreYearlyForm">
+                                @csrf
+                                <input type="hidden" name="year" value="{{ $latestDonationYear }}">
+                                <button type="submit" class="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-5 py-2.5 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg shadow-green-200 hover:shadow-xl hover:shadow-green-300">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                    Restore {{ $latestDonationYear }} Data
+                                </button>
+                            </form>
+                        @endif
+                        
+                        <form method="POST" action="{{ route('admin.donations.reset.yearly') }}" id="resetYearlyForm">
+                            @csrf
+                            <input type="hidden" name="year" value="{{ $latestDonationYear }}">
+                            <button type="submit" class="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-orange-600 text-white px-5 py-2.5 rounded-xl hover:from-red-700 hover:to-orange-700 transition-all shadow-lg shadow-red-200 hover:shadow-xl hover:shadow-red-300">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                                Reset {{ $latestDonationYear }} to Zero
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -282,6 +318,53 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Reset Yearly Form
+            document.getElementById('resetYearlyForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formEl = this;
+                const year = this.querySelector('input[name="year"]').value;
+                
+                Swal.fire({
+                    title: 'Reset Yearly Donations?',
+                    html: `Are you sure you want to reset all donations for <strong>${year}</strong> back to zero?<br><br><small style="color: #666;">This will set donation amounts to 0 but preserve the records. Old data will be backed up in logs.</small>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Yes, reset to zero!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        formEl.submit();
+                    }
+                });
+            });
+
+            // Restore Yearly Form
+            const restoreForm = document.getElementById('restoreYearlyForm');
+            if (restoreForm) {
+                restoreForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const formEl = this;
+                    const year = this.querySelector('input[name="year"]').value;
+                    
+                    Swal.fire({
+                        title: 'Restore Yearly Donations?',
+                        html: `Are you sure you want to restore all backed up donations for <strong>${year}</strong>?<br><br><small style="color: #666;">This will restore the original donation amounts from the backup.</small>`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#10b981',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Yes, restore data!',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            formEl.submit();
+                        }
+                    });
+                });
+            }
+
             // Confirm Donation Form
             document.querySelectorAll('.confirm-form').forEach(form => {
                 form.addEventListener('submit', function(e) {

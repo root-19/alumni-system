@@ -11,6 +11,12 @@ class AlumniPost extends Model
 {
     protected $table = 'alumni_posts';
     protected $fillable = ['content', 'title', 'description', 'event_date', 'location', 'image_path', 'user_id', 'is_archived', 'is_completed', 'max_registrations'];
+    
+    protected $casts = [
+        'event_date' => 'datetime',
+        'is_archived' => 'boolean',
+        'is_completed' => 'boolean',
+    ];
 
     public function comments() {
         return $this->hasMany(Comment::class)->with('user', 'replies', 'likes');

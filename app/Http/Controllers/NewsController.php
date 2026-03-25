@@ -18,11 +18,11 @@ class NewsController extends Controller
     {
         try {
             // DEBUG: Check request data
-            \Log::info('News Store Request:', [
-                'has_image' => $request->hasFile('image'),
-                'filesystem_default' => config('filesystems.default'),
-                'title' => $request->title,
-            ]);
+            // Log::info('News Store Request:', [
+            //     'has_image' => $request->hasFile('image'),
+            //     'filesystem_default' => config('filesystems.default'),
+            //     'title' => $request->title,
+            // ]);
 
         $request->validate([
             'title' => 'required|string|max:255',
@@ -33,16 +33,13 @@ class NewsController extends Controller
         $imagePath = null;
         if ($request->hasFile('image')) {
                 try {
-                    // Store in S3 for deployment, fallback to local for development
-                    $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
-                    $imagePath = $request->file('image')->store('news_images', $disk);
-                        \Log::info('Image stored successfully:', [
-                            'path' => $imagePath,
-                            'disk' => $disk,
-                        ]);
+                    $imagePath = $request->file('image')->store('news_images', 'public');
+                        // Log::info('Image stored successfully:', [
+                        //     'path' => $imagePath,
+                        // ]);
                 } catch (\Exception $e) {
-                    \Log::error('Error storing image: ' . $e->getMessage());
-                    \Log::error('Stack trace: ' . $e->getTraceAsString());
+                    // Log::error('Error storing image: ' . $e->getMessage());
+                    // Log::error('Stack trace: ' . $e->getTraceAsString());
                     return redirect()->back()->with('error', 'Failed to upload image: ' . $e->getMessage())->withInput();
                 }
         }
@@ -53,18 +50,18 @@ class NewsController extends Controller
             'image_path' => $imagePath,
         ]);
 
-            \Log::info('News created successfully:', [
-                'id' => $news->id,
-                'image_path' => $news->image_path,
-            ]);
+            // Log::info('News created successfully:', [
+            //     'id' => $news->id,
+            //     'image_path' => $news->image_path,
+            // ]);
 
         return redirect()->back()->with('success', 'News posted successfully!');
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('Validation error:', $e->errors());
+            // Log::error('Validation error:', $e->errors());
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            \Log::error('Error storing news: ' . $e->getMessage());
-            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            // Log::error('Error storing news: ' . $e->getMessage());
+            // Log::error('Stack trace: ' . $e->getTraceAsString());
             return redirect()->back()->with('error', 'An error occurred while posting news. Please try again.')->withInput();
         }
     }
@@ -91,7 +88,7 @@ class NewsController extends Controller
 
             return view('admin.news', compact('news', 'alumniPosts', 'featuredNews', 'featuredAlumni'));
         } catch (\Exception $e) {
-            \Log::error('Error in admin news page: ' . $e->getMessage());
+            // Log::error('Error in admin news page: ' . $e->getMessage());
             return redirect()->back()->with('error', 'An error occurred while loading the news page.');
         }
     }
@@ -117,32 +114,29 @@ class NewsController extends Controller
             try {
                 // Delete old image if exists
                 if ($news->image_path) {
-                    $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
-                    Storage::disk($disk)->delete($news->image_path);
+                        Storage::disk('public')->delete($news->image_path);
                 }
                 
                 // Store new image
-                $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
-                $imagePath = $request->file('image')->store('news_images', $disk);
+                $imagePath = $request->file('image')->store('news_images', 'public');
                 $data['image_path'] = $imagePath;
                 
-                \Log::info('News image updated successfully:', [
-                    'news_id' => $news->id,
-                    'new_image_path' => $imagePath,
-                    'disk' => $disk,
-                ]);
+                // Log::info('News image updated successfully:', [
+                //     'news_id' => $news->id,
+                //     'new_image_path' => $imagePath,
+                // ]);
             } catch (\Exception $e) {
-                \Log::error('Error updating news image: ' . $e->getMessage());
+                // Log::error('Error updating news image: ' . $e->getMessage());
                 return redirect()->back()->with('error', 'Failed to upload image: ' . $e->getMessage())->withInput();
             }
         }
 
         $news->update($data);
 
-        \Log::info('News updated successfully:', [
-            'id' => $news->id,
-            'title' => $news->title,
-        ]);
+        // \Log::info('News updated successfully:', [
+        //     'id' => $news->id,
+        //     'title' => $news->title,
+        // ]);
 
         return redirect()->route('admin.news')->with('success', 'News article updated successfully!');
     }
@@ -155,20 +149,19 @@ class NewsController extends Controller
         try {
             // Delete image if exists
             if ($news->image_path) {
-                $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
-                Storage::disk($disk)->delete($news->image_path);
+                Storage::disk('public')->delete($news->image_path);
             }
             
             $news->delete();
 
-            \Log::info('News deleted successfully:', [
-                'id' => $news->id,
-                'title' => $news->title,
-            ]);
+            // Log::info('News deleted successfully:', [
+            //     'id' => $news->id,
+            //     'title' => $news->title,
+            // ]);
 
             return redirect()->route('admin.news')->with('success', 'News article deleted successfully!');
         } catch (\Exception $e) {
-            \Log::error('Error deleting news: ' . $e->getMessage());
+            // Log::error('Error deleting news: ' . $e->getMessage());
             return redirect()->back()->with('error', 'An error occurred while deleting the news article.');
         }
     }

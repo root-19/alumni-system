@@ -246,6 +246,8 @@ Route::post('/comments/{comment}/like', [CommentController::class, 'like'])->nam
 
     Route::get('/alumni_posts', [AlumniController::class, 'index'])->name('alumni_posts.index');
     Route::post('/alumni_posts', [AlumniController::class, 'store'])->name('alumni_posts.store');
+    Route::put('/alumni_posts/{post}', [AlumniController::class, 'update'])->name('alumni_posts.update');
+    Route::delete('/alumni_posts/{post}', [AlumniController::class, 'destroy'])->name('alumni_posts.destroy');
 
     // Admin Dashboard
     Route::get('/admin/dashboard', function () {
@@ -530,6 +532,8 @@ Route::post('/comments/{comment}/like', [CommentController::class, 'like'])->nam
         // Donation management routes
         Route::patch('/donations/{donation}/status', [DonationController::class, 'updateStatus'])->name('admin.donations.status');
         Route::delete('/donations/{donation}', [DonationController::class, 'destroy'])->name('admin.donations.destroy');
+        Route::post('/donations/reset-yearly', [DonationController::class, 'resetYearly'])->name('admin.donations.reset.yearly');
+        Route::post('/donations/restore-yearly', [DonationController::class, 'restoreYearly'])->name('admin.donations.restore.yearly');
         
         // Review management routes
         Route::post('/reviews/{review}/approve', [ReviewController::class, 'approve'])->name('admin.reviews.approve');

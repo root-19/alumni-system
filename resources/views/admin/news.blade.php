@@ -210,16 +210,23 @@
                             @foreach($news as $item)
                                 <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                                     <div class="flex items-start justify-between">
-                                        <div class="flex-1">
-                                            <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ $item->title }}</h3>
-                                            <p class="text-gray-600 text-sm mb-3">{{ Str::limit(strip_tags($item->content), 150) }}</p>
-                                            <div class="flex items-center gap-4 text-xs text-gray-500">
-                                                <span>Created: {{ $item->created_at->format('M d, Y') }}</span>
-                                                @if($item->image_path)
-                                                    <span class="text-green-600">✓ Has Image</span>
-                                                @else
-                                                    <span class="text-gray-400">No Image</span>
-                                                @endif
+                                        <div class="flex items-start gap-4 flex-1">
+                                            @if($item->image_path)
+                                                <div class="flex-shrink-0">
+                                                    <img src="{{ asset('storage/'.$item->image_path) }}" alt="{{ $item->title }}" class="w-20 h-20 object-cover rounded-lg">
+                                                </div>
+                                            @endif
+                                            <div class="flex-1">
+                                                <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ $item->title }}</h3>
+                                                <p class="text-gray-600 text-sm mb-3">{{ Str::limit(strip_tags($item->content), 150) }}</p>
+                                                <div class="flex items-center gap-4 text-xs text-gray-500">
+                                                    <span>Created: {{ $item->created_at->format('M d, Y') }}</span>
+                                                    @if($item->image_path)
+                                                        <span class="text-green-600">✓ Has Image</span>
+                                                    @else
+                                                        <span class="text-gray-400">No Image</span>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="flex items-center gap-2 ml-4">
@@ -280,21 +287,28 @@
                             @foreach($alumniPosts as $event)
                                 <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                                     <div class="flex items-start justify-between">
-                                        <div class="flex-1">
-                                            <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ $event->title }}</h3>
-                                            <p class="text-gray-600 text-sm mb-3">{{ Str::limit(strip_tags($event->content), 150) }}</p>
-                                            <div class="flex items-center gap-4 text-xs text-gray-500">
-                                                @if($event->event_date)
-                                                    <span>Event: {{ $event->event_date->format('M d, Y') }}</span>
-                                                @endif
-                                                @if($event->location)
-                                                    <span>📍 {{ $event->location }}</span>
-                                                @endif
-                                                @if($event->image_path)
-                                                    <span class="text-green-600">✓ Has Image</span>
-                                                @else
-                                                    <span class="text-gray-400">No Image</span>
-                                                @endif
+                                        <div class="flex items-start gap-4 flex-1">
+                                            @if($event->image_path)
+                                                <div class="flex-shrink-0">
+                                                    <img src="{{ asset('storage/'.$event->image_path) }}" alt="{{ $event->title }}" class="w-20 h-20 object-cover rounded-lg">
+                                                </div>
+                                            @endif
+                                            <div class="flex-1">
+                                                <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ $event->title }}</h3>
+                                                <p class="text-gray-600 text-sm mb-3">{{ Str::limit(strip_tags($event->content), 150) }}</p>
+                                                <div class="flex items-center gap-4 text-xs text-gray-500">
+                                                    @if($event->event_date)
+                                                        <span>Event: {{ is_string($event->event_date) ? \Carbon\Carbon::parse($event->event_date)->format('M d, Y') : $event->event_date->format('M d, Y') }}</span>
+                                                    @endif
+                                                    @if($event->location)
+                                                        <span>📍 {{ $event->location }}</span>
+                                                    @endif
+                                                    @if($event->image_path)
+                                                        <span class="text-green-600">✓ Has Image</span>
+                                                    @else
+                                                        <span class="text-gray-400">No Image</span>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="flex items-center gap-2 ml-4">
