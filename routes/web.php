@@ -740,6 +740,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::patch('/document-requests/{documentRequest}', [DocumentRequestController::class, 'updateStatus'])->name('admin.document-requests.update');
 });
 
+// Redirect assistants who try to access admin routes
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+    Route::get('/document-requests', function () {
+        if (auth()->user()->role === 'assistant') {
+            return redirect()->route('assistant.document-requests.index');
+        }
+        abort(403);
+    })->name('admin.document-requests.redirect');
+});
+
 /*
 |--------------------------------------------------------------------------
 | Storage Symlink Routes (Remove after use!)
