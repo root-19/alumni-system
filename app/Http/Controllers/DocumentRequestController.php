@@ -43,12 +43,25 @@ class DocumentRequestController extends Controller
 
     public function updateStatus(Request $request, DocumentRequest $documentRequest)
     {
-        $validated = $request->validate([
-            'status' => 'required|string|in:Pending,Processing,Approved,Rejected,Completed',
-            'admin_note' => 'nullable|string|max:2000',
-        ]);
-        $documentRequest->update($validated);
-        return back()->with('success', 'Request status updated.');
+        try {
+            $validated = $request->validate([
+                'status' => 'required|string|in:Pending,Processing,Approved,Rejected,Completed',
+                'admin_note' => 'nullable|string|max:2000',
+            ]);
+            
+            $documentRequest->update($validated);
+            return back()->with('success', 'Request status updated.');
+            
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            \Log::error('DocumentRequest update error: ' . $e->getMessage());
+            \Log::error('Request data: ' . json_encode($request->all()));
+            
+            // Return with error message
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Failed to update request: ' . $e->getMessage()]);
+        }
     }
 
     public function show(DocumentRequest $documentRequest)

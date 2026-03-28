@@ -31,6 +31,28 @@
 
         <!-- Main Content -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Error Messages -->
+            @if($errors->any())
+                <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div class="text-red-800">
+                        <h4 class="font-medium">Error:</h4>
+                        <ul class="mt-1 text-sm">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
+            
+            <!-- Success Messages -->
+            @if(session('success'))
+                <div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div class="text-green-800">
+                        <p class="text-sm">{{ session('success') }}</p>
+                    </div>
+                </div>
+            @endif
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -184,10 +206,10 @@
                                         <a href="{{ route('assistant.document-requests.show', $request) }}" class="px-3 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors">
                                             View
                                         </a>
-                                        <form action="{{ route('assistant.document-requests.update', $request) }}" method="POST" class="flex gap-2 items-center">
+                                        <form action="{{ route('assistant.document-requests.update', $request) }}" method="POST" class="flex gap-2 items-center" onsubmit="console.log('Form submitting...'); return true;">
                                             @csrf
                                             @method('PATCH')
-                                            <select name="status" class="text-xs rounded border-gray-300 focus:ring-green-500 focus:border-green-500">
+                                            <select name="status" class="text-xs rounded border-gray-300 focus:ring-green-500 focus:border-green-500" required>
                                                 @foreach(['Pending','Processing','Approved','Rejected','Completed'] as $status)
                                                     <option value="{{ $status }}" @selected($request->status === $status)>{{ $status }}</option>
                                                 @endforeach
