@@ -50,4 +50,10 @@ class DocumentRequestController extends Controller
         $documentRequest->update($validated);
         return back()->with('success', 'Request status updated.');
     }
+
+    public function show(DocumentRequest $documentRequest)
+    {
+        $documentRequest->load('user');
+        return view('assistant.document-request-detail', compact('documentRequest'));
+    }
 }

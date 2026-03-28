@@ -628,6 +628,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/attendance/{registration}', [\App\Http\Controllers\AttendanceController::class, 'destroy'])->name('assistant.attendance.destroy');
         Route::get('/attendance/{post}/stats', [\App\Http\Controllers\AttendanceController::class, 'getEventStats'])->name('assistant.attendance.stats');
         Route::get('/attendance/{post}/export', [\App\Http\Controllers\AttendanceController::class, 'export'])->name('assistant.attendance.export');
+        
+        // Assistant document request management
+        Route::get('/document-requests', [DocumentRequestController::class, 'adminIndex'])->name('assistant.document-requests.index');
+        Route::get('/document-requests/{documentRequest}', [DocumentRequestController::class, 'show'])->name('assistant.document-requests.show');
+        Route::patch('/document-requests/{documentRequest}', [DocumentRequestController::class, 'updateStatus'])->name('assistant.document-requests.update');
     });
 });
 
@@ -731,6 +736,7 @@ Route::middleware(['auth'])->group(function () {
 // Admin Documents management
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/document-requests', [DocumentRequestController::class, 'adminIndex'])->name('admin.document-requests.index');
+    Route::get('/document-requests/{documentRequest}', [DocumentRequestController::class, 'show'])->name('admin.document-requests.show');
     Route::patch('/document-requests/{documentRequest}', [DocumentRequestController::class, 'updateStatus'])->name('admin.document-requests.update');
 });
 

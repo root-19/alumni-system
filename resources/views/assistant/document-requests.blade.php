@@ -180,19 +180,24 @@
                                     <div class="text-xs text-gray-400">{{ $request->created_at->format('h:i A') }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <form action="{{ route('admin.document-requests.update', $request) }}" method="POST" class="flex gap-2 items-center">
-                                        @csrf
-                                        @method('PATCH')
-                                        <select name="status" class="text-xs rounded border-gray-300 focus:ring-green-500 focus:border-green-500">
-                                            @foreach(['Pending','Processing','Approved','Rejected','Completed'] as $status)
-                                                <option value="{{ $status }}" @selected($request->status === $status)>{{ $status }}</option>
-                                            @endforeach
-                                        </select>
-                                        <input name="admin_note" type="text" class="text-xs rounded border-gray-300 focus:ring-green-500 focus:border-green-500" placeholder="Note" value="{{ old('admin_note', $request->admin_note) }}">
-                                        <button type="submit" class="px-3 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700 transition-colors">
-                                            Update
-                                        </button>
-                                    </form>
+                                    <div class="flex gap-2">
+                                        <a href="{{ route('assistant.document-requests.show', $request) }}" class="px-3 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+                                            View
+                                        </a>
+                                        <form action="{{ route('assistant.document-requests.update', $request) }}" method="POST" class="flex gap-2 items-center">
+                                            @csrf
+                                            @method('PATCH')
+                                            <select name="status" class="text-xs rounded border-gray-300 focus:ring-green-500 focus:border-green-500">
+                                                @foreach(['Pending','Processing','Approved','Rejected','Completed'] as $status)
+                                                    <option value="{{ $status }}" @selected($request->status === $status)>{{ $status }}</option>
+                                                @endforeach
+                                            </select>
+                                            <input name="admin_note" type="text" class="text-xs rounded border-gray-300 focus:ring-green-500 focus:border-green-500" placeholder="Note" value="{{ old('admin_note', $request->admin_note) }}">
+                                            <button type="submit" class="px-3 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700 transition-colors">
+                                                Update
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
