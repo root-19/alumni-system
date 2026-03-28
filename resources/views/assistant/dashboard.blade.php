@@ -149,7 +149,7 @@
                                 <span class="text-xs sm:text-sm font-medium text-green-800 text-center">Add User</span>
                             </a>
                             
-                            <a href="{{ route('assistant.document-requests') }}" class="flex flex-col items-center p-3 sm:p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
+                            <a href="{{ route('assistant.document-requests.index') }}" class="flex flex-col items-center p-3 sm:p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
                                 <svg class="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 mb-1 sm:mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
