@@ -734,35 +734,30 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Admin Documents management
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    Route::get('/document-requests', [DocumentRequestController::class, 'adminIndex'])->name('admin.document-requests.index');
-    Route::get('/document-requests/{documentRequest}', [DocumentRequestController::class, 'show'])->name('admin.document-requests.show');
-    Route::patch('/document-requests/{documentRequest}', [DocumentRequestController::class, 'updateStatus'])->name('admin.document-requests.update');
-});
-
-// Handle assistant users accidentally accessing admin routes
 Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/document-requests', function () {
-        if (auth()->user()->role === 'assistant') {
-            return redirect()->route('assistant.document-requests.index');
+        if (auth()->user()->role !== 'admin') {
+            return redirect()->route('assistant.document-requests.index')
+                ->with('info', 'Redirected to assistant dashboard. You can only access assistant routes.');
         }
-        abort(403);
-    });
+        return app()->call([DocumentRequestController::class, 'adminIndex']);
+    })->name('admin.document-requests.index');
     
     Route::get('/document-requests/{documentRequest}', function ($documentRequest) {
-        if (auth()->user()->role === 'assistant') {
-            return redirect()->route('assistant.document-requests.show', $documentRequest);
+        if (auth()->user()->role !== 'admin') {
+            return redirect()->route('assistant.document-requests.show', $documentRequest)
+                ->with('info', 'Redirected to assistant dashboard. You can only access assistant routes.');
         }
-        abort(403);
-    });
+        return app()->call([DocumentRequestController::class, 'show'], ['documentRequest' => $documentRequest]);
+    })->name('admin.document-requests.show');
     
-    Route::patch('/document-requests/{documentRequest}', function ($documentRequest) {
-        if (auth()->user()->role === 'assistant') {
-            // This should not happen normally, but if it does, redirect to assistant update
-            return redirect()->route('assistant.document-requests.update', $documentRequest);
+    Route::patch('/document-requests/{documentRequest}', function ($documentRequest, Request $request) {
+        if (auth()->user()->role !== 'admin') {
+            return redirect()->route('assistant.document-requests.index')
+                ->with('error', 'Please use the assistant dashboard for document requests.');
         }
-        abort(403);
-    });
+        return app()->call([DocumentRequestController::class, 'updateStatus'], ['documentRequest' => $documentRequest, 'request' => $request]);
+    })->name('admin.document-requests.update');
 });
 
 /*

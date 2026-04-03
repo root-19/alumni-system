@@ -206,11 +206,10 @@
                                         <a href="{{ route('assistant.document-requests.show', $request) }}" class="px-3 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors">
                                             View
                                         </a>
-                                        <form action="{{ route('assistant.document-requests.update', $request) }}" method="POST" class="flex gap-2 items-center" onsubmit="console.log('Form submitting to:', '{{ route('assistant.document-requests.update', $request) }}'); console.log('Current URL:', window.location.href); return true;">
+                                        <form action="{{ route('assistant.document-requests.update', $request) }}" method="POST" class="flex gap-2 items-center" onsubmit="console.log('Form submitting to:', '{{ route('assistant.document-requests.update', $request) }}'); return true;">
                                             @csrf
                                             @method('PATCH')
                                             <input type="hidden" name="debug_route" value="{{ route('assistant.document-requests.update', $request) }}">
-                                            <input type="hidden" name="debug_current_url" value="{{ url()->current() }}">
                                             <select name="status" class="text-xs rounded border-gray-300 focus:ring-green-500 focus:border-green-500" required>
                                                 @foreach(['Pending','Processing','Approved','Rejected','Completed'] as $status)
                                                     <option value="{{ $status }}" @selected($request->status === $status)>{{ $status }}</option>
