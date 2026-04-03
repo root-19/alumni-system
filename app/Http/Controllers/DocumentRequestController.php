@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\DocumentRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 class DocumentRequestController extends Controller
@@ -44,37 +43,14 @@ class DocumentRequestController extends Controller
 
     public function updateStatus(Request $request, DocumentRequest $documentRequest)
     {
-        try {
-            // Debug logging
-            \Log::info('DocumentRequest update attempt');
-            \Log::info('User ID: ' . auth()->id());
-            \Log::info('User Role: ' . auth()->user()->role);
-            \Log::info('DocumentRequest ID: ' . $documentRequest->id);
-            \Log::info('Request data: ' . json_encode($request->all()));
-            
-            $validated = $request->validate([
-                'status' => 'required|string|in:Pending,Processing,Approved,Rejected,Completed',
-                'admin_note' => 'nullable|string|max:2000',
-            ]);
-            
-            \Log::info('Validation passed: ' . json_encode($validated));
-            
-            $documentRequest->update($validated);
-            
-            \Log::info('Update successful');
-            
-            return back()->with('success', 'Request status updated.');
-            
-        } catch (\Exception $e) {
-            // Log the error for debugging
-            \Log::error('DocumentRequest update error: ' . $e->getMessage());
-            \Log::error('Request data: ' . json_encode($request->all()));
-            
-            // Return with error message
-            return back()
-                ->withInput()
-                ->withErrors(['error' => 'Failed to update request: ' . $e->getMessage()]);
-        }
+        $validated = $request->validate([
+            'status' => 'required|string|in:Pending,Processing,Approved,Rejected,Completed',
+            'admin_note' => 'nullable|string|max:2000',
+        ]);
+
+        $documentRequest->update($validated);
+
+        return back()->with('success', 'Request status updated.');
     }
 
     public function show(DocumentRequest $documentRequest)
