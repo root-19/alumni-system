@@ -206,21 +206,17 @@
                                         <a href="{{ route('assistant.document-requests.show', $request) }}" class="px-3 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors">
                                             View
                                         </a>
-                                        <form action="{{ route('assistant.document-requests.update', $request) }}" method="POST" class="flex gap-2 items-center" onsubmit="console.log('Form submitting to:', '{{ route('assistant.document-requests.update', $request) }}'); console.log('Form data:', new FormData(this)); return true;">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="hidden" name="debug_route" value="{{ route('assistant.document-requests.update', $request) }}">
-                                            <input type="hidden" name="debug_timestamp" value="{{ now() }}">
-                                            <select name="status" class="text-xs rounded border-gray-300 focus:ring-green-500 focus:border-green-500" required onchange="console.log('Status changed to:', this.value);">
+                                        <div class="flex gap-2 items-center">
+                                            <select name="status" id="status-{{ $request->id }}" class="text-xs rounded border-gray-300 focus:ring-green-500 focus:border-green-500" required>
                                                 @foreach(['Pending','Processing','Approved','Rejected','Completed'] as $status)
                                                     <option value="{{ $status }}" @selected($request->status === $status)>{{ $status }}</option>
                                                 @endforeach
                                             </select>
-                                            <input name="admin_note" type="text" class="text-xs rounded border-gray-300 focus:ring-green-500 focus:border-green-500" placeholder="Note" value="{{ old('admin_note', $request->admin_note) }}" onchange="console.log('Note changed to:', this.value);">
-                                            <button type="submit" class="px-3 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700 transition-colors" onclick="console.log('Save button clicked');">
+                                            <input name="admin_note" id="note-{{ $request->id }}" type="text" class="text-xs rounded border-gray-300 focus:ring-green-500 focus:border-green-500" placeholder="Note" value="{{ $request->admin_note }}">
+                                            <button type="button" class="px-3 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700 transition-colors" onclick="updateRequest({{ $request->id }})">
                                                 Update
                                             </button>
-                                        </form>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -235,4 +231,80 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function updateRequest(requestId) {
+            const status = document.getElementById('status-' + requestId).value;
+            const note = document.getElementById('note-' + requestId).value;
+            const button = event.target;
+            
+            // Show loading state
+            button.disabled = true;
+            button.textContent = 'Saving...';
+            
+            // Get CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                              document.querySelector('input[name="_token"]')?.value;
+            
+            fetch(`/assistant/document-requests/${requestId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'text/html'
+                },
+                body: new URLSearchParams({
+                    '_token': csrfToken,
+                    '_method': 'PATCH',
+                    'status': status,
+                    'admin_note': note
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Show success message
+                    showMessage('Request updated successfully!', 'success');
+                    // Refresh page after a short delay to show updated data
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    throw new Error('Update failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('Failed to update request. Please try again.', 'error');
+                // Reset button
+                button.disabled = false;
+                button.textContent = 'Update';
+            });
+        }
+        
+        function showMessage(message, type) {
+            // Remove existing messages
+            const existingMessages = document.querySelectorAll('.message');
+            existingMessages.forEach(msg => msg.remove());
+            
+            // Create new message element
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 
+                'bg-red-100 text-red-800 border border-red-200'
+            }`;
+            messageDiv.innerHTML = `
+                <div class="flex items-center">
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg">&times;</button>
+                </div>
+            `;
+            
+            document.body.appendChild(messageDiv);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+    </script>
 </x-layouts.app>
