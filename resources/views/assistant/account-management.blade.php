@@ -234,13 +234,6 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">{{ $user->email }}</div>
-                                    <div class="text-sm text-gray-500">
-                                        @if($user->email_verified_at)
-                                            <span class="text-green-600">Verified</span>
-                                        @else
-                                            <span class="text-red-600">Unverified</span>
-                                        @endif
-                                    </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -309,10 +302,6 @@
                         <input id="editLastName" type="text" class="w-full text-black text-sm rounded-md border-gray-300 focus:ring-green-500 focus:border-green-500">
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Email</label>
-                    <input id="editEmail" type="email" class="w-full text-black text-sm rounded-md border-gray-300 focus:ring-green-500 focus:border-green-500">
-                </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-gray-700 mb-1">Program</label>
@@ -320,7 +309,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-700 mb-1">Year Graduated</label>
-                        <input id="editYear" type="text" class="w-full text-black text-sm rounded-md border-gray-300 focus:ring-green-500 focus:border-green-500">
+                        <input id="editYear" type="number" min="1900" max="2100" class="w-full text-black text-sm rounded-md border-gray-300 focus:ring-green-500 focus:border-green-500">
                     </div>
                 </div>
                 <div>
@@ -403,9 +392,8 @@
                 body: JSON.stringify({
                     name: document.getElementById('editName').value,
                     last_name: document.getElementById('editLastName').value,
-                    email: document.getElementById('editEmail').value,
                     program: document.getElementById('editProgram').value,
-                    year_graduated: document.getElementById('editYear').value,
+                    year_graduated: document.getElementById('editYear').value || null,
                     contact_number: document.getElementById('editContact').value,
                 })
             })
@@ -416,8 +404,13 @@
                     showToast('Account updated successfully!', 'success');
                     setTimeout(() => location.reload(), 1000);
                 } else {
-                    showToast('Failed to update account.', 'error');
+                    const msg = data.message || (data.errors ? Object.values(data.errors).flat().join(', ') : 'Failed to update account.');
+                    showToast(msg, 'error');
                 }
+            })
+            .catch(err => {
+                showToast('Server error. Please try again.', 'error');
+                console.error(err);
             });
         }
 

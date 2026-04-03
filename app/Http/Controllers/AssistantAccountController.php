@@ -14,18 +14,23 @@ class AssistantAccountController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $validated = $request->validate([
-            'name'           => 'required|string|max:255',
-            'last_name'      => 'nullable|string|max:255',
-            'email'          => 'required|email|unique:users,email,' . $user->id,
-            'program'        => 'nullable|string|max:255',
-            'year_graduated' => 'nullable|string|max:10',
-            'contact_number' => 'nullable|string|max:20',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name'           => 'required|string|max:255',
+                'last_name'      => 'nullable|string|max:255',
+                'program'        => 'nullable|string|max:255',
+                'year_graduated' => 'nullable|integer|min:1900|max:2100',
+                'contact_number' => 'nullable|string|max:20',
+            ]);
 
-        $user->update($validated);
+            $user->update($validated);
 
-        return response()->json(['success' => true, 'user' => $user->fresh()]);
+            return response()->json(['success' => true, 'user' => $user->fresh()]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['success' => false, 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 
     public function deactivate(User $user)
