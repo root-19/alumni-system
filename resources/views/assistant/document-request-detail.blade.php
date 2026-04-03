@@ -135,7 +135,7 @@
                                 <div class="space-y-4">
                                     <div>
                                         <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                                        <select name="status" id="status" class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                                        <select name="status" id="status" class="w-full text-black bg-white rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
                                             @foreach(['Pending','Processing','Approved','Rejected','Completed'] as $status)
                                                 <option value="{{ $status }}" @selected($documentRequest->status === $status)>{{ $status }}</option>
                                             @endforeach
@@ -144,7 +144,7 @@
 
                                     <div>
                                         <label for="admin_note" class="block text-sm font-medium text-gray-700 mb-2">Admin Note</label>
-                                        <textarea name="admin_note" id="admin_note" rows="4" class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="Add a note about this status update...">{{ old('admin_note', $documentRequest->admin_note) }}</textarea>
+                                        <textarea name="admin_note" id="admin_note" rows="4" class="w-full text-black bg-white rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="Add a note about this status update...">{{ old('admin_note', $documentRequest->admin_note) }}</textarea>
                                     </div>
 
                                     <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors font-medium">
