@@ -44,18 +44,30 @@ class DocumentRequestController extends Controller
     public function updateStatus(Request $request, DocumentRequest $documentRequest)
     {
         try {
+            // Debug logging
+            \Log::info('DocumentRequest updateStatus called');
+            \Log::info('User: ' . (auth()->check() ? auth()->user()->email : 'not authenticated'));
+            \Log::info('User role: ' . (auth()->check() ? auth()->user()->role : 'N/A'));
+            \Log::info('Request URL: ' . $request->url());
+            \Log::info('Request method: ' . $request->method());
+            \Log::info('DocumentRequest ID: ' . $documentRequest->id);
+            
             $validated = $request->validate([
                 'status' => 'required|string|in:Pending,Processing,Approved,Rejected,Completed',
                 'admin_note' => 'nullable|string|max:2000',
             ]);
             
             $documentRequest->update($validated);
+            
+            \Log::info('DocumentRequest updated successfully');
+            
             return back()->with('success', 'Request status updated.');
             
         } catch (\Exception $e) {
             // Log the error for debugging
             \Log::error('DocumentRequest update error: ' . $e->getMessage());
             \Log::error('Request data: ' . json_encode($request->all()));
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
             
             // Return with error message
             return back()

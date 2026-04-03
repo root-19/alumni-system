@@ -740,6 +740,31 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::patch('/document-requests/{documentRequest}', [DocumentRequestController::class, 'updateStatus'])->name('admin.document-requests.update');
 });
 
+// Handle assistant users accidentally accessing admin routes
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+    Route::get('/document-requests', function () {
+        if (auth()->user()->role === 'assistant') {
+            return redirect()->route('assistant.document-requests.index');
+        }
+        abort(403);
+    });
+    
+    Route::get('/document-requests/{documentRequest}', function ($documentRequest) {
+        if (auth()->user()->role === 'assistant') {
+            return redirect()->route('assistant.document-requests.show', $documentRequest);
+        }
+        abort(403);
+    });
+    
+    Route::patch('/document-requests/{documentRequest}', function ($documentRequest) {
+        if (auth()->user()->role === 'assistant') {
+            // This should not happen normally, but if it does, redirect to assistant update
+            return redirect()->route('assistant.document-requests.update', $documentRequest);
+        }
+        abort(403);
+    });
+});
+
 /*
 |--------------------------------------------------------------------------
 | Storage Symlink Routes (Remove after use!)
