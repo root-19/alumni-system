@@ -358,7 +358,6 @@
                         <div class="bg-gray-50 rounded p-2"><span class="text-gray-500">Year Graduated</span><p class="font-medium text-gray-900 mt-0.5">${u.year_graduated || '—'}</p></div>
                         <div class="bg-gray-50 rounded p-2"><span class="text-gray-500">Contact</span><p class="font-medium text-gray-900 mt-0.5">${u.contact_number || '—'}</p></div>
                         <div class="bg-gray-50 rounded p-2"><span class="text-gray-500">Status</span><p class="font-medium text-gray-900 mt-0.5">${u.status || 'Active'}</p></div>
-                        <div class="bg-gray-50 rounded p-2 col-span-2"><span class="text-gray-500">Email Verified</span><p class="font-medium mt-0.5 ${u.email_verified_at ? 'text-green-600' : 'text-red-600'}">${u.email_verified_at ? 'Verified' : 'Not Verified'}</p></div>
                     </div>
                 `;
             })
