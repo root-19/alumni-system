@@ -188,7 +188,7 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    <span class="status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                         @if($request->status === 'Pending') bg-yellow-100 text-yellow-800
                                         @elseif($request->status === 'Processing') bg-blue-100 text-blue-800
                                         @elseif($request->status === 'Approved') bg-green-100 text-green-800
@@ -196,6 +196,9 @@
                                         @else bg-red-100 text-red-800 @endif">
                                         {{ $request->status }}
                                     </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="note-display">{{ $request->admin_note ?? '—' }}</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $request->created_at->format('M d, Y') }}
@@ -237,74 +240,75 @@
             const status = document.getElementById('status-' + requestId).value;
             const note = document.getElementById('note-' + requestId).value;
             const button = event.target;
-            
-            // Show loading state
+
             button.disabled = true;
             button.textContent = 'Saving...';
-            
-            // Get CSRF token
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
-                              document.querySelector('input[name="_token"]')?.value;
-            
-            fetch(`/assistant/document-requests/${requestId}`, {
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            const updateUrl = '{{ url("/assistant/document-requests") }}/' + requestId;
+            fetch(updateUrl, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'text/html'
+                    'Accept': 'application/json',
                 },
-                body: new URLSearchParams({
-                    '_token': csrfToken,
-                    '_method': 'PATCH',
-                    'status': status,
-                    'admin_note': note
+                body: JSON.stringify({
+                    status: status,
+                    admin_note: note,
                 })
             })
-            .then(response => {
-                if (response.ok) {
-                    // Show success message
-                    showMessage('Request updated successfully!', 'success');
-                    // Refresh page after a short delay to show updated data
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the status badge in the table row directly
+                    const row = button.closest('tr');
+                    const statusCell = row.querySelector('.status-badge');
+                    if (statusCell) {
+                        statusCell.textContent = data.status;
+                        statusCell.className = 'status-badge px-2 py-1 text-xs font-semibold rounded-full ' + getStatusClass(data.status);
+                    }
+                    // Update the note display
+                    const noteCell = row.querySelector('.note-display');
+                    if (noteCell) {
+                        noteCell.textContent = data.admin_note || '—';
+                    }
+                    showMessage('Updated to "' + data.status + '" successfully!', 'success');
                 } else {
-                    throw new Error('Update failed');
+                    showMessage('Failed to update. Please try again.', 'error');
                 }
+                button.disabled = false;
+                button.textContent = 'Update';
             })
             .catch(error => {
                 console.error('Error:', error);
                 showMessage('Failed to update request. Please try again.', 'error');
-                // Reset button
                 button.disabled = false;
                 button.textContent = 'Update';
             });
         }
-        
+
+        function getStatusClass(status) {
+            const classes = {
+                'Pending':    'bg-yellow-100 text-yellow-800',
+                'Processing': 'bg-blue-100 text-blue-800',
+                'Approved':   'bg-green-100 text-green-800',
+                'Rejected':   'bg-red-100 text-red-800',
+                'Completed':  'bg-gray-100 text-gray-800',
+            };
+            return classes[status] || 'bg-gray-100 text-gray-800';
+        }
+
         function showMessage(message, type) {
-            // Remove existing messages
-            const existingMessages = document.querySelectorAll('.message');
-            existingMessages.forEach(msg => msg.remove());
-            
-            // Create new message element
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
-                type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 
-                'bg-red-100 text-red-800 border border-red-200'
+            document.querySelectorAll('.toast-msg').forEach(el => el.remove());
+            const div = document.createElement('div');
+            div.className = `toast-msg fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 flex items-center gap-3 ${
+                type === 'success' ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300'
             }`;
-            messageDiv.innerHTML = `
-                <div class="flex items-center">
-                    <span>${message}</span>
-                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-lg">&times;</button>
-                </div>
-            `;
-            
-            document.body.appendChild(messageDiv);
-            
-            // Auto-remove after 5 seconds
-            setTimeout(() => {
-                messageDiv.remove();
-            }, 5000);
+            div.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" class="ml-2 font-bold text-lg leading-none">&times;</button>`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 4000);
         }
     </script>
 </x-layouts.app>

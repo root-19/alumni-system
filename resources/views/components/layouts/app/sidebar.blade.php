@@ -1,12 +1,3 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
-<head>
-    @include('partials.head')
-    @vite('resources/css/app.css')
-</head>
-
-<body class="min-h-screen bg-gradient-to-br from-emerald-950 via-emerald-900 to-green-900 text-emerald-50">
-
 <flux:sidebar sticky stashable mobile class="hidden lg:flex bg-gradient-to-b from-emerald-950 to-emerald-800 text-emerald-50" style="z-index: 9999;">
 
     <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
@@ -196,10 +187,3 @@
 
 </flux:sidebar>
 
-<flux:main>
-    {{ $slot }}
-</flux:main>
-
-@fluxScripts
-</body>
-</html>

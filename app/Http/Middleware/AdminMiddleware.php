@@ -18,7 +18,12 @@ class AdminMiddleware
         if(auth()->check() && auth()->user()->isAdmin()) { 
             return $next($request);
         }
+
+        if (auth()->check() && auth()->user()->role === 'assistant') {
+            return redirect()->route('assistant.document-requests.index');
+        }
+
         abort(403, 'Unauthorized');
-}
+    }
 
 }

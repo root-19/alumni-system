@@ -615,7 +615,6 @@ Route::middleware(['auth'])->group(function () {
 */
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/assistant/dashboard', fn() => view('assistant.dashboard'))->name('assistant.dashboard');
-    Route::get('/assistant/document-requests', fn() => view('assistant.document-requests'))->name('assistant.document-requests');
     Route::get('/assistant/account-management', fn() => view('assistant.account-management'))->name('assistant.account-management');
     Route::get('/assistant/helpdesk', fn() => view('assistant.helpdesk'))->name('assistant.helpdesk');
     
@@ -734,30 +733,10 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Admin Documents management
-Route::middleware(['auth'])->prefix('admin')->group(function () {
-    Route::get('/document-requests', function () {
-        if (auth()->user()->role !== 'admin') {
-            return redirect()->route('assistant.document-requests.index')
-                ->with('info', 'Redirected to assistant dashboard. You can only access assistant routes.');
-        }
-        return app()->call([DocumentRequestController::class, 'adminIndex']);
-    })->name('admin.document-requests.index');
-    
-    Route::get('/document-requests/{documentRequest}', function ($documentRequest) {
-        if (auth()->user()->role !== 'admin') {
-            return redirect()->route('assistant.document-requests.show', $documentRequest)
-                ->with('info', 'Redirected to assistant dashboard. You can only access assistant routes.');
-        }
-        return app()->call([DocumentRequestController::class, 'show'], ['documentRequest' => $documentRequest]);
-    })->name('admin.document-requests.show');
-    
-    Route::patch('/document-requests/{documentRequest}', function ($documentRequest, Request $request) {
-        if (auth()->user()->role !== 'admin') {
-            return redirect()->route('assistant.document-requests.index')
-                ->with('error', 'Please use the assistant dashboard for document requests.');
-        }
-        return app()->call([DocumentRequestController::class, 'updateStatus'], ['documentRequest' => $documentRequest, 'request' => $request]);
-    })->name('admin.document-requests.update');
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/document-requests', [DocumentRequestController::class, 'adminIndex'])->name('admin.document-requests.index');
+    Route::get('/document-requests/{documentRequest}', [DocumentRequestController::class, 'show'])->name('admin.document-requests.show');
+    Route::patch('/document-requests/{documentRequest}', [DocumentRequestController::class, 'updateStatus'])->name('admin.document-requests.update');
 });
 
 /*

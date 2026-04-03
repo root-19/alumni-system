@@ -38,6 +38,11 @@ class DocumentRequestController extends Controller
     public function adminIndex()
     {
         $requests = DocumentRequest::with('user')->latest()->paginate(20);
+
+        if (auth()->user()->role === 'assistant') {
+            return view('assistant.document-requests', compact('requests'));
+        }
+
         return view('admin.document-requests', compact('requests'));
     }
 
@@ -49,6 +54,15 @@ class DocumentRequestController extends Controller
         ]);
 
         $documentRequest->update($validated);
+        $documentRequest->refresh();
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'status' => $documentRequest->status,
+                'admin_note' => $documentRequest->admin_note,
+            ]);
+        }
 
         return back()->with('success', 'Request status updated.');
     }
