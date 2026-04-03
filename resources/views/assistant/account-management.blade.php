@@ -257,9 +257,11 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
-                                        <button class="text-green-600 hover:text-green-900 text-xs">Edit</button>
-                                        <button class="text-blue-600 hover:text-blue-900 text-xs">View</button>
-                                        <button class="text-red-600 hover:text-red-900 text-xs">Deactivate</button>
+                                        <button onclick="openView({{ $user->id }})" class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700 hover:bg-blue-200 transition">View</button>
+                                        <button onclick="openEdit({{ $user->id }})" class="px-2 py-1 text-xs rounded bg-green-100 text-green-700 hover:bg-green-200 transition">Edit</button>
+                                        <button onclick="toggleDeactivate({{ $user->id }}, this)" class="px-2 py-1 text-xs rounded {{ ($user->status ?? 'Active') === 'Inactive' ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200' }} transition">
+                                            {{ ($user->status ?? 'Active') === 'Inactive' ? 'Activate' : 'Deactivate' }}
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -274,4 +276,181 @@
             </div>
         </div>
     </div>
+
+    {{-- VIEW MODAL --}}
+    <div id="viewModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Account Details</h3>
+                <button onclick="closeModal('viewModal')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+            </div>
+            <div id="viewContent" class="space-y-3 text-sm text-gray-700">
+                <p class="text-center text-gray-400">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    {{-- EDIT MODAL --}}
+    <div id="editModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Edit Account</h3>
+                <button onclick="closeModal('editModal')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+            </div>
+            <form id="editForm" class="space-y-3">
+                <input type="hidden" id="editUserId">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">First Name</label>
+                        <input id="editName" type="text" class="w-full text-black text-sm rounded-md border-gray-300 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Last Name</label>
+                        <input id="editLastName" type="text" class="w-full text-black text-sm rounded-md border-gray-300 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Email</label>
+                    <input id="editEmail" type="email" class="w-full text-black text-sm rounded-md border-gray-300 focus:ring-green-500 focus:border-green-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Program</label>
+                        <input id="editProgram" type="text" class="w-full text-black text-sm rounded-md border-gray-300 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Year Graduated</label>
+                        <input id="editYear" type="text" class="w-full text-black text-sm rounded-md border-gray-300 focus:ring-green-500 focus:border-green-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Contact Number</label>
+                    <input id="editContact" type="text" class="w-full text-black text-sm rounded-md border-gray-300 focus:ring-green-500 focus:border-green-500">
+                </div>
+                <button type="button" onclick="submitEdit()" class="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 text-sm font-medium transition">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const baseUrl = '{{ url("/assistant/accounts") }}';
+
+        function openModal(id) {
+            const m = document.getElementById(id);
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+
+        function closeModal(id) {
+            const m = document.getElementById(id);
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+        }
+
+        function openView(userId) {
+            document.getElementById('viewContent').innerHTML = '<p class="text-center text-gray-400">Loading...</p>';
+            openModal('viewModal');
+            fetch(`${baseUrl}/${userId}`, {
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
+            })
+            .then(r => r.json())
+            .then(u => {
+                document.getElementById('viewContent').innerHTML = `
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center text-white font-bold text-lg">${(u.name || '?')[0]}</div>
+                        <div>
+                            <p class="font-semibold text-gray-900">${u.name || ''} ${u.last_name || ''}</p>
+                            <p class="text-xs text-gray-500">${u.email || ''}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="bg-gray-50 rounded p-2"><span class="text-gray-500">Program</span><p class="font-medium text-gray-900 mt-0.5">${u.program || '—'}</p></div>
+                        <div class="bg-gray-50 rounded p-2"><span class="text-gray-500">Year Graduated</span><p class="font-medium text-gray-900 mt-0.5">${u.year_graduated || '—'}</p></div>
+                        <div class="bg-gray-50 rounded p-2"><span class="text-gray-500">Contact</span><p class="font-medium text-gray-900 mt-0.5">${u.contact_number || '—'}</p></div>
+                        <div class="bg-gray-50 rounded p-2"><span class="text-gray-500">Status</span><p class="font-medium text-gray-900 mt-0.5">${u.status || 'Active'}</p></div>
+                        <div class="bg-gray-50 rounded p-2 col-span-2"><span class="text-gray-500">Email Verified</span><p class="font-medium mt-0.5 ${u.email_verified_at ? 'text-green-600' : 'text-red-600'}">${u.email_verified_at ? 'Verified' : 'Not Verified'}</p></div>
+                    </div>
+                `;
+            })
+            .catch(() => {
+                document.getElementById('viewContent').innerHTML = '<p class="text-red-500 text-center">Failed to load user data.</p>';
+            });
+        }
+
+        function openEdit(userId) {
+            openModal('editModal');
+            fetch(`${baseUrl}/${userId}`, {
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
+            })
+            .then(r => r.json())
+            .then(u => {
+                document.getElementById('editUserId').value = u.id;
+                document.getElementById('editName').value = u.name || '';
+                document.getElementById('editLastName').value = u.last_name || '';
+                document.getElementById('editEmail').value = u.email || '';
+                document.getElementById('editProgram').value = u.program || '';
+                document.getElementById('editYear').value = u.year_graduated || '';
+                document.getElementById('editContact').value = u.contact_number || '';
+            });
+        }
+
+        function submitEdit() {
+            const userId = document.getElementById('editUserId').value;
+            fetch(`${baseUrl}/${userId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({
+                    name: document.getElementById('editName').value,
+                    last_name: document.getElementById('editLastName').value,
+                    email: document.getElementById('editEmail').value,
+                    program: document.getElementById('editProgram').value,
+                    year_graduated: document.getElementById('editYear').value,
+                    contact_number: document.getElementById('editContact').value,
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal('editModal');
+                    showToast('Account updated successfully!', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast('Failed to update account.', 'error');
+                }
+            });
+        }
+
+        function toggleDeactivate(userId, btn) {
+            fetch(`${baseUrl}/${userId}/deactivate`, {
+                method: 'PATCH',
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const isInactive = data.status === 'Inactive';
+                    btn.textContent = isInactive ? 'Activate' : 'Deactivate';
+                    btn.className = `px-2 py-1 text-xs rounded transition ${isInactive ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200'}`;
+                    showToast(`Account ${data.status.toLowerCase()} successfully!`, 'success');
+                }
+            });
+        }
+
+        function showToast(message, type) {
+            document.querySelectorAll('.toast-msg').forEach(el => el.remove());
+            const div = document.createElement('div');
+            div.className = `toast-msg fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 flex items-center gap-3 ${type === 'success' ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300'}`;
+            div.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" class="ml-2 font-bold text-lg">&times;</button>`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 4000);
+        }
+
+        // Close modals on backdrop click
+        ['viewModal', 'editModal'].forEach(id => {
+            document.getElementById(id).addEventListener('click', function(e) {
+                if (e.target === this) closeModal(id);
+            });
+        });
+    </script>
 </x-layouts.app>

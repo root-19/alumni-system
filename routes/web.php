@@ -632,6 +632,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/document-requests', [DocumentRequestController::class, 'adminIndex'])->name('assistant.document-requests.index');
         Route::get('/document-requests/{documentRequest}', [DocumentRequestController::class, 'show'])->name('assistant.document-requests.show');
         Route::patch('/document-requests/{documentRequest}', [DocumentRequestController::class, 'updateStatus'])->name('assistant.document-requests.update');
+
+        // Assistant account management
+        Route::get('/accounts/{user}', [\App\Http\Controllers\AssistantAccountController::class, 'show'])->name('assistant.accounts.show');
+        Route::patch('/accounts/{user}', [\App\Http\Controllers\AssistantAccountController::class, 'update'])->name('assistant.accounts.update');
+        Route::patch('/accounts/{user}/deactivate', [\App\Http\Controllers\AssistantAccountController::class, 'deactivate'])->name('assistant.accounts.deactivate');
     });
 });
 
