@@ -206,17 +206,18 @@
                                         <a href="{{ route('assistant.document-requests.show', $request) }}" class="px-3 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors">
                                             View
                                         </a>
-                                        <form action="{{ route('assistant.document-requests.update', $request) }}" method="POST" class="flex gap-2 items-center" onsubmit="console.log('Form submitting to:', '{{ route('assistant.document-requests.update', $request) }}'); return true;">
+                                        <form action="{{ route('assistant.document-requests.update', $request) }}" method="POST" class="flex gap-2 items-center" onsubmit="console.log('Form submitting to:', '{{ route('assistant.document-requests.update', $request) }}'); console.log('Form data:', new FormData(this)); return true;">
                                             @csrf
                                             @method('PATCH')
                                             <input type="hidden" name="debug_route" value="{{ route('assistant.document-requests.update', $request) }}">
-                                            <select name="status" class="text-xs rounded border-gray-300 focus:ring-green-500 focus:border-green-500" required>
+                                            <input type="hidden" name="debug_timestamp" value="{{ now() }}">
+                                            <select name="status" class="text-xs rounded border-gray-300 focus:ring-green-500 focus:border-green-500" required onchange="console.log('Status changed to:', this.value);">
                                                 @foreach(['Pending','Processing','Approved','Rejected','Completed'] as $status)
                                                     <option value="{{ $status }}" @selected($request->status === $status)>{{ $status }}</option>
                                                 @endforeach
                                             </select>
-                                            <input name="admin_note" type="text" class="text-xs rounded border-gray-300 focus:ring-green-500 focus:border-green-500" placeholder="Note" value="{{ old('admin_note', $request->admin_note) }}">
-                                            <button type="submit" class="px-3 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700 transition-colors">
+                                            <input name="admin_note" type="text" class="text-xs rounded border-gray-300 focus:ring-green-500 focus:border-green-500" placeholder="Note" value="{{ old('admin_note', $request->admin_note) }}" onchange="console.log('Note changed to:', this.value);">
+                                            <button type="submit" class="px-3 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700 transition-colors" onclick="console.log('Save button clicked');">
                                                 Update
                                             </button>
                                         </form>

@@ -44,12 +44,24 @@ class DocumentRequestController extends Controller
     public function updateStatus(Request $request, DocumentRequest $documentRequest)
     {
         try {
+            // Debug logging
+            \Log::info('DocumentRequest update attempt');
+            \Log::info('User ID: ' . auth()->id());
+            \Log::info('User Role: ' . auth()->user()->role);
+            \Log::info('DocumentRequest ID: ' . $documentRequest->id);
+            \Log::info('Request data: ' . json_encode($request->all()));
+            
             $validated = $request->validate([
                 'status' => 'required|string|in:Pending,Processing,Approved,Rejected,Completed',
                 'admin_note' => 'nullable|string|max:2000',
             ]);
             
+            \Log::info('Validation passed: ' . json_encode($validated));
+            
             $documentRequest->update($validated);
+            
+            \Log::info('Update successful');
+            
             return back()->with('success', 'Request status updated.');
             
         } catch (\Exception $e) {
