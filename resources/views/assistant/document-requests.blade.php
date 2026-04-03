@@ -210,7 +210,7 @@
                                             View
                                         </a>
                                         <div class="flex gap-2 items-center">
-                                            <select name="status" id="status-{{ $request->id }}" class="text-xs text-black rounded border-gray-300 focus:ring-green-500 focus:border-green-500" required>
+                                            <select name="status" id="status-{{ $request->id }}" class="text-xs text-black bg-white rounded border-gray-300 focus:ring-green-500 focus:border-green-500" required>
                                                 @foreach(['Pending','Processing','Approved','Rejected','Completed'] as $status)
                                                     <option value="{{ $status }}" @selected($request->status === $status)>{{ $status }}</option>
                                                 @endforeach
